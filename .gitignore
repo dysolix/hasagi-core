@@ -1,0 +1,6 @@
+node_modules
+dist
+/lcu-schema-gen/*.js
+/lcu-schema-gen/out/*
+!/lcu-schema-gen/out/.gitkeep
+!tsconfig.json
