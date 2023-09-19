@@ -10,7 +10,9 @@
   },
   "author": "dysolix",
   "license": "MIT",
-  "keywords": ["hasagi"],
+  "keywords": [
+    "hasagi"
+  ],
   "dependencies": {
     "axios": "^1.4.0",
     "find-process": "^1.4.7",
@@ -27,5 +29,9 @@
     ".": "./index.js"
   },
   "types": "./index.d.ts",
-  "type": "module"
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dysolix/hasagi-core.git"
+  }
 }
