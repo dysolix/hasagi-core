@@ -1,4 +1,4 @@
-import { LCUWebSocketEvents } from "./types/lcu-events";
+import { LCUWebSocketEvents } from "@hasagi/types";
 
 export type LCUEventListener<EventName extends string = string> = {
 	/** If present, the callback will only be called if the event's path matches */
@@ -33,7 +33,3 @@ export interface HasagiEvents {
 	"disconnected": () => void,
 	"lcu-event":<EventName extends keyof LCUWebSocketEvents = "OnJsonApiEvent">(event: [opcode: number, name: EventName, data: LCUWebSocketEvents[EventName]]) => void
 }
-
-export * from "./types/lcu-types";
-export * from "./types/lcu-endpoints";
-export * from "./types/lcu-events";

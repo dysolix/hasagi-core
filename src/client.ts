@@ -2,13 +2,13 @@ import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } f
 import { Agent } from "https";
 import { WebSocket } from "ws";
 import { delay, getPortAndBasicAuthToken } from "./util.js";
-import { ConnectionOptions, EndpointsWithMethod, HasagiEvents, HttpMethod, LCUEndpointResponseType, LCUEventListener, LCUWebSocketEvents } from "./types";
+import { ConnectionOptions, HasagiEvents, LCUEventListener } from "./types";
 import waitOn from "wait-on";
-import { LCUEndpoint } from "./types.js";
 import RequestError from "./request-error.js";
 import { TypedEmitter } from "tiny-typed-emitter";
+import { LCUEndpoint, LCUEndpointResponseType, LCUWebSocketEvents, HttpMethod, EndpointsWithMethod } from "@hasagi/types"
 
-export default class HasagiLiteClient extends TypedEmitter<HasagiEvents> {
+export default class HasagiClient extends TypedEmitter<HasagiEvents> {
     private isConnected: boolean = false;
     private port: number | null = null;
     private basicAuthToken: string | null = null;
@@ -28,10 +28,10 @@ export default class HasagiLiteClient extends TypedEmitter<HasagiEvents> {
      * @throws {RequestError} 
     */
     // @ts-ignore
-    buildRequest<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>, ParameterTypes extends any[] = Parameters<LCUEndpoint<Method, Path>>, ResponseType = LCUEndpointResponseType<Method, Path>>(method: Method, path: Path, options?: { transformResponse?: (response: Awaited<ReturnType<LCUEndpoint<Method, Path>>>) => ResponseType; transformParameters?: (...args: ParameterTypes) => Readonly<Parameters<LCUEndpoint<Method, Path>>> }): (...args: ParameterTypes) => Promise<ResponseType> {
+    buildRequest<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>, ParameterTypes extends any[] = Parameters<LCUEndpoint<Method, Path>>, ResponseType = LCUEndpointResponseType<Method, Path>>(method: Method, path: Path, options?: { transformResponse?: (response: Awaited<ReturnType<LCUEndpoint<Method, Path>>>) => ResponseType; transformParameters?: (...args: ParameterTypes) => Readonly<Parameters<LCUEndpoint<Method, Path>>> | Promise<Readonly<Parameters<LCUEndpoint<Method, Path>>>> }): (...args: ParameterTypes) => Promise<ResponseType> {
         const callableEndpoint = async (...args: any) => {
             if (options?.transformParameters)
-                args = options.transformParameters(...args);
+                args = await options.transformParameters(...args);
 
             const pathParams = path.match(/{(.*?)}/g)?.map(str => str.substring(1, str.length - 1)) ?? [];
             let i = 0;
@@ -63,6 +63,9 @@ export default class HasagiLiteClient extends TypedEmitter<HasagiEvents> {
 
     private subscribeWebSocketEvent = (eventName: string) => {
         if (this.subscribedEvents.has(eventName))
+            return;
+
+        if(eventName === "OnJsonApiEvent")
             return;
 
         this.subscribedEvents.add(eventName);
@@ -200,7 +203,7 @@ export default class HasagiLiteClient extends TypedEmitter<HasagiEvents> {
         if (this.lcuAxiosInstance === null)
             throw new Error("Hasagi is not connected to the League of Legends client.");
 
-        const axiosResponse = await this.lcuAxiosInstance.request(config);
+        const axiosResponse = await this.lcuAxiosInstance.request(config).catch(err => { throw new RequestError(err) });
         if (config.returnFullAxiosResponse)
             return axiosResponse;
 
@@ -270,7 +273,7 @@ export default class HasagiLiteClient extends TypedEmitter<HasagiEvents> {
         const name = event[1];
 
         this.lcuEventListeners.filter(listener => {
-            if (listener.path && (typeof listener.path === "string" ? uri === listener.path : listener.path.test(uri)))
+            if (listener.path && (typeof listener.path === "string" ? uri !== listener.path : !listener.path.test(uri)))
                 return false;
 
             if (listener.types && !listener.types.includes(eventType as any))
