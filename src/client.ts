@@ -2,14 +2,13 @@ import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } f
 import { Agent } from "https";
 import { WebSocket } from "ws";
 import { delay, getPortAndBasicAuthToken } from "./util.js";
-import { ConnectionOptions, HasagiEvents, LCUEventListener } from "./types";
 import waitOn from "wait-on";
 import RequestError from "./request-error.js";
 import { TypedEmitter } from "tiny-typed-emitter";
-import { LCUEndpoint, LCUEndpointResponseType, LCUWebSocketEvents, HttpMethod, EndpointsWithMethod } from "@hasagi/types"
+import { LCUEndpoint, LCUEndpointResponseType, LCUWebSocketEvents, HttpMethod, EndpointsWithMethod, ConnectionOptions, HasagiEvents, LCUEventListener } from "./index"
 
 export default class HasagiClient extends TypedEmitter<HasagiEvents> {
-    private isConnected: boolean = false;
+    public isConnected: boolean = false;
     private port: number | null = null;
     private basicAuthToken: string | null = null;
     private lcuAxiosInstance: AxiosInstance | null = null;
@@ -37,16 +36,19 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
             let i = 0;
             let requestPath = path;
             for (const param of pathParams)
-                requestPath.replace(`{${param}}`, args[i++]);
+                requestPath = requestPath.replace(`{${param}}`, args[i++]) as any;
 
             const body = args[i];
 
             const lcuResponse = await this.request({
                 method,
-                url: path,
+                url: requestPath,
                 data: method !== "get" ? body : undefined,
-                params: method === "get" ? body : undefined
-            }).then(res => res, err => { throw new RequestError(err) });
+                params: method === "get" ? body : undefined,
+                headers: {
+                    "Content-Type": body !== undefined && method !== "get" ? "application/json" : undefined
+                },
+            });
 
             if (options?.transformResponse)
                 return options.transformResponse(lcuResponse as any);
@@ -126,12 +128,12 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
             if (err instanceof AxiosError) {
                 if (err.code === "ECONNREFUSED") {
                     if (this.webSocket === null) {
-                        this._onDisconnected();
+                        this.onDisconnected();
                     }
                 }
             }
 
-            return err;
+            throw err;
         })
 
         if (useWebSocket) {
@@ -146,17 +148,17 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
 
                 this.webSocket!.send(JSON.stringify([5, "OnJsonApiEvent"]));
                 resolve();
-                this._onConnected();
+                this.onConnected();
             }
 
             this.webSocket.onclose = (ev) => {
-                this._onDisconnected();
+                this.onDisconnected();
             }
 
             this.webSocket.onmessage = (ev) => {
                 try {
                     let data = JSON.parse(ev.data.toString('utf8'));
-                    if (data.length == 3) this.handleLCUEvent(data as [opcode: number, name: keyof LCUWebSocketEvents, data: LCUWebSocketEvents[string]]); // [opcode: number, name: string, data: { eventType: string; uri: string; data: any; }]
+                    if (data.length == 3) this.handleLCUEvent(data as [opcode: number, name: keyof LCUWebSocketEvents, data: LCUWebSocketEvents[string]]); // [opcode: 8, name: string, data: { eventType: string; uri: string; data: any; }]
                 } catch (ex) { }
             }
 
@@ -164,11 +166,11 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
 
             await webSocketConnectionPromise;
         } else {
-            this._onConnected();
+            this.onConnected();
         }
     }
 
-    private _onConnected() {
+    private onConnected() {
         if (this.isConnected)
             return;
 
@@ -177,7 +179,7 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
         this.emit("connected");
     }
 
-    private _onDisconnected() {
+    private onDisconnected() {
         if (!this.isConnected)
             return;
 
@@ -203,7 +205,7 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
         if (this.lcuAxiosInstance === null)
             throw new Error("Hasagi is not connected to the League of Legends client.");
 
-        const axiosResponse = await this.lcuAxiosInstance.request(config).catch(err => { throw new RequestError(err) });
+        const axiosResponse = await this.lcuAxiosInstance.request(config).catch(err => { throw new RequestError(err);});
         if (config.returnFullAxiosResponse)
             return axiosResponse;
 

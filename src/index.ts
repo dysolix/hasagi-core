@@ -1,4 +1,43 @@
 import HasagiClient from "./client.js";
+import { LCUWebSocketEvents } from "./types/lcu-events";
+
+export { HasagiClient };
 export default HasagiClient;
-export { HasagiClient }
-export type { LCUEventListener, ConnectionOptions } from "./types";
+
+export { default as RequestError } from "./request-error.js";
+
+export type { EndpointsWithMethod, HttpMethod, LCUEndpoint, LCUEndpointBodyType, LCUEndpointResponseType, LCUEndpoints, LCUTypes, LCUWebSocketEvents } from "./types/index";
+
+export type LCUEventListener<EventName extends string = string> = {
+	/** If present, the callback will only be called if the event's path matches */
+	path?: string | RegExp;
+	/** If present, the callback will only be called if the event's type is in the array */
+	types?: ("Create" | "Update" | "Delete")[];
+	/** If present, the callback will only be called if the event's name matches */
+	name?: EventName;
+	callback: (event: LCUWebSocketEvents[EventName]) => void;
+}
+
+export type ConnectionOptions = {
+	useWebSocket?: boolean;
+	/** The amount of attempts before the connection fails. Defaults to infinite */
+	maxConnectionAttempts?: number;
+	/** The delay in milliseconds between each (re)connection attempt. Defaults to 5000 */
+	connectionAttemptDelay?: number;
+} & ({
+	authenticationStrategy: "lockfile",
+	/**
+	 * This should either be the lockfile's content or an absolute path to the lockfile
+	 */
+	lockfile: string
+} | {
+	authenticationStrategy: "process"
+})
+
+export interface HasagiEvents {
+	"connected": () => void,
+	"connecting": () => void,
+	"connection-attempt-failed": () => void,
+	"disconnected": () => void,
+	"lcu-event":<EventName extends keyof LCUWebSocketEvents = "OnJsonApiEvent">(event: [opcode: number, name: EventName, data: LCUWebSocketEvents[EventName]]) => void
+}
