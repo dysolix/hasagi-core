@@ -2,6 +2,8 @@ import find from "find-process";
 import fs from "node:fs/promises";
 import path from "node:path";
 
+export type MaybePromise<T> = T | Promise<T>
+
 /**
  * @param lockfile Required if source="lockfile". Can either be the absolute path to the lockfile or it's content.
  */
