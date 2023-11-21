@@ -108,6 +108,8 @@ export namespace LCUTypes {
 	
 	export interface BoostTeamSkinRentalDTO {
 		summonerName: string
+		summonerId: number
+		puuid: string
 		skinUnlockMode: string
 		price: number
 		ipReward: number
@@ -192,6 +194,8 @@ export namespace LCUTypes {
 	
 	export interface ChampSelectLcdsPlayerChampionSelectionDTO {
 		summonerInternalName: string
+		summonerId: number
+		puuid: string
 		championId: number
 		selectedSkinIndex: number
 		spell1Id: number
@@ -202,6 +206,7 @@ export namespace LCUTypes {
 		summonerName: string
 		summonerInternalName: string
 		summonerId: number
+		puuid: string
 		pickMode: number
 		pickTurn: number
 	}
@@ -225,7 +230,11 @@ export namespace LCUTypes {
 	
 	export interface ChampSelectLcdsTradeContractDTO {
 		requesterInternalSummonerName: string
+		requesterSummonerId: number
+		requesterPuuid: string
 		responderInternalSummonerName: string
+		responderSummonerId: number
+		responderPuuid: string
 		requesterChampionId: number
 		responderChampionId: number
 		state: string
@@ -514,6 +523,18 @@ export namespace LCUTypes {
 		activeFlowEvents: LCUTypes.CriticalFlowExpectation[]
 		events: LCUTypes.CriticalFlowCapture[]
 		errors: string[]
+	}
+	
+	export interface DeepLinksClientConfigDeepLinksValue {
+		launchLorEnabled: boolean
+		launchLorUrl: string
+	}
+	
+	export interface DeepLinksDeepLinksSettings {
+		isSchemeReady: boolean
+		externalClientScheme: string
+		launchLorEnabled: boolean
+		launchLorUrl: string
 	}
 	
 	export interface DownloadUrlRequestV2 {
@@ -1285,7 +1306,7 @@ export namespace LCUTypes {
 		purchaseDate: string
 	}
 	
-	export type LolCareerStatsCareerStatsQueueType = "other" | "rank3flex" | "blind3" | "aram" | "blind5" | "rank5solo" | "rank5flex" | "draft5"
+	export type LolCareerStatsCareerStatsQueueType = "other" | "quickplay5" | "rank3flex" | "blind3" | "aram" | "blind5" | "rank5solo" | "rank5flex" | "draft5"
 	
 	export interface LolCareerStatsChampionQueueStatsResponse {
 		championId: number
@@ -1718,6 +1739,14 @@ export namespace LCUTypes {
 		quantity: number
 	}
 	
+	export interface LolChallengesChallengeTitleData {
+		challengeId: number
+		challengeName: string
+		challengeDescription: string
+		level: string
+		levelToIconPath: Record<string, string>
+	}
+	
 	export interface LolChallengesChallengesPlayerPreferences {
 		bannerAccent: string
 		title: string
@@ -1771,6 +1800,12 @@ export namespace LCUTypes {
 	export interface LolChallengesGameDataChallengeTitle {
 		name: string
 		itemId: number
+		titleAcquisitionType: string
+		isPermanentTitle: boolean
+		titleAcquisitionName: string
+		titleRequirementDescription: string
+		iconPath: string
+		backgroundImagePath: string
 	}
 	
 	export interface LolChallengesGameDataChallengesData {
@@ -1913,12 +1948,14 @@ export namespace LCUTypes {
 		itemId: number
 		contentId: string
 		name: string
-		challengeId: number
-		challengeName: string
-		challengeDescription: string
-		level: string
-		levelToIconPath: Record<string, string>
 		purchaseDate: string
+		titleAcquisitionType: string
+		titleAcquisitionName?: string
+		titleRequirementDescription?: string
+		isPermanentTitle?: boolean
+		challengeTitleData?: LCUTypes.LolChallengesChallengeTitleData
+		iconPath?: string
+		backgroundImagePath?: string
 	}
 	
 	export interface LolChallengesUserResource {
@@ -2128,6 +2165,7 @@ export namespace LCUTypes {
 		splashPath: string
 		tilePath: string
 		tiers: LCUTypes.LolChampSelectCollectionsChampionQuestSkin[]
+		productType?: LCUTypes.LolChampSelectQuestSkinProductType
 	}
 	
 	export interface LolChampSelectChampionSelection {
@@ -2294,6 +2332,7 @@ export namespace LCUTypes {
 		championPickIntent: number
 		playerType: string
 		summonerId: number
+		puuid: string
 	}
 	
 	export interface LolChampSelectLegacyChampSelectSession {
@@ -2436,7 +2475,8 @@ export namespace LCUTypes {
 	}
 	
 	export interface LolChampSelectLegacyTeamBoost {
-		summonerName: string
+		summonerId: number
+		puuid: string
 		skinUnlockMode: string
 		price: number
 		ipReward: number
@@ -2463,6 +2503,8 @@ export namespace LCUTypes {
 		obfuscatedPuuid: string
 		obfuscatedSummonerId: number
 	}
+	
+	export type LolChampSelectQuestSkinProductType = "kTieredSkin" | "kQuestSkin"
 	
 	export interface LolChampSelectSettingsResource {
 		data: unknown
@@ -2522,10 +2564,12 @@ export namespace LCUTypes {
 		emblems: LCUTypes.LolChampSelectCollectionsChampionSkinEmblem[]
 		rarityGemPath: string
 		groupSplash: string
+		productType?: LCUTypes.LolChampSelectQuestSkinProductType
 	}
 	
 	export interface LolChampSelectTeamBoost {
 		summonerId: number
+		puuid: string
 		skinUnlockMode: string
 		price: number
 		ipReward: number
@@ -2543,7 +2587,7 @@ export namespace LCUTypes {
 		collectionCardPath: string
 		collectionDescription: string
 		tiers: LCUTypes.LolChampionsCollectionsChampionQuestSkin[]
-		productType: LCUTypes.LolChampionsQuestSkinProductType
+		productType?: LCUTypes.LolChampionsQuestSkinProductType
 	}
 	
 	export interface LolChampionsCollectionsChampion {
@@ -2796,7 +2840,7 @@ export namespace LCUTypes {
 		collectionCardPath: string
 		collectionDescription: string
 		tiers: LCUTypes.LolChampionsGameDataChampionQuestSkin[]
-		productType: LCUTypes.LolChampionsQuestSkinProductType
+		productType?: LCUTypes.LolChampionsQuestSkinProductType
 	}
 	
 	export interface LolChampionsInventoryItemWithPayload {
@@ -2985,6 +3029,8 @@ export namespace LCUTypes {
 		summonerLevel: number
 		puuid: string
 		unnamed: boolean
+		gameName: string
+		tagLine: string
 	}
 	
 	export interface LolChatChatWindowSettings {
@@ -3178,8 +3224,8 @@ export namespace LCUTypes {
 	export interface LolChatFriendRequest {
 		pid: string
 		name: string
-		game_name: string
-		game_tag: string
+		gameName: string
+		tagLine: string
 		subscription: LCUTypes.LolChatFriendSubscriptionType
 		note: string
 		puuid: string
@@ -3189,8 +3235,8 @@ export namespace LCUTypes {
 	export interface LolChatFriendRequestAdd {
 		pid: string
 		name: string
-		game_name: string
-		game_tag: string
+		gameName: string
+		tagLine: string
 		note: string
 		puuid: string
 		region: string
@@ -3210,7 +3256,7 @@ export namespace LCUTypes {
 		pid: string
 		puuid: string
 		gameName: string
-		gameTag: string
+		tagLine: string
 		note: string
 		direction: LCUTypes.LolChatFriendRequestDirection
 	}
@@ -3474,6 +3520,10 @@ export namespace LCUTypes {
 	
 	export interface LolChatProductMetadataMap {
 		products: Record<string, LCUTypes.LolChatProductMetadata>
+	}
+	
+	export interface LolChatPuuidBody {
+		puuid: string
 	}
 	
 	export interface LolChatQueue {
@@ -5101,6 +5151,8 @@ export namespace LCUTypes {
 		endDate: string
 		currencyId: string
 		rollOffer: string
+		cost: number
+		totalRollsInfo: LCUTypes.LolDropsTotalRollsInfoDTO
 		pityInfo: LCUTypes.LolDropsCapDropsDropTablePityInfo
 	}
 	
@@ -5119,6 +5171,11 @@ export namespace LCUTypes {
 	export interface LolDropsCapDropsPityCountDTO {
 		dropTableId: string
 		count: number
+	}
+	
+	export interface LolDropsTotalRollsInfoDTO {
+		totalRollsCounterId: string
+		maxTotalRolls: number
 	}
 	
 	export interface LolEmailVerificationAccessToken {
@@ -7730,6 +7787,7 @@ export namespace LCUTypes {
 		puuid: string
 		displayName: string
 		gameId: number
+		summonerId: number
 	}
 	
 	export interface LolHonorV2HonorRecipient {
@@ -7741,6 +7799,7 @@ export namespace LCUTypes {
 	export interface LolHonorV2HonorSummoner {
 		puuid: string
 		displayName: string
+		summonerId: number
 	}
 	
 	export interface LolHonorV2LoginSession {
@@ -7905,6 +7964,8 @@ export namespace LCUTypes {
 		accountId: number
 		summonerLevel: number
 		puuid: string
+		gameName: string
+		tagLine: string
 	}
 	
 	export interface LolHovercardSummonerIdAndIcon {
@@ -10014,6 +10075,7 @@ export namespace LCUTypes {
 	
 	export interface LolLobbyTeamBuilderTeamBoost {
 		summonerId: number
+		puuid: string
 		skinUnlockMode: string
 		price: number
 		ipReward: number
@@ -10547,6 +10609,7 @@ export namespace LCUTypes {
 		outroVideoPath: string
 		hasVisibleLootOdds: boolean
 		outputs: LCUTypes.LolLootLootOutputGdsResource[]
+		singleOpen: boolean
 	}
 	
 	export interface LolLootLootTableGdsResource {
@@ -10749,6 +10812,7 @@ export namespace LCUTypes {
 		slots: LCUTypes.LolLootRecipeSlot[]
 		outputs: LCUTypes.LolLootRecipeOutput[]
 		metadata: LCUTypes.LolLootRecipeMetadata
+		singleOpen: boolean
 		lootMilestoneIds: string[]
 	}
 	
@@ -14925,6 +14989,7 @@ export namespace LCUTypes {
 	}
 	
 	export interface LolSeasonsSeasonMetaData {
+		year: number
 		locKey: string
 		publicName: string
 		currentSplit: number
@@ -15504,6 +15569,18 @@ export namespace LCUTypes {
 		expiry: number
 	}
 	
+	export interface LolStoreAliasChangeNotificationResource {
+		id: number
+		type: string
+		details: LCUTypes.LolStoreAliasDetail
+	}
+	
+	export interface LolStoreAliasDetail {
+		field: string
+		old_value: string
+		new_value: string
+	}
+	
 	export interface LolStoreAllSummonerData {
 		summoner: LCUTypes.LolStoreSummoner
 		summonerLevelAndPoints: LCUTypes.LolStoreSummonerLevelAndPoints
@@ -16036,6 +16113,7 @@ export namespace LCUTypes {
 	export interface LolSummonerSummonerIdAndIcon {
 		summonerId: number
 		profileIconId: number
+		puuid: string
 	}
 	
 	export interface LolSummonerSummonerIdAndName {
@@ -16690,6 +16768,8 @@ export namespace LCUTypes {
 		endDate: string
 		currencyId: string
 		rollOffer: string
+		cost: number
+		totalRollsInfo: LCUTypes.LolTftTrovesTotalRollsInfoDTO
 		pityInfo: LCUTypes.LolTftTrovesDropsDropTablePityInfo
 	}
 	
@@ -16717,8 +16797,10 @@ export namespace LCUTypes {
 		pityThreshold: number
 		bannerTexture: string
 		thumbnailTexture: string
+		backgroundTexture: string
 		name: string
 		description: string
+		isCollectorBounty: boolean
 		celebrationTheme: LCUTypes.LolTftTrovesTrovesCelebrationThemeData
 		rootTable: LCUTypes.LolTftTrovesGameDataTrovesBannerTable
 		chaseTable: LCUTypes.LolTftTrovesGameDataTrovesBannerTable
@@ -16804,6 +16886,11 @@ export namespace LCUTypes {
 		payload: string
 	}
 	
+	export interface LolTftTrovesTotalRollsInfoDTO {
+		totalRollsCounterId: string
+		maxTotalRolls: number
+	}
+	
 	export interface LolTftTrovesTrovePurchaseResponse {
 		orderId: string
 		status: string
@@ -16830,9 +16917,13 @@ export namespace LCUTypes {
 		mythicOffer: string
 		bannerTexture: string
 		thumbnailTexture: string
+		backgroundTexture: string
 		name: string
 		description: string
 		pityCounterId: string
+		isCollectorBounty: boolean
+		maxTotalRolls: number
+		pullCost: number
 		celebrationTheme: LCUTypes.LolTftTrovesTrovesCelebrationThemeData
 		status: LCUTypes.LolTftTrovesTrovesStatus
 	}
@@ -17421,6 +17512,7 @@ export namespace LCUTypes {
 		slots: LCUTypes.LootLcdsRecipeSlotClientDTO[]
 		outputs: LCUTypes.LootLcdsRecipeOutputDTO[]
 		metadata: LCUTypes.LootLcdsRecipeMetadata
+		singleOpen: boolean
 	}
 	
 	export interface LootLcdsRecipeListClientDTO {

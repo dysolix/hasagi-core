@@ -1,8 +1,7 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import { Agent } from "https";
 import { WebSocket } from "ws";
-import { delay, getPortAndBasicAuthToken } from "./util.js";
-import waitOn from "wait-on";
+import { delay, getPortAndBasicAuthToken, waitForPort } from "./util.js";
 import RequestError from "./request-error.js";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { LCUEndpoint, LCUEndpointResponseType, LCUWebSocketEvents, HttpMethod, EndpointsWithMethod, ConnectionOptions, HasagiEvents, LCUEventListener } from "./index"
@@ -26,7 +25,6 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
      * @returns A function that takes all of the endpoint's parameters that returns a Promise resolving to the response data including full auto-generated types for most endpoints
      * @throws {RequestError} 
     */
-    // @ts-ignore
     buildRequest<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>, ParameterTypes extends any[] = Parameters<LCUEndpoint<Method, Path>>, ResponseType = LCUEndpointResponseType<Method, Path>>(method: Method, path: Path, options?: { transformResponse?: (response: Awaited<ReturnType<LCUEndpoint<Method, Path>>>) => ResponseType; transformParameters?: (...args: ParameterTypes) => Readonly<Parameters<LCUEndpoint<Method, Path>>> | Promise<Readonly<Parameters<LCUEndpoint<Method, Path>>>> }): (...args: ParameterTypes) => Promise<ResponseType> {
         const callableEndpoint = async (...args: any) => {
             if (options?.transformParameters)
@@ -61,20 +59,17 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
 
     //#region WebSocket
 
-    private subscribedEvents = new Set();
+    private subscribedEvents = new Set<keyof LCUWebSocketEvents>();
 
-    private subscribeWebSocketEvent = (eventName: string) => {
+    public subscribeWebSocketEvent = (eventName: keyof LCUWebSocketEvents) => {
         if (this.subscribedEvents.has(eventName))
-            return;
-
-        if(eventName === "OnJsonApiEvent")
             return;
 
         this.subscribedEvents.add(eventName);
         this.webSocket!.send(JSON.stringify([5, eventName]))
     };
 
-    private unsubscribeWebSocketEvent = (eventName: string) => {
+    public unsubscribeWebSocketEvent = (eventName: keyof LCUWebSocketEvents) => {
         if (this.subscribedEvents.delete(eventName))
             this.webSocket!.send(JSON.stringify([6, eventName]));
     }
@@ -140,13 +135,12 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
             let resolve: any;
             const webSocketConnectionPromise = new Promise(res => resolve = res);
 
-            await waitOn({ resources: [`tcp:127.0.0.1:${this.port}`] })
+            await waitForPort(this.port!)
             this.webSocket = new WebSocket(("wss://127.0.0.1:" + this.port), undefined, { headers: { Authorization: "Basic " + this.basicAuthToken }, rejectUnauthorized: false });
             this.webSocket.onopen = async (ev) => {
                 while (this.webSocket?.readyState !== WebSocket.OPEN)
                     await delay(250);
 
-                this.webSocket!.send(JSON.stringify([5, "OnJsonApiEvent"]));
                 resolve();
                 this.onConnected();
             }
@@ -169,13 +163,16 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
             this.onConnected();
         }
     }
-
+    
     private onConnected() {
         if (this.isConnected)
             return;
 
-        this.isConnected = true;
+        const previouslySubscribedEvents = this.subscribedEvents;
+        this.subscribedEvents = new Set();
+        previouslySubscribedEvents.forEach(event => this.subscribeWebSocketEvent(event));
 
+        this.isConnected = true;
         this.emit("connected");
     }
 
@@ -197,11 +194,9 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
     /**
      * Send a request to the League of Legends client (LCU). Authentication is automatically included and the base url is already set.
      */
-    // @ts-ignore
-    public async request<Method extends HttpMethod, Path extends string>(config: AxiosRequestConfig & { url: Path, method: Method } & { returnFullAxiosResponse: true }): Promise<AxiosResponse<LCUEndpointResponseType<Method, Path>>>
-    // @ts-ignore
-    public async request<Method extends HttpMethod, Path extends string>(config: AxiosRequestConfig & { url: Path, method: Method } & { returnFullAxiosResponse?: boolean }): Promise<LCUEndpointResponseType<Method, Path>>
-    public async request<Method extends HttpMethod, Path extends string>(config: AxiosRequestConfig & { url: Path, method: Method } & { returnFullAxiosResponse?: boolean }) {
+    public async request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(config: AxiosRequestConfig & { method: Method, url: Path } & { returnFullAxiosResponse: true }): Promise<AxiosResponse<LCUEndpointResponseType<Method, Path>>>
+    public async request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(config: AxiosRequestConfig & { method: Method, url: Path } & { returnFullAxiosResponse?: boolean }): Promise<LCUEndpointResponseType<Method, Path>>
+    public async request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(config: AxiosRequestConfig & { method: Method, url: Path } & { returnFullAxiosResponse?: boolean }) {
         if (this.lcuAxiosInstance === null)
             throw new Error("Hasagi is not connected to the League of Legends client.");
 
@@ -209,7 +204,6 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
         if (config.returnFullAxiosResponse)
             return axiosResponse;
 
-        // @ts-ignore
         return axiosResponse.data as LCUEndpointResponseType<Method, Path>;
     }
     //#endregion
@@ -218,8 +212,8 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
     /**
      * Adds a LCU event listener 
      */
-    public addLCUEventListener<EventName extends string = string>(listener: {
-        /** If present, the callback will only be called if the event's path matches */
+    public addLCUEventListener<EventName extends keyof LCUWebSocketEvents = "OnJsonApiEvent">(listener: {
+        /** If present, the callback will only be called if the event's path matches. OnJsonApiEvent needs to be subscribed if you only use the path. */
         path?: string | RegExp;
         /** If present, the callback will only be called if the event's type is in the array */
         types?: ("Create" | "Update" | "Delete")[];
@@ -265,6 +259,11 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
         }
 
         return true;
+    }
+
+    public removeAllLCUEventListeners() {
+        this.lcuEventListeners = [];
+        this.subscribedEvents.forEach(event => this.unsubscribeWebSocketEvent(event));
     }
 
     private handleLCUEvent<EventName extends keyof LCUWebSocketEvents = "OnJsonApiEvent">(event: [opcode: number, name: EventName, data: LCUWebSocketEvents[EventName]]) {
