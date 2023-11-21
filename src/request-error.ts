@@ -15,8 +15,7 @@ export default class RequestError extends Error {
                 message = `An error occurred during the request${(errorCode ? ` (${errorCode}).` : ".")}`
             else {
                 message = `The League client responded with non-success status code ${response.status}.`
-                if("implementationDetails" in response.data)
-                    lcuError = response.data as any;
+                lcuError = response.data as any;
             }
 
             super(message, { cause: error });

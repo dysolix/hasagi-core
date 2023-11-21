@@ -6,9 +6,11 @@ export default HasagiClient;
 
 export { default as RequestError } from "./request-error.js";
 
-export type { EndpointsWithMethod, HttpMethod, LCUEndpoint, LCUEndpointBodyType, LCUEndpointResponseType, LCUEndpoints, LCUTypes, LCUWebSocketEvents } from "./types/index";
+export type { LCUEndpoints, LCUEndpoint, LCUEndpointBodyType, LCUEndpointResponseType, EndpointsWithMethod, HttpMethod } from "./types/lcu-endpoints";
+export type { LCUTypes } from "./types/lcu-types"
+export type { LCUWebSocketEvents } from "./types/lcu-events";
 
-export type LCUEventListener<EventName extends string = string> = {
+export type LCUEventListener<EventName extends keyof LCUWebSocketEvents = keyof LCUWebSocketEvents> = {
 	/** If present, the callback will only be called if the event's path matches */
 	path?: string | RegExp;
 	/** If present, the callback will only be called if the event's type is in the array */
