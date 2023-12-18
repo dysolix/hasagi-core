@@ -7,7 +7,7 @@ export default HasagiClient;
 export { default as RequestError } from "./request-error.js";
 
 export type { LCUEndpoints, LCUEndpoint, LCUEndpointBodyType, LCUEndpointResponseType, EndpointsWithMethod, HttpMethod } from "./types/lcu-endpoints";
-export type { LCUTypes } from "./types/lcu-types"
+export type * as LCUTypes from "./types/lcu-types"
 export type { LCUWebSocketEvents } from "./types/lcu-events";
 
 export type LCUEventListener<EventName extends keyof LCUWebSocketEvents = keyof LCUWebSocketEvents> = {
@@ -41,5 +41,5 @@ export interface HasagiEvents {
 	"connecting": () => void,
 	"connection-attempt-failed": () => void,
 	"disconnected": () => void,
-	"lcu-event":<EventName extends keyof LCUWebSocketEvents = "OnJsonApiEvent">(event: [opcode: number, name: EventName, data: LCUWebSocketEvents[EventName]]) => void
+	"lcu-event": <EventName extends keyof LCUWebSocketEvents = "OnJsonApiEvent">(event: [opcode: number, name: EventName, data: LCUWebSocketEvents[EventName]]) => void
 }
