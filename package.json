@@ -1,11 +1,12 @@
 {
   "name": "@hasagi/core",
   "private": true,
-  "version": "0.3.17",
+  "version": "0.3.18",
   "description": "A library that makes using the League of Legends client API (LCU) easy.",
   "scripts": {
     "build": "tsc && node scripts/postbuild.mjs",
-    "publish": "npm run build && node scripts/prepublish.mjs && cd ./dist && npm publish --access public"
+    "publish": "npm run build && node scripts/prepublish.mjs && cd ./dist && npm publish --access public",
+    "update-types": "hasagi schema --typescript ./src/types"
   },
   "author": "dysolix",
   "license": "MIT",
@@ -19,6 +20,7 @@
     "ws": "^8.14.2"
   },
   "devDependencies": {
+    "@hasagi/cli": "^0.8.8",
     "@types/ws": "^8.5.5",
     "prompt": "^1.3.0"
   },
