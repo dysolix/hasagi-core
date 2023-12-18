@@ -1,4 +1,4 @@
-import { LCUTypes } from "./lcu-types";
+import * as LCUTypes from "./lcu-types";
 
 export interface LCUWebSocketEvents {
 	[key: string]: LCUTypes.PluginResourceEvent | LCUTypes.BindingCallbackEvent | LCUTypes.PluginLcdsEvent | LCUTypes.PluginRegionLocaleChangedEvent | LCUTypes.LogEvent | LCUTypes.PluginServiceProxyResponse
@@ -28,10 +28,8 @@ export interface LCUWebSocketEvents {
 	"OnJsonApiEvent_lol-active-boosts_v1_active-boosts": LCUTypes.PluginResourceEvent,
 	"OnJsonApiEvent_lol-anti-addiction_v1_anti-addiction-token": LCUTypes.PluginResourceEvent,
 	"OnJsonApiEvent_lol-catalog_v1_items": LCUTypes.PluginResourceEvent,
-	"OnJsonApiEvent_lol-challenges_v1_challenges": LCUTypes.PluginResourceEvent,
 	"OnJsonApiEvent_lol-challenges_v1_client-state": LCUTypes.PluginResourceEvent,
 	"OnJsonApiEvent_lol-challenges_v1_seasons": LCUTypes.PluginResourceEvent,
-	"OnJsonApiEvent_lol-challenges_v1_summary-player-data": LCUTypes.PluginResourceEvent,
 	"OnJsonApiEvent_lol-champ-select-legacy_v1_bannable-champion-ids": LCUTypes.PluginResourceEvent,
 	"OnJsonApiEvent_lol-champ-select-legacy_v1_current-champion": LCUTypes.PluginResourceEvent,
 	"OnJsonApiEvent_lol-champ-select-legacy_v1_disabled-champion-ids": LCUTypes.PluginResourceEvent,
@@ -185,9 +183,11 @@ export interface LCUWebSocketEvents {
 	"OnJsonApiEvent_lol-patch_v1_notifications": LCUTypes.PluginResourceEvent,
 	"OnJsonApiEvent_lol-patch_v1_products": LCUTypes.PluginResourceEvent,
 	"OnJsonApiEvent_lol-patch_v1_status": LCUTypes.PluginResourceEvent,
+	"OnJsonApiEvent_lol-perks_v1_currentpage": LCUTypes.PluginResourceEvent,
 	"OnJsonApiEvent_lol-perks_v1_inventory": LCUTypes.PluginResourceEvent,
 	"OnJsonApiEvent_lol-perks_v1_pages": LCUTypes.PluginResourceEvent,
 	"OnJsonApiEvent_lol-perks_v1_perks": LCUTypes.PluginResourceEvent,
+	"OnJsonApiEvent_lol-perks_v1_rune-recommender-auto-select": LCUTypes.PluginResourceEvent,
 	"OnJsonApiEvent_lol-perks_v1_settings": LCUTypes.PluginResourceEvent,
 	"OnJsonApiEvent_lol-perks_v1_styles": LCUTypes.PluginResourceEvent,
 	"OnJsonApiEvent_lol-platform-config_v1_initial-configuration-complete": LCUTypes.PluginResourceEvent,
@@ -278,6 +278,7 @@ export interface LCUWebSocketEvents {
 	"OnJsonApiEvent_lol-platform-config_v1_namespaces_ClashConfig_CapacityIndicatorEnabled": LCUTypes.PluginResourceEvent,
 	"OnJsonApiEvent_lol-platform-config_v1_namespaces_ClashConfig_ClashStartModalEnabled": LCUTypes.PluginResourceEvent,
 	"OnJsonApiEvent_lol-platform-config_v1_namespaces_ClashConfig_DarkModeEntitlement": LCUTypes.PluginResourceEvent,
+	"OnJsonApiEvent_lol-platform-config_v1_namespaces_ClashConfig_EatTooltipEnabled": LCUTypes.PluginResourceEvent,
 	"OnJsonApiEvent_lol-platform-config_v1_namespaces_ClashConfig_EnabledState": LCUTypes.PluginResourceEvent,
 	"OnJsonApiEvent_lol-platform-config_v1_namespaces_ClashConfig_EndOfGameFlowEnabled": LCUTypes.PluginResourceEvent,
 	"OnJsonApiEvent_lol-platform-config_v1_namespaces_ClashConfig_FindTeamViewEnabled": LCUTypes.PluginResourceEvent,
@@ -381,6 +382,7 @@ export interface LCUWebSocketEvents {
 	"OnJsonApiEvent_lol-platform-config_v1_namespaces_DisabledChampions_BOT": LCUTypes.PluginResourceEvent,
 	"OnJsonApiEvent_lol-platform-config_v1_namespaces_DisabledChampions_BOT_3x3": LCUTypes.PluginResourceEvent,
 	"OnJsonApiEvent_lol-platform-config_v1_namespaces_DisabledChampions_CHERRY": LCUTypes.PluginResourceEvent,
+	"OnJsonApiEvent_lol-platform-config_v1_namespaces_DisabledChampions_CHERRY_UNRANKED": LCUTypes.PluginResourceEvent,
 	"OnJsonApiEvent_lol-platform-config_v1_namespaces_DisabledChampions_CLASH": LCUTypes.PluginResourceEvent,
 	"OnJsonApiEvent_lol-platform-config_v1_namespaces_DisabledChampions_CLASSIC": LCUTypes.PluginResourceEvent,
 	"OnJsonApiEvent_lol-platform-config_v1_namespaces_DisabledChampions_COUNTER_PICK": LCUTypes.PluginResourceEvent,
@@ -1218,7 +1220,6 @@ export interface LCUWebSocketEvents {
 	"OnJsonApiEvent_lol-rewards_v1_groups": LCUTypes.PluginResourceEvent,
 	"OnJsonApiEvent_lol-rso-auth_configuration_v3": LCUTypes.PluginResourceEvent,
 	"OnJsonApiEvent_lol-rso-auth_v1_authorization": LCUTypes.PluginResourceEvent,
-	"OnJsonApiEvent_lol-service-status_v1_ticker-messages": LCUTypes.PluginResourceEvent,
 	"OnJsonApiEvent_lol-settings_v1_account": LCUTypes.PluginResourceEvent,
 	"OnJsonApiEvent_lol-settings_v1_local": LCUTypes.PluginResourceEvent,
 	"OnJsonApiEvent_lol-settings_v2_account": LCUTypes.PluginResourceEvent,

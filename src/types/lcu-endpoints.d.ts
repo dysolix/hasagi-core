@@ -1,4 +1,4 @@
-import { LCUTypes } from "./lcu-types";
+import * as LCUTypes from "./lcu-types";
 
 export interface LCUEndpoints {
 	"/AsyncDelete": {
@@ -856,10 +856,13 @@ export interface LCUEndpoints {
 		get: { Parameters: [dropTableId: string], Body: never, Response: LCUTypes.LolDropsCapDropsOddsTreeNodeDTO }
 	},
 	"/lol-drops/v1/drop-tables/{dropTableId}/players/{playerId}/pity-count": {
-		get: { Parameters: [dropTableId: string, playerId: string], Body: never, Response: LCUTypes.LolDropsCapDropsPityCountDTO }
+		get: { Parameters: [dropTableId: string, playerId: string], Body: never, Response: LCUTypes.LolDropsCapDropTableCounterDTO }
 	},
 	"/lol-drops/v1/players/{playerId}/pity-counts": {
-		get: { Parameters: [playerId: string], Body: never, Response: LCUTypes.LolDropsCapDropsPityCountDTO[] }
+		get: { Parameters: [playerId: string], Body: never, Response: LCUTypes.LolDropsCapDropTableCounterDTO[] }
+	},
+	"/lol-drops/v1/players/{playerId}/total-rolls-counts": {
+		get: { Parameters: [playerId: string], Body: never, Response: LCUTypes.LolDropsCapDropTableCounterDTO[] }
 	},
 	"/lol-drops/v1/ready": {
 		get: { Parameters: [], Body: never, Response: boolean }
