@@ -141,11 +141,10 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
 
             this.webSocket = new WebSocket(("wss://127.0.0.1:" + this.port), undefined, { headers: { Authorization: "Basic " + this.basicAuthToken }, rejectUnauthorized: false });
             this.webSocket.onopen = async (ev) => {
-                while (this.webSocket?.readyState !== WebSocket.OPEN)
+                while (this.webSocket?.readyState !== WebSocket.OPEN) // TODO Check if this is still needed
                     await delay(250);
 
                 resolve();
-                this.onConnected();
             }
 
             this.webSocket.onclose = (ev) => {
@@ -162,9 +161,9 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
             this.webSocket.onerror = (ev) => { }
 
             await webSocketConnectionPromise;
-        } else {
-            this.onConnected();
         }
+
+        this.onConnected();
     }
 
     private onConnected() {
