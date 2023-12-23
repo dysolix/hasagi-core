@@ -43,3 +43,14 @@ export interface HasagiEvents {
 	"disconnected": () => void,
 	"lcu-event": <EventName extends keyof LCUWebSocketEvents = "OnJsonApiEvent">(event: [opcode: number, name: EventName, data: LCUWebSocketEvents[EventName]]) => void
 }
+
+export type LCURequestConfig<Method extends string = string, Path extends String = string> = {
+	method: Method;
+	path: Path;
+} & LCURequestPayload;
+
+export type LCURequestPayload = {
+	params?: Record<string, any>;
+	headers?: Record<string, any>;
+	body?: any;
+}

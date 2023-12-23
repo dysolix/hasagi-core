@@ -15,7 +15,7 @@
   ],
   "dependencies": {
     "axios": "^1.6.1",
-    "find-process": "^1.4.7",
+    "ps-list": "^8.1.1",
     "tiny-typed-emitter": "^2.1.0",
     "ws": "^8.14.2"
   },

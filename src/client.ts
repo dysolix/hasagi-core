@@ -1,10 +1,10 @@
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, Method } from "axios";
 import { Agent } from "https";
 import { WebSocket } from "ws";
-import { delay, getPortAndBasicAuthToken, waitForPort } from "./util.js";
+import { delay, getPortAndBasicAuthToken } from "./util.js";
 import RequestError from "./request-error.js";
 import { TypedEmitter } from "tiny-typed-emitter";
-import { LCUEndpoint, LCUEndpointResponseType, LCUWebSocketEvents, HttpMethod, EndpointsWithMethod, ConnectionOptions, HasagiEvents, LCUEventListener } from "./index"
+import { LCUEndpoint, LCUEndpointResponseType, LCUWebSocketEvents, HttpMethod, EndpointsWithMethod, ConnectionOptions, HasagiEvents, LCUEventListener, LCURequestPayload, LCURequestConfig } from "./index"
 
 export default class HasagiClient extends TypedEmitter<HasagiEvents> {
     public isConnected: boolean = false;
@@ -40,8 +40,8 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
 
             const lcuResponse = await this.request({
                 method,
-                url: requestPath,
-                data: method !== "get" ? body : undefined,
+                path: requestPath,
+                body: method !== "get" ? body : undefined,
                 params: method === "get" ? body : undefined,
                 headers: {
                     "Content-Type": body !== undefined && method !== "get" ? "application/json" : undefined
@@ -131,11 +131,14 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
             throw err;
         })
 
+        // Waits for the client to be ready. TODO: Add timeout
+        while (await this.request("get", "/lol-summoner/v1/current-summoner").then(() => false, () => true))
+            await delay(1000);
+
         if (useWebSocket) {
             let resolve: any;
             const webSocketConnectionPromise = new Promise(res => resolve = res);
 
-            await waitForPort(this.port!)
             this.webSocket = new WebSocket(("wss://127.0.0.1:" + this.port), undefined, { headers: { Authorization: "Basic " + this.basicAuthToken }, rejectUnauthorized: false });
             this.webSocket.onopen = async (ev) => {
                 while (this.webSocket?.readyState !== WebSocket.OPEN)
@@ -163,7 +166,7 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
             this.onConnected();
         }
     }
-    
+
     private onConnected() {
         if (this.isConnected)
             return;
@@ -191,20 +194,51 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
     //#endregion
 
     //#region Requests
+
     /**
      * Send a request to the League of Legends client (LCU). Authentication is automatically included and the base url is already set.
      */
-    public async request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(config: AxiosRequestConfig & { method: Method, url: Path } & { returnFullAxiosResponse: true }): Promise<AxiosResponse<LCUEndpointResponseType<Method, Path>>>
-    public async request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(config: AxiosRequestConfig & { method: Method, url: Path } & { returnFullAxiosResponse?: boolean }): Promise<LCUEndpointResponseType<Method, Path>>
-    public async request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(config: AxiosRequestConfig & { method: Method, url: Path } & { returnFullAxiosResponse?: boolean }) {
+    public async request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(config: LCURequestConfig<Method, Path> & { returnAxiosResponse: true }): Promise<AxiosResponse<LCUEndpointResponseType<Method, Path>>>
+    public async request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(config: LCURequestConfig<Method, Path> & { returnAxiosResponse?: false }): Promise<LCUEndpointResponseType<Method, Path>>
+    public async request(method: string, path: string, options?: LCURequestPayload & { returnAxiosResponse: true }): Promise<AxiosResponse<unknown>>;
+    public async request(method: string, path: string, options?: LCURequestPayload & { returnAxiosResponse?: false }): Promise<unknown>;
+    public async request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(method: Method, path: Path, options?: LCURequestPayload & { returnAxiosResponse: true }): Promise<AxiosResponse<LCUEndpointResponseType<Method, Path>>>;
+    public async request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(method: Method, path: Path, options?: LCURequestPayload & { returnAxiosResponse?: false }): Promise<LCUEndpointResponseType<Method, Path>>;
+    public async request() {
         if (this.lcuAxiosInstance === null)
             throw new Error("Hasagi is not connected to the League of Legends client.");
 
-        const axiosResponse = await this.lcuAxiosInstance.request(config).catch(err => { throw new RequestError(err);});
-        if (config.returnFullAxiosResponse)
+        let config: LCURequestConfig;
+        let returnAxiosResponse = false;
+
+        if (arguments.length === 1) {
+            config = arguments[0];
+            returnAxiosResponse = arguments[0].returnAxiosResponse ?? false;
+        } else {
+            const method = arguments[0] as string;
+            const path = arguments[1] as string;
+            const _config = arguments[2] ?? {} as LCURequestConfig & { returnAxiosResponse?: boolean };
+            returnAxiosResponse = _config.returnAxiosResponse ?? false;
+            config = {
+                method,
+                path,
+                body: _config.body,
+                params: _config.params,
+                headers: _config.headers
+            }
+        }
+
+        const axiosResponse = await this.lcuAxiosInstance.request({
+            method: config.method,
+            url: config.path,
+            data: config.body,
+            params: config.params,
+            headers: config.headers
+        }).catch(err => { throw new RequestError(err); });
+        if (returnAxiosResponse)
             return axiosResponse;
 
-        return axiosResponse.data as LCUEndpointResponseType<Method, Path>;
+        return axiosResponse.data;
     }
     //#endregion
 

@@ -1,26 +1,35 @@
 import axios from "axios";
+import getProcesses from "ps-list";
 import find from "find-process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { Agent } from "https";
+import { execSync } from "child_process";
 
 export type MaybePromise<T> = T | Promise<T>
-
 /**
  * @param lockfile Required if source="lockfile". Can either be the absolute path to the lockfile or it's content.
  */
 export async function getPortAndBasicAuthToken(source: "process" | "lockfile" = "process", lockfile?: string) {
     if (source === "process") {
-        const res = await find("name", "LeagueClientUx", true);
-        const process = res[0];
-        if (!process) {
-            throw new Error("Unable to find process 'LeagueClientUx'.");
+        const processArr = await getProcesses();
+        let commandLine: string;
+
+        if (process.platform === "win32") {
+            const process = processArr.find(p => p.name === "LeagueClientUx.exe");
+            if (process === undefined) throw new Error("Unable to find process 'LeagueClientUx.exe'.");
+            commandLine = execSync(`(Get-CimInstance Win32_Process -Filter \"ProcessId=${process.pid}\").CommandLine`, { shell: "powershell.exe" }).toString("utf-8");
+        } else if (process.platform === "linux") {
+            const process = processArr.find(p => p.name === "LeagueClientUx" || p.cmd?.includes("LeagueClientUx.exe"));
+            if (process === undefined) throw new Error("Unable to find process 'LeagueClientUx.exe'.");
+            commandLine = process.cmd!;
+        } else {
+            // UNSUPPORTED
+            throw new Error(`Authentication strategy 'process' is not supported on this platform. (${process.platform})`);
         }
 
-        const args = process.cmd;
-
-        let portArr = args.match("--app-port=([0-9]*)");
-        let passArr = args.match("--remoting-auth-token=([\\w-]*)");
+        let portArr = commandLine.match("--app-port=([0-9]*)");
+        let passArr = commandLine.match("--remoting-auth-token=([\\w-]*)");
 
         if (portArr !== null && passArr !== null && (portArr?.length ?? 0) === 2 && (passArr?.length ?? 0) === 2) {
             return { port: Number(portArr[1]), password: passArr[1] };
@@ -56,16 +65,6 @@ function getPortAndBasicAuthTokenFromLockfile(lockfileContent: string) {
     }
 
     throw new Error("Could not retrieve port and password from lockfile.");
-}
-
-export async function waitForPort(port: number) {
-    let ready = false;
-    while (!ready) {
-        const res = await axios.get("https://127.0.0.1:" + port, { adapter: "http", httpsAgent: new Agent({ rejectUnauthorized: false }) }).catch(err => err);
-        if (res.status !== undefined || "response" in res)
-            break;
-        await delay(1000);
-    }
 }
 
 export const delay = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
