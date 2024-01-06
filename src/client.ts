@@ -4,7 +4,7 @@ import { WebSocket } from "ws";
 import { delay, getPortAndBasicAuthToken } from "./util.js";
 import RequestError from "./request-error.js";
 import { TypedEmitter } from "tiny-typed-emitter";
-import { LCUEndpoint, LCUEndpointResponseType, LCUWebSocketEvents, HttpMethod, EndpointsWithMethod, ConnectionOptions, HasagiEvents, LCUEventListener, LCURequestPayload, LCURequestConfig } from "./index"
+import { LCUEndpoint, LCUEndpointResponseType, LCUWebSocketEvents, HttpMethod, EndpointsWithMethod, ConnectionOptions, HasagiEvents, LCUEventListener, LCURequestConfig, LCURequestOptions, LCURequestOptionsParameter } from "./index"
 
 export default class HasagiClient extends TypedEmitter<HasagiEvents> {
     public isConnected: boolean = false;
@@ -38,10 +38,14 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
 
             const body = args[i];
 
+            this.request({
+
+            })
+
             const lcuResponse = await this.request({
                 method,
                 path: requestPath,
-                body: method !== "get" ? body : undefined,
+                data: method !== "get" ? body : undefined,
                 params: method === "get" ? body : undefined,
                 headers: {
                     "Content-Type": body !== undefined && method !== "get" ? "application/json" : undefined
@@ -197,12 +201,8 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
     /**
      * Send a request to the League of Legends client (LCU). Authentication is automatically included and the base url is already set.
      */
-    public async request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(config: LCURequestConfig<Method, Path> & { returnAxiosResponse: true }): Promise<AxiosResponse<LCUEndpointResponseType<Method, Path>>>
-    public async request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(config: LCURequestConfig<Method, Path> & { returnAxiosResponse?: false }): Promise<LCUEndpointResponseType<Method, Path>>
-    public async request(method: string, path: string, options?: LCURequestPayload & { returnAxiosResponse: true }): Promise<AxiosResponse<unknown>>;
-    public async request(method: string, path: string, options?: LCURequestPayload & { returnAxiosResponse?: false }): Promise<unknown>;
-    public async request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(method: Method, path: Path, options?: LCURequestPayload & { returnAxiosResponse: true }): Promise<AxiosResponse<LCUEndpointResponseType<Method, Path>>>;
-    public async request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(method: Method, path: Path, options?: LCURequestPayload & { returnAxiosResponse?: false }): Promise<LCUEndpointResponseType<Method, Path>>;
+    public async request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(method: Method, path: Path, ...options: LCURequestOptionsParameter<Method, Path>): Promise<LCUEndpointResponseType<Method, Path>>;
+    public async request<Method extends string, Path extends string>(config: Partial<AxiosRequestConfig & { method: Method } & ({ url: Path } | { path: Path })>): Promise<AxiosResponse<LCUEndpointResponseType<Method, Path>>>;
     public async request() {
         if (this.lcuAxiosInstance === null)
             throw new Error("Hasagi is not connected to the League of Legends client.");
