@@ -426,6 +426,9 @@ export interface LCUEndpoints {
 	"/lol-catalog/v1/items/{inventoryType}": {
 		get: { path: [inventoryType: string], params: never, body: never, response: LCUTypes.LolCatalogCatalogPluginItem[] }
 	},
+	"/lol-catalog/v1/items-list-details": {
+		get: { path: never, params: { "catalogItemsKeys": LCUTypes.LolCatalogItemKey[] }, body: never, response: LCUTypes.LolCatalogCatalogPluginItemWithDetails[] }
+	},
 	"/lol-catalog/v1/items-list-details/skip-cache": {
 		get: { path: never, params: { "catalogItemsKeys": LCUTypes.LolCatalogItemKey[] }, body: never, response: LCUTypes.LolCatalogCatalogPluginItemWithDetails[] }
 	},
@@ -795,6 +798,9 @@ export interface LCUEndpoints {
 	"/lol-client-config/v3/client-config/{name}": {
 		get: { path: [name: string], params: never, body: never, response: unknown }
 	},
+	"/lol-client-config/v3/client-config/operational/{name}": {
+		get: { path: [name: string], params: never, body: never, response: unknown }
+	},
 	"/lol-collections/v1/inventories/{puuid}/champion-mastery": {
 		get: { path: [puuid: string], params: never, body: never, response: LCUTypes.LolCollectionsCollectionsChampionMastery[] }
 	},
@@ -856,10 +862,13 @@ export interface LCUEndpoints {
 		get: { path: [dropTableId: string], params: never, body: never, response: LCUTypes.LolDropsCapDropsOddsTreeNodeDTO }
 	},
 	"/lol-drops/v1/drop-tables/{dropTableId}/players/{playerId}/pity-count": {
-		get: { path: [dropTableId: string, playerId: string], params: never, body: never, response: LCUTypes.LolDropsCapDropsPityCountDTO }
+		get: { path: [dropTableId: string, playerId: string], params: never, body: never, response: LCUTypes.LolDropsCapDropTableCounterDTO }
 	},
 	"/lol-drops/v1/players/{playerId}/pity-counts": {
-		get: { path: [playerId: string], params: never, body: never, response: LCUTypes.LolDropsCapDropsPityCountDTO[] }
+		get: { path: [playerId: string], params: never, body: never, response: LCUTypes.LolDropsCapDropTableCounterDTO[] }
+	},
+	"/lol-drops/v1/players/{playerId}/total-rolls-counts": {
+		get: { path: [playerId: string], params: never, body: never, response: LCUTypes.LolDropsCapDropTableCounterDTO[] }
 	},
 	"/lol-drops/v1/ready": {
 		get: { path: never, params: never, body: never, response: boolean }
@@ -886,6 +895,9 @@ export interface LCUEndpoints {
 	},
 	"/lol-esport-stream-notifications/v1/stream-url": {
 		get: { path: never, params: never, body: never, response: string }
+	},
+	"/lol-event-mission/v1/event-mission": {
+		get: { path: never, params: never, body: never, response: LCUTypes.LolTftEventTFTEventMissionChain[] }
 	},
 	"/lol-event-shop/v1/categories-offers": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolEventShopCategoryOffersUIData[] }
@@ -1194,11 +1206,8 @@ export interface LCUEndpoints {
 	"/lol-kickout/v1/notification": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolKickoutKickoutMessage }
 	},
-	"/lol-kr-playtime-reminder/v1/message": {
-		get: { path: never, params: never, body: never, response: string }
-	},
-	"/lol-kr-playtime-reminder/v1/playtime": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolKrPlaytimeReminderPlaytimeReminder }
+	"/lol-kr-playtime-reminder/v1/hours-played": {
+		get: { path: never, params: never, body: never, response: number }
 	},
 	"/lol-kr-shutdown-law/v1/custom-status": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolKrShutdownLawQueueShutdownStatus }
@@ -1718,6 +1727,9 @@ export interface LCUEndpoints {
 	"/lol-player-preferences/v1/preference/{type}": {
 		get: { path: [type: string], params: never, body: never, response: unknown }
 	},
+	"/lol-player-report-sender/v1/game-ids-with-verbal-abuse-report": {
+		get: { path: never, params: never, body: never, response: number[] }
+	},
 	"/lol-player-report-sender/v1/in-game-reports": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolPlayerReportSenderPlayerReport[] }
 		post: { path: never, params: never, body: LCUTypes.LolPlayerReportSenderPlayerReport, response: unknown }
@@ -1862,6 +1874,9 @@ export interface LCUEndpoints {
 	"/lol-regalia/v3/summoners/{summonerId}/regalia": {
 		get: { path: [summonerId: number], params: never, body: never, response: LCUTypes.LolRegaliaRegalia }
 	},
+	"/lol-remedy/v1/config/is-verbal-abuse-remedy-modal-enabled": {
+		get: { path: never, params: never, body: never, response: boolean }
+	},
 	"/lol-replays/v1/configuration": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolReplaysReplaysConfiguration }
 	},
@@ -1962,6 +1977,13 @@ export interface LCUEndpoints {
 	},
 	"/lol-spectator/v1/spectate": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolSpectatorSpectateGameInfo }
+	},
+	"/lol-spectator/v1/spectate/config": {
+		get: { path: never, params: never, body: never, response: LCUTypes.LolSpectatorSpectatorConfig }
+	},
+	"/lol-spectator/v3/buddy/spectate": {
+		get: { path: never, params: never, body: never, response: LCUTypes.LolSpectatorSpectateResource }
+		post: { path: never, params: never, body: string[], response: void }
 	},
 	"/lol-statstones/v1/eog-notifications/{gameId}": {
 		get: { path: [gameId: number], params: never, body: never, response: LCUTypes.LolStatstonesEogNotificationEnvelope }
@@ -2194,6 +2216,9 @@ export interface LCUEndpoints {
 	"/lol-tft/v1/tft/promoButtons": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolTftLolTftPromoButtons }
 	},
+	"/lol-tft/v1/tft/tencentEventhubConfigs": {
+		get: { path: never, params: never, body: never, response: LCUTypes.LolTftLolTftTencentEventHubConfigs }
+	},
 	"/lol-tft/v2/tft/battlepass": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolMissionsTftPaidBattlepass }
 	},
@@ -2202,6 +2227,12 @@ export interface LCUEndpoints {
 	},
 	"/lol-trophies/v1/players/{puuid}/trophies/profile": {
 		get: { path: [puuid: string], params: never, body: never, response: LCUTypes.LolTrophiesTrophyProfileData }
+	},
+	"/lol-vanguard/v1/config/days-to-reshow-modal": {
+		get: { path: never, params: never, body: never, response: number }
+	},
+	"/lol-vanguard/v1/machine-specs": {
+		get: { path: never, params: never, body: never, response: LCUTypes.LolVanguardVanguardMachineSpecs }
 	},
 	"/lol-yourshop/v1/has-permissions": {
 		get: { path: never, params: never, body: never, response: boolean }
@@ -2401,6 +2432,9 @@ export interface LCUEndpoints {
 	},
 	"/lol-rewards/v1/grants/{grantId}/view": {
 		patch: { path: [grantId: string], params: never, body: never, response: void }
+	},
+	"/lol-rewards/v1/grants/view": {
+		patch: { path: never, params: never, body: string[], response: void }
 	},
 	"/telemetry/v3/slis/add-bool-diagnostic": {
 		patch: { path: never, params: never, body: LCUTypes.SLIBoolDiagnostic, response: void }
@@ -2985,9 +3019,6 @@ export interface LCUEndpoints {
 	"/lol-patch/v1/products/league_of_legends/stop-patching-request": {
 		post: { path: never, params: never, body: boolean, response: void }
 	},
-	"/lol-perks/v1/quick-play-selections/champion/{championId}/slot/{slotId}": {
-		post: { path: [championId: number, slotId: number], params: never, body: LCUTypes.LolPerksPerkPageResource, response: unknown }
-	},
 	"/lol-perks/v1/recommended-pages-position/champion/{championId}/position/{position}": {
 		post: { path: [championId: number, position: string], params: never, body: never, response: unknown }
 	},
@@ -3164,6 +3195,9 @@ export interface LCUEndpoints {
 	},
 	"/lol-tft/v1/tft/homeHub/redirect": {
 		post: { path: never, params: never, body: never, response: void }
+	},
+	"/lol-vanguard/v1/telemetry/system-check": {
+		post: { path: never, params: never, body: LCUTypes.LolVanguardVanguardSystemCheckTelemetryEvent, response: unknown }
 	},
 	"/lol-yourshop/v1/offers/{id}/purchase": {
 		post: { path: [id: string], params: never, body: never, response: LCUTypes.LolYourshopPurchaseResponse }
@@ -3440,6 +3474,6 @@ export type LCUEndpointBodyType<Method extends string, Path extends string> = Pa
 // @ts-expect-error
 export type LCUEndpointParams<Method extends string, Path extends string> = Path extends keyof LCUEndpoints ? Method extends keyof LCUEndpoints[Path] ? LCUEndpoints[Path][Method]["params"] : unknown : unknown;
 
-export type EndpointsWithMethod<Method extends HttpMethod> = { [K in keyof LCUEndpoints]: LCUEndpoints[K] extends { [key in Method]: {} } ? K : never }[keyof LCUEndpoints]
+export type EndpointsWithMethod<Method extends HttpMethod> = { [K in keyof LCUEndpoints]: LCUEndpoints[K] extends { [key in Method]: {} } ? K : never }[keyof LCUEndpoints];
 
 export type HttpMethod = "delete" | "get" | "head" | "patch" | "post" | "put";

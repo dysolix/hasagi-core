@@ -1,6 +1,5 @@
 import axios from "axios";
 import getProcesses from "ps-list";
-import find from "find-process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { Agent } from "https";
@@ -57,11 +56,11 @@ function getPortAndBasicAuthTokenFromLockfile(lockfileContent: string) {
         throw new Error(`Lockfile does not have the expected schema. (/^LeagueClient:\\d+:\\d+:.+:https$/)`);
 
     const lockfileArr = lockfileContent.split(":");
-    const port = lockfileArr[2];
+    const port = Number(lockfileArr[2]);
     const password = lockfileArr[3];
 
     if (port && password) {
-        return { port: Number(port), password: password };
+        return { port, password };
     }
 
     throw new Error("Could not retrieve port and password from lockfile.");

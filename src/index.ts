@@ -1,5 +1,4 @@
 import HasagiClient from "./client.js";
-import { EndpointsWithMethod, HttpMethod, LCUEndpointBodyType, LCUEndpoints } from "./types/lcu-endpoints";
 import { LCUWebSocketEvents } from "./types/lcu-events";
 
 export { HasagiClient };
@@ -44,35 +43,3 @@ export interface HasagiEvents {
 	"disconnected": () => void,
 	"lcu-event": <EventName extends keyof LCUWebSocketEvents = "OnJsonApiEvent">(event: [opcode: number, name: EventName, data: LCUWebSocketEvents[EventName]]) => void
 }
-
-export type LCURequestConfig<Method extends string = string, Path extends string = string> = {
-	method: Method;
-	path: Path;
-} & LCURequestOptions<Method, Path>;
-
-type IsParameter<Part> = Part extends `{${infer ParamName}}` ? ParamName : never;
-type FilteredParts<Path> = Path extends `${infer PartA}/${infer PartB}`
-	? IsParameter<PartA> | FilteredParts<PartB>
-	: IsParameter<Path>;
-
-type ParamsWithoutBracket<Path extends string> = FilteredParts<Path>;
-
-type IsLCUEndpoint<Method extends string, Path extends string> = Path extends keyof LCUEndpoints ? Method extends keyof LCUEndpoints[Path] ? LCUEndpoints[Path][Method] extends { path: any, params: any, body: any, response: any } ? true : false : false : false;
-
-export type LCURequestOptionsParameter<Method extends string, Path extends string> = Path extends keyof LCUEndpoints ? Method extends keyof LCUEndpoints[Path] ? LCUEndpoints[Path][Method] extends { path: any, params: any, body: any, response: any } ?
-	{} extends { [key in ParamsWithoutBracket<Path>]: string } ? [options?: LCURequestOptions<Method, Path>] : [options: LCURequestOptions<Method, Path>] :
-	[options?: LCURequestOptions<Method, Path>] : [options?: LCURequestOptions<Method, Path>] : [options?: LCURequestOptions<Method, Path>];
-
-export type LCURequestOptions<Method extends string, Path extends (Lowercase<Method> extends HttpMethod ? EndpointsWithMethod<Lowercase<Method>> : string)> = { headers?: Record<string, any> } & (ParamsWithoutBracket<Path> extends never ? {} : { path: { [K in ParamsWithoutBracket<Path>]: string } }) & (Path extends keyof LCUEndpoints ? Method extends keyof LCUEndpoints[Path] ? LCUEndpoints[Path][Method] extends { path: any, params: any, body: any, response: any } ? (
-	(LCUEndpoints[Path][Method]["body"] extends never ? {} : { body: LCUEndpoints[Path][Method]["body"] }) &
-	(LCUEndpoints[Path][Method]["params"] extends never ? {} : { params: LCUEndpoints[Path][Method]["params"] })
-) : {
-	params?: Record<string, any>;
-	body?: any;
-} : {
-	params?: Record<string, any>;
-	body?: any;
-} : {
-	params?: Record<string, any>;
-	body?: any;
-});
