@@ -4,7 +4,7 @@ import { WebSocket } from "ws";
 import { delay, getPortAndBasicAuthToken } from "./util.js";
 import RequestError from "./request-error.js";
 import { TypedEmitter } from "tiny-typed-emitter";
-import { LCUEndpoint, LCUEndpointResponseType, LCUWebSocketEvents, HttpMethod, EndpointsWithMethod, ConnectionOptions, HasagiEvents, LCUEventListener, LCURequestConfig, LCURequestOptions, LCURequestOptionsParameter } from "./index"
+import { LCUEndpoint, LCUEndpointResponseType, LCUWebSocketEvents, HttpMethod, EndpointsWithMethod, ConnectionOptions, HasagiEvents, LCUEventListener, LCUEndpoints } from "./index"
 
 export default class HasagiClient extends TypedEmitter<HasagiEvents> {
     public isConnected: boolean = false;
@@ -38,13 +38,9 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
 
             const body = args[i];
 
-            this.request({
-
-            })
-
             const lcuResponse = await this.request({
                 method,
-                path: requestPath,
+                url: requestPath,
                 data: method !== "get" ? body : undefined,
                 params: method === "get" ? body : undefined,
                 headers: {
@@ -66,6 +62,11 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
     private subscribedEvents = new Set<keyof LCUWebSocketEvents>();
 
     public subscribeWebSocketEvent = (eventName: keyof LCUWebSocketEvents) => {
+        if (this.webSocket === null) {
+            this.subscribedEvents.add(eventName);
+            return;
+        }
+
         if (this.subscribedEvents.has(eventName))
             return;
 
@@ -201,39 +202,47 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
     /**
      * Send a request to the League of Legends client (LCU). Authentication is automatically included and the base url is already set.
      */
-    public async request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(method: Method, path: Path, ...options: LCURequestOptionsParameter<Method, Path>): Promise<LCUEndpointResponseType<Method, Path>>;
-    public async request<Method extends string, Path extends string>(config: Partial<AxiosRequestConfig & { method: Method } & ({ url: Path } | { path: Path })>): Promise<AxiosResponse<LCUEndpointResponseType<Method, Path>>>;
+    public async request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>, ReturnAxiosResponse extends boolean = false>(config: AxiosRequestConfig & { method: Method, url: Path } & { returnAxiosResponse?: ReturnAxiosResponse }): Promise<ReturnAxiosResponse extends true ? AxiosResponse<LCUEndpointResponseType<Method, Path>> : LCUEndpointResponseType<Method, Path>>;
+    public async request<Method extends string, Path extends string, ReturnAxiosResponse extends boolean = false>(config: AxiosRequestConfig & { method: Method, url: Path } & { returnAxiosResponse?: ReturnAxiosResponse }): Promise<ReturnAxiosResponse extends true ? AxiosResponse<LCUEndpointResponseType<Method, Path>> : LCUEndpointResponseType<Method, Path>>;
+
+    public async request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(method: Method, path: Path, ...options: LCURequestParametersParameter<Method, Path>): Promise<LCUEndpointResponseType<Method, Path>>;
+    public async request<Method extends string, Path extends string>(method: Method, path: Path, ...options: LCURequestParametersParameter<Method, Path>): Promise<LCUEndpointResponseType<Method, Path>>;
+
     public async request() {
         if (this.lcuAxiosInstance === null)
             throw new Error("Hasagi is not connected to the League of Legends client.");
 
-        let config: LCURequestConfig;
+        let axiosConfig: AxiosRequestConfig;
         let returnAxiosResponse = false;
 
         if (arguments.length === 1) {
-            config = arguments[0];
-            returnAxiosResponse = arguments[0].returnAxiosResponse ?? false;
+            axiosConfig = arguments[0] as AxiosRequestConfig;
+            returnAxiosResponse = true;
         } else {
             const method = arguments[0] as string;
-            const path = arguments[1] as string;
-            const _config = arguments[2] ?? {} as LCURequestConfig & { returnAxiosResponse?: boolean };
-            returnAxiosResponse = _config.returnAxiosResponse ?? false;
-            config = {
-                method,
-                path,
-                body: _config.body,
-                params: _config.params,
-                headers: _config.headers
+            let path = arguments[1] as string;
+            const _config = arguments[2] as LCURequestParameters<string, string> | undefined;
+
+            // Replace path parameters
+            if (_config && "path" in _config) {
+                Object.entries(_config.path as Record<string, string>).forEach(([key, value]) => {
+                    path = path.replace(`{${key}}`, value);
+                });
             }
+
+            axiosConfig = {
+                method,
+                url: path,
+                data: _config?.body,
+                params: _config?.query,
+                headers: _config?.headers
+            }
+
+            returnAxiosResponse = false;
         }
 
-        const axiosResponse = await this.lcuAxiosInstance.request({
-            method: config.method,
-            url: config.path,
-            data: config.body,
-            params: config.params,
-            headers: config.headers
-        }).catch(err => { throw new RequestError(err); });
+        const axiosResponse = await this.lcuAxiosInstance.request(axiosConfig).catch(err => { throw new RequestError(err); });
+
         if (returnAxiosResponse)
             return axiosResponse;
 
@@ -321,3 +330,28 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
     }
     //#endregion
 }
+
+type IsParameter<Part> = Part extends `{${infer ParamName}}` ? ParamName : never;
+type FilteredParts<Path> = Path extends `${infer PartA}/${infer PartB}`
+    ? IsParameter<PartA> | FilteredParts<PartB>
+    : IsParameter<Path>;
+
+type ParamsWithoutBracket<Path extends string> = FilteredParts<Path>;
+
+type LCURequestParametersParameter<Method extends string, Path extends string> = Path extends keyof LCUEndpoints ? Method extends keyof LCUEndpoints[Path] ? LCUEndpoints[Path][Method] extends { path: any, params: any, body: any, response: any } ?
+    {} extends { [key in ParamsWithoutBracket<Path>]: string } ? [options?: LCURequestParameters<Method, Path>] : [options: LCURequestParameters<Method, Path>] :
+    [options?: LCURequestParameters<Method, Path>] : [options?: LCURequestParameters<Method, Path>] : [options?: LCURequestParameters<Method, Path>];
+
+type LCURequestParameters<Method extends string, Path extends string> = { headers?: Record<string, any> } & (ParamsWithoutBracket<Path> extends never ? {} : { path: { [K in ParamsWithoutBracket<Path>]: string } }) & (Path extends keyof LCUEndpoints ? Method extends keyof LCUEndpoints[Path] ? LCUEndpoints[Path][Method] extends { path: any, params: any, body: any, response: any } ? (
+    (LCUEndpoints[Path][Method]["body"] extends never ? {} : { body: LCUEndpoints[Path][Method]["body"] }) &
+    (LCUEndpoints[Path][Method]["params"] extends never ? {} : { query: LCUEndpoints[Path][Method]["params"] })
+) : {
+    query?: Record<string, any>;
+    body?: any;
+} : {
+    query?: Record<string, any>;
+    body?: any;
+} : {
+    query?: Record<string, any>;
+    body?: any;
+});
