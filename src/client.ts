@@ -9,11 +9,13 @@ import { LCUEndpoint, LCUEndpointResponseType, LCUWebSocketEvents, HttpMethod, E
 export default class HasagiClient extends TypedEmitter<HasagiEvents> {
     public isConnected: boolean = false;
     private port: number | null = null;
+    private password: string | null = null;
     private basicAuthToken: string | null = null;
     private lcuAxiosInstance: AxiosInstance | null = null;
     private webSocket: WebSocket | null = null;
     private lcuEventListeners: LCUEventListener[] = [];
 
+    getPassword = () => this.password;
     getPort = () => this.port;
     /** The base64 encoded basic auth token ("riot:{password}") */
     getBasicAuthToken = () => this.basicAuthToken;
@@ -49,7 +51,7 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
             });
 
             if (options?.transformResponse)
-                return options.transformResponse(lcuResponse as any);
+                return options.transformResponse(lcuResponse);
 
             return lcuResponse;
         }
@@ -93,6 +95,7 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
         this.basicAuthToken = null;
         this.lcuAxiosInstance = null;
         this.webSocket = null;
+        this.password = null;
 
         let attempt = 0;
         while (maxConnectionAttempts === -1 || attempt++ < maxConnectionAttempts) {
@@ -102,6 +105,7 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
                 const authData = authenticationStrategy === "process" ? await getPortAndBasicAuthToken("process") : await getPortAndBasicAuthToken("lockfile", lockfile!);
 
                 this.port = authData.port;
+                this.password = authData.password;
                 this.basicAuthToken = Buffer.from(`riot:${authData.password}`).toString("base64");
 
                 this.lcuAxiosInstance = axios.create({
@@ -192,6 +196,7 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
         this.basicAuthToken = null;
         this.lcuAxiosInstance = null;
         this.webSocket = null;
+        this.password = null;
 
         this.emit("disconnected");
     }
@@ -217,7 +222,9 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
 
         if (arguments.length === 1) {
             axiosConfig = arguments[0] as AxiosRequestConfig;
-            returnAxiosResponse = true;
+
+            if (arguments[0].returnAxiosResponse)
+                returnAxiosResponse = true;
         } else {
             const method = arguments[0] as string;
             let path = arguments[1] as string;
