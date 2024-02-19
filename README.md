@@ -2,6 +2,14 @@
 
 A TypeScript library that makes using the League of Legends client API (LCU) easy.
 
+# Features
+
+- Easy to use
+- Auto-generated types for every request
+- WebSocket support
+- Lockfile and process arguments support
+- Ability to prepare requests to modify their parameters and response
+
 # Installation
 ```
 npm install @hasagi/core
@@ -45,7 +53,5 @@ console.log(response);
     "xpUntilNextLevel": 3648
  } */
 ```
-# Documentation
-You can find Hasagi's documentation at https://docs.dysolix.dev.
 # Disclaimer
 Hasagi is not endorsed by Riot Games and does not reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games and all associated properties are trademarks or registered trademarks of Riot Games, Inc
