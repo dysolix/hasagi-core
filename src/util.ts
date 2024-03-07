@@ -18,10 +18,6 @@ export async function getPortAndBasicAuthToken(source: "process" | "lockfile" = 
             const process = processArr.find(p => p.name === "LeagueClientUx.exe");
             if (process === undefined) throw new Error("Unable to find process 'LeagueClientUx.exe'.");
             commandLine = execSync(`(Get-CimInstance Win32_Process -Filter \"ProcessId=${process.pid}\").CommandLine`, { shell: "powershell.exe" }).toString("utf-8");
-        } else if (process.platform === "linux") {
-            const process = processArr.find(p => p.name === "LeagueClientUx" || p.cmd?.includes("LeagueClientUx.exe"));
-            if (process === undefined) throw new Error("Unable to find process 'LeagueClientUx.exe'.");
-            commandLine = process.cmd!;
         } else {
             // UNSUPPORTED
             throw new Error(`Authentication strategy 'process' is not supported on this platform. (${process.platform})`);
