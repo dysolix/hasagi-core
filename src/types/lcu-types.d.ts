@@ -5637,6 +5637,10 @@ export interface LolCosmeticsCapOffer {
 	createdDate: string
 }
 
+export interface LolCosmeticsCompanionsFavoritesViewModel {
+	favoriteItems: LolCosmeticsCosmeticsCompanionViewModel[]
+}
+
 export interface LolCosmeticsCompanionsGroupViewModel {
 	groupName: string
 	/** @format uint32 */
@@ -5653,6 +5657,7 @@ export interface LolCosmeticsCompanionsGroupedViewModel {
 	/** @format int32 */
 	defaultItemId: number
 	groups: LolCosmeticsCompanionsGroupViewModel[]
+	favorites: LolCosmeticsCosmeticsCompanionViewModel[]
 }
 
 export interface LolCosmeticsCosmeticSettingsResource {
@@ -5693,6 +5698,7 @@ export interface LolCosmeticsCosmeticsCompanionViewModel {
 	loadoutsIcon: string
 	owned: boolean
 	selected: boolean
+	favorited: boolean
 	loyalty: boolean
 	"f2p": boolean
 	/** @format uint32 */
@@ -5714,6 +5720,10 @@ export interface LolCosmeticsCosmeticsOfferPrice {
 	offerId: string
 	/** @format uint64 */
 	price: number
+}
+
+export interface LolCosmeticsCosmeticsSettings {
+	favorites: LolCosmeticsFavoriteCosmetics
 }
 
 export interface LolCosmeticsCosmeticsTFTDamageSkin {
@@ -5747,6 +5757,7 @@ export interface LolCosmeticsCosmeticsTFTDamageSkinViewModel {
 	loadoutsIcon: string
 	owned: boolean
 	selected: boolean
+	favorited: boolean
 	loyalty: boolean
 	"f2p": boolean
 	/** @format uint32 */
@@ -5789,6 +5800,7 @@ export interface LolCosmeticsCosmeticsTFTMapSkinViewModel {
 	loadoutsIcon: string
 	owned: boolean
 	selected: boolean
+	favorited: boolean
 	loyalty: boolean
 	"f2p": boolean
 	/** @format uint32 */
@@ -5859,6 +5871,12 @@ export interface LolCosmeticsCosmeticsTFTPlaybookViewModel {
 	midAugments: LolCosmeticsCosmeticsTFTPlaybookAugment[]
 	lateAugments: LolCosmeticsCosmeticsTFTPlaybookAugment[]
 	isDisabledInDoubleUp: boolean
+}
+
+export interface LolCosmeticsFavoriteCosmetics {
+	companions: string[]
+	tft_damage_skins: string[]
+	tft_map_skins: string[]
 }
 
 export interface LolCosmeticsGameDataCompanion {
@@ -5953,6 +5971,16 @@ export interface LolCosmeticsLoadoutUpdateDto {
 	loadout: Record<string, LolCosmeticsLoadoutItem>
 }
 
+export interface LolCosmeticsSettingsStorageContainer {
+	data: LolCosmeticsCosmeticsSettings
+	/** @format uint16 */
+	schemaVersion: number
+}
+
+export interface LolCosmeticsTFTDamageSkinFavoritesViewModel {
+	favoriteItems: LolCosmeticsCosmeticsTFTDamageSkinViewModel[]
+}
+
 export interface LolCosmeticsTFTDamageSkinGroupViewModel {
 	groupName: string
 	/** @format uint32 */
@@ -5969,6 +5997,11 @@ export interface LolCosmeticsTFTDamageSkinGroupedViewModel {
 	/** @format int32 */
 	defaultItemId: number
 	groups: LolCosmeticsTFTDamageSkinGroupViewModel[]
+	favorites: LolCosmeticsCosmeticsTFTDamageSkinViewModel[]
+}
+
+export interface LolCosmeticsTFTMapSkinFavoritesViewModel {
+	favoriteItems: LolCosmeticsCosmeticsTFTMapSkinViewModel[]
 }
 
 export interface LolCosmeticsTFTMapSkinGroupViewModel {
@@ -5987,6 +6020,7 @@ export interface LolCosmeticsTFTMapSkinGroupedViewModel {
 	/** @format int32 */
 	defaultItemId: number
 	groups: LolCosmeticsTFTMapSkinGroupViewModel[]
+	favorites: LolCosmeticsCosmeticsTFTMapSkinViewModel[]
 }
 
 export interface LolCosmeticsTFTPlaybookGroupViewModel {
@@ -6041,8 +6075,21 @@ export interface LolDiscordRpPartyPresenceData {
 
 export interface LolDropsCapDropTableCounterDTO {
 	dropTableId: string
-	/** @format uint32 */
+	/** @format uint8 */
 	count: number
+}
+
+export interface LolDropsCapDropsDropTableDisplayMetadata {
+	isCollectorsBounty: boolean
+	nameTraKey: string
+	mythicOfferId: string
+	progressionId: string
+	/** @format uint8 */
+	priority: number
+	tables: Record<string, LolDropsOddsTableDisplayMetadata>
+	/** @format uint8 */
+	version: number
+	chaseContentId: string
 }
 
 export interface LolDropsCapDropsDropTablePityInfo {
@@ -6063,6 +6110,7 @@ export interface LolDropsCapDropsDropTableWithPityDTO {
 	cost: number
 	totalRollsInfo: LolDropsTotalRollsInfoDTO
 	pityInfo: LolDropsCapDropsDropTablePityInfo
+	displayMetadata: LolDropsCapDropsDropTableDisplayMetadata
 }
 
 export interface LolDropsCapDropsOddsListEntryDTO {
@@ -6077,6 +6125,12 @@ export interface LolDropsCapDropsOddsTreeNodeDTO {
 	/** @format float */
 	odds: number
 	children: LolDropsCapDropsOddsTreeNodeDTO[]
+}
+
+export interface LolDropsOddsTableDisplayMetadata {
+	nameTraKey: string
+	/** @format uint8 */
+	priority: number
 }
 
 export interface LolDropsTotalRollsInfoDTO {
@@ -6741,6 +6795,1466 @@ export interface LolEsportStreamNotificationsPlayerNotificationResource {
 	type: string
 }
 
+export interface LolEventHubAccessTokenResource {
+	token: string
+	scopes: string[]
+	/** @format uint64 */
+	expiry: number
+}
+
+export interface LolEventHubActivationClientConfig {
+	hubEnabled: boolean
+	/** @format double */
+	activationSpreadSeconds: number
+	/** @format double */
+	firstActivationThresholdSeconds: number
+	activeEventId: string
+	startDate: string
+	endDate: string
+}
+
+export interface LolEventHubActiveEventUIData {
+	eventId: string
+	eventInfo: LolEventHubEventInfoUIData
+}
+
+export interface LolEventHubBalance {
+	currencyType: string
+	/** @format int32 */
+	amount: number
+}
+
+export interface LolEventHubBaseSkinLineDto {
+	items: LolEventHubSkinLineItemDto[]
+	localizedName: string
+	skinLineDescriptions: LolEventHubSkinLineDescriptionDto[]
+	pricingOptions: LolEventHubPriceOptionDto[]
+	splashPath: string
+	uncenteredSplashPath: string
+	collectionCardPath: string
+	collectionDescription: string
+	tilePath: string
+}
+
+export interface LolEventHubBundleOfferUIData {
+	details: LolEventHubBundledItemUIData
+	/** @format int64 */
+	initialPrice: number
+	/** @format int64 */
+	finalPrice: number
+	/** @format int64 */
+	futureBalance: number
+	isPurchasable: boolean
+	/** @format double */
+	discountPercentage: number
+	bundledItems: LolEventHubBundledItemUIData[]
+}
+
+export interface LolEventHubBundledItemPricingInfo {
+	discountPrices: LolEventHubDiscountPricingInfo[]
+	inventoryType: string
+	/** @format int32 */
+	itemId: number
+	/** @format int32 */
+	quantity: number
+}
+
+export interface LolEventHubBundledItemUIData {
+	name: string
+	/** @format int32 */
+	itemId: number
+	description: string
+	inventoryType: string
+	subInventoryType: string
+	splashImage: string
+	owned: boolean
+	/** @format uint32 */
+	quantity: number
+}
+
+export interface LolEventHubCapOffer {
+	id: string
+	typeId: string
+	label: string
+	productId: string
+	merchantId: string
+	payload: LolEventHubCapOfferPayloadEntry[]
+	active: boolean
+	startDate: string
+	createdDate: string
+}
+
+export interface LolEventHubCapOfferPayloadEntry {
+	itemPriceMap: Record<string, number>
+	itemInstanceId: string
+	fulfillmentTypeId: string
+	inventoryTypeUUID: string
+}
+
+export interface LolEventHubCapOrdersDataDto {
+	id: string
+	subOrders: LolEventHubCapOrdersSubOrderDto[]
+	purchaser: LolEventHubCapOrdersTypedIdentifierDto
+	location: string
+	source: string
+}
+
+export interface LolEventHubCapOrdersMetaDto {
+	xid: string
+}
+
+export interface LolEventHubCapOrdersOfferContextDto {
+	/** @format uint32 */
+	quantity: number
+	paymentOption: string
+}
+
+export interface LolEventHubCapOrdersOfferDto {
+	id: string
+	productId: string
+}
+
+export interface LolEventHubCapOrdersOrderDto {
+	data: LolEventHubCapOrdersDataDto
+	meta: LolEventHubCapOrdersMetaDto
+}
+
+export interface LolEventHubCapOrdersSubOrderDto {
+	recipientId: string
+	offerContext: LolEventHubCapOrdersOfferContextDto
+	offer: LolEventHubCapOrdersOfferDto
+}
+
+export interface LolEventHubCapOrdersTypedIdentifierDto {
+	id: string
+	typeId: string
+}
+
+export interface LolEventHubCatalogEntry {
+	contentId: string
+	/** @format int32 */
+	itemId: number
+	offerId: string
+	typeId: string
+}
+
+export interface LolEventHubCatalogItem {
+	/** @format int32 */
+	itemId: number
+	inventoryType: string
+	itemInstanceId?: string
+}
+
+export interface LolEventHubCatalogPluginItem {
+	/** @format int32 */
+	itemId: number
+	itemInstanceId: string
+	owned: boolean
+	inventoryType: string
+	subInventoryType: string
+	name: string
+	subTitle: string
+	description: string
+	imagePath: string
+	/** @format uint64 */
+	purchaseDate: number
+	/** @format uint64 */
+	releaseDate: number
+	/** @format uint64 */
+	inactiveDate: number
+	prices: LolEventHubCatalogPluginPrice[]
+	tags?: string[]
+	metadata?: LolEventHubItemMetadataEntry[]
+	questSkinInfo?: LolEventHubSkinLineInfo
+	active: boolean
+	ownershipType?: LolEventHubInventoryOwnership
+}
+
+export interface LolEventHubCatalogPluginItemAssets {
+	splashPath: string
+	iconPath: string
+	tilePath: string
+	emblems: LolEventHubChampionSkinEmblem[]
+	colors: string[]
+}
+
+export interface LolEventHubCatalogPluginItemWithDetails {
+	item: LolEventHubCatalogPluginItem
+	/** @format uint32 */
+	quantity: number
+	requiredItems?: LolEventHubCatalogPluginItemWithDetails[]
+	bundledItems?: LolEventHubCatalogPluginItemWithDetails[]
+	minimumBundlePrices?: LolEventHubCatalogPluginPrice[]
+	bundledDiscountPrices?: LolEventHubCatalogPluginPrice[]
+	assets: LolEventHubCatalogPluginItemAssets
+}
+
+export interface LolEventHubCatalogPluginPrice {
+	currency: string
+	/** @format int64 */
+	cost: number
+	costType?: string
+	sale?: LolEventHubCatalogPluginSale
+}
+
+export interface LolEventHubCatalogPluginSale {
+	startDate: string
+	endDate: string
+	/** @format float */
+	discount?: number
+	/** @format int64 */
+	cost: number
+}
+
+export interface LolEventHubCategoryOffersUIData {
+	category: LolEventHubOfferCategory
+	categoryIconPath: string
+	offers: LolEventHubOfferUIData[]
+}
+
+export type LolEventHubCelebrationType = "FULLSCREEN" | "TOAST" | "NONE"
+
+export interface LolEventHubChampionSkinEmblem {
+	name: string
+	emblemPath: LolEventHubChampionSkinEmblemPath
+	emblemPosition: LolEventHubChampionSkinEmblemPosition
+}
+
+export interface LolEventHubChampionSkinEmblemPath {
+	large: string
+	small: string
+}
+
+export interface LolEventHubChampionSkinEmblemPosition {
+	vertical: string
+	horizontal: string
+}
+
+export interface LolEventHubClientCacheClearMessageDTO {
+	regions: string[]
+	clearAll: boolean
+	inventoryTypes: string[]
+}
+
+export interface LolEventHubContentDrop {
+	patch: string
+	activationDate: string
+	offers: LolEventHubOffer[]
+}
+
+export interface LolEventHubContentDropClientConfig {
+	patch: string
+	activationDate: string
+}
+
+export interface LolEventHubCounter {
+	id: string
+	name: string
+	groupId: string
+	direction: string
+	/** @format int64 */
+	startValue: number
+}
+
+export interface LolEventHubCounterInstance {
+	ownerId: string
+	productId: string
+	groupId: string
+	counterId: string
+	/** @format int64 */
+	counterValue: number
+}
+
+export interface LolEventHubCurrencyDTO {
+	/** @format int32 */
+	amount: number
+	subCurrencies: Record<string, number>
+}
+
+export interface LolEventHubDiscountPricingInfo {
+	/** @format int32 */
+	cost: number
+	costType: string
+	currency: string
+	/** @format float */
+	discount: number
+}
+
+export interface LolEventHubEndOfGameXp {
+	/** @format uint32 */
+	PER_WIN: number
+}
+
+export interface LolEventHubEndOfGameXpNotification {
+	xp: LolEventHubEndOfGameXp
+}
+
+export interface LolEventHubEntityInstance {
+	groupId: string
+	counters: LolEventHubCounterInstance[]
+	milestones: LolEventHubMilestoneInstance[]
+}
+
+export interface LolEventHubEventBackgroundUIData {
+	backgroundImagePath: string
+	premiumBackgroundImagePath: string
+}
+
+export interface LolEventHubEventDetailsUIData {
+	eventIconPath: string
+	eventName: string
+	progressEndDate: string
+	shopEndDate: string
+	eventStartDate: string
+	helpModalImagePath: string
+	inducteeName: string
+	promotionBannerImage: string
+}
+
+export interface LolEventHubEventHubError {
+	errorMessage: string
+	errorId: string
+}
+
+export type LolEventHubEventHubType = "HallOfLegends" | "EventShop"
+
+export interface LolEventHubEventInfoUIData {
+	eventId: string
+	eventName: string
+	eventType: string
+	eventIcon: string
+	eventTokenImage: string
+	/** @format int32 */
+	currentTokenBalance: number
+	/** @format int32 */
+	lockedTokenCount: number
+	/** @format int32 */
+	unclaimedRewardCount: number
+	/** @format int64 */
+	timeOfLastUnclaimedReward: number
+	isPassPurchased: boolean
+	eventPassBundles: LolEventHubCatalogEntry[]
+	tokenBundles: LolEventHubCatalogEntry[]
+}
+
+export interface LolEventHubEventPassInfo {
+	eventId: string
+	isPassPurchased: boolean
+}
+
+export interface LolEventHubEventShop {
+	eventId: string
+	eventHubType: string
+	localizedName: string
+	backgroundImage: string
+	navbarIconImage: string
+	headerIconImage: string
+	startDate: string
+	progressEndDate: string
+	endDate: string
+	localizedUpsellTitle: string
+	localizedUpsellTooltipTitle: string
+	localizedUpsellTooltipDescription: string
+	localizedUpsellButtonText: string
+	upsellBackgroundImageUrl: string
+	upsellTooltipBackgroundImageUrl: string
+	helpModalImage: string
+	eventPassBundlesCatalogEntry: LolEventHubCatalogEntry[]
+	tokenShop: LolEventHubTokenShop
+	rewardTrack: LolEventHubRewardTrack
+}
+
+export interface LolEventHubEventShopClientConfig {
+	progressEndDate: string
+	disabledOfferIds: string[]
+	contentDrops: LolEventHubContentDropClientConfig[]
+}
+
+export type LolEventHubExternalCatalogInventoryOwnership = "F2P" | "LOYALTY" | "RENTED" | "OWNED"
+
+export interface LolEventHubExternalCatalogItemCost {
+	currency: string
+	/** @format int64 */
+	cost: number
+	/** @format float */
+	discount?: number
+}
+
+export interface LolEventHubExternalCatalogItemKey {
+	inventoryType: string
+	/** @format int32 */
+	itemId: number
+}
+
+export interface LolEventHubExternalCatalogPluginItem {
+	/** @format int32 */
+	itemId: number
+	itemInstanceId: string
+	owned: boolean
+	ownershipType?: LolEventHubExternalCatalogInventoryOwnership
+	inventoryType: string
+	subInventoryType: string
+	name: string
+	subTitle: string
+	description: string
+	imagePath: string
+	/** @format uint64 */
+	purchaseDate: number
+	/** @format uint64 */
+	releaseDate: number
+	/** @format uint64 */
+	inactiveDate: number
+	prices: LolEventHubExternalCatalogPluginPrice[]
+	tags?: string[]
+	active: boolean
+	sale?: LolEventHubExternalCatalogSale
+	offerId?: string
+}
+
+export interface LolEventHubExternalCatalogPluginItemAssets {
+	splashPath: string
+	iconPath: string
+	tilePath: string
+	colors: string[]
+}
+
+export interface LolEventHubExternalCatalogPluginItemWithDetails {
+	item: LolEventHubExternalCatalogPluginItem
+	/** @format uint32 */
+	quantity: number
+	requiredItems?: LolEventHubExternalCatalogPluginItemWithDetails[]
+	bundledItems?: LolEventHubExternalCatalogPluginItemWithDetails[]
+	minimumBundlePrices?: LolEventHubExternalCatalogPluginPrice[]
+	bundledDiscountPrices?: LolEventHubExternalCatalogPluginPrice[]
+	metadata: LolEventHubExternalItemMetadataEntry[]
+}
+
+export interface LolEventHubExternalCatalogPluginPrice {
+	currency: string
+	/** @format int64 */
+	cost: number
+	costType?: string
+	sale?: LolEventHubExternalCatalogPluginRetailDiscount
+}
+
+export interface LolEventHubExternalCatalogPluginRetailDiscount {
+	startDate: string
+	endDate: string
+	/** @format float */
+	discount?: number
+	/** @format int64 */
+	cost: number
+}
+
+export interface LolEventHubExternalCatalogSale {
+	startDate: string
+	endDate: string
+	prices: LolEventHubExternalCatalogItemCost[]
+}
+
+export interface LolEventHubExternalItemMetadataEntry {
+	type: string
+	value: string
+}
+
+export type LolEventHubGrantStatus = "FAILED" | "FULFILLED" | "PENDING_SELECTION" | "PENDING_FULFILLMENT"
+
+export interface LolEventHubGrantorDescription {
+	appName: string
+	entityId: string
+}
+
+export interface LolEventHubGroup {
+	id: string
+	productId: string
+	name: string
+	repeat: LolEventHubRepeat
+	counters: LolEventHubCounter[]
+	milestones: LolEventHubMilestone[]
+}
+
+export interface LolEventHubHallOfLegends {
+	eventId: string
+	eventHubType: string
+	localizedName: string
+	navbarIconImage: string
+	headerIconImage: string
+	startDate: string
+	endDate: string
+	helpModalImage: string
+	backgroundImage: string
+	premiumBackgroundImage: string
+	inducteeName: string
+	promotionBannerImage: string
+	eventPassBundlesCatalogEntry: LolEventHubCatalogEntry[]
+	progressionPurchaseCatalogEntry: LolEventHubCatalogEntry
+	skinIds: string[]
+	rewardTrack: LolEventHubRewardTrack
+	narrativeElements: LolEventHubNarrativeElement[]
+}
+
+export interface LolEventHubInventoryCacheEntry {
+	signedInventoryJwt: string
+	/** @format uint64 */
+	expirationMS: number
+	/** @format uint64 */
+	issuedAtMS: number
+	/** @format uint64 */
+	receivedAtMS: number
+	valid: boolean
+}
+
+export interface LolEventHubInventoryDTO {
+	puuid: string
+	/** @format uint64 */
+	accountId: number
+	/** @format uint64 */
+	summonerId: number
+	items: Record<string, unknown>
+	expires: string
+	itemsJwt: string
+}
+
+export interface LolEventHubInventoryItem {
+	uuid: string
+	/** @format int32 */
+	itemId: number
+	inventoryType: string
+	purchaseDate: string
+	/** @format uint64 */
+	quantity: number
+	ownershipType: LolEventHubItemOwnershipType
+	expirationDate: string
+	/** @format uint64 */
+	wins: number
+}
+
+export interface LolEventHubInventoryItemDTO {
+	/** @format int32 */
+	itemId: number
+	inventoryType: string
+	expirationDate: string
+	purchaseDate: string
+	/** @format uint64 */
+	quantity: number
+	/** @format uint64 */
+	ownedQuantity: number
+	usedInGameDate: string
+	entitlementId: string
+	entitlementTypeId: string
+	instanceId: string
+	instanceTypeId: string
+	payload: unknown
+	"f2p": boolean
+	rental: boolean
+	loyalty: boolean
+	loyaltySources: string[]
+	lsb: boolean
+	/** @format uint64 */
+	wins: number
+}
+
+export interface LolEventHubInventoryItemWithPayload {
+	uuid: string
+	/** @format int32 */
+	itemId: number
+	inventoryType: string
+	purchaseDate: string
+	/** @format uint64 */
+	quantity: number
+	ownershipType: LolEventHubItemOwnershipType
+	expirationDate: string
+	"f2p": boolean
+	rental: boolean
+	loyalty: boolean
+	loyaltySources: string[]
+	owned: boolean
+	/** @format uint64 */
+	wins: number
+	payload: unknown
+}
+
+export interface LolEventHubInventoryNotification {
+	/** @format int64 */
+	id: number
+	/** @format int32 */
+	itemId: number
+	inventoryType: string
+	type: string
+	acknowledged: boolean
+}
+
+export type LolEventHubInventoryOwnership = "F2P" | "LOYALTY" | "RENTED" | "OWNED"
+
+export interface LolEventHubInventoryResponseDTO {
+	data: LolEventHubInventoryDTO
+}
+
+export interface LolEventHubItem {
+	itemId: string
+	inventoryType: string
+	/** @format uint32 */
+	price: number
+	/** @format uint32 */
+	quantity: number
+}
+
+export interface LolEventHubItemChoiceDetails {
+	item: LolEventHubCatalogPluginItem
+	backgroundImage: string
+	contents: LolEventHubItemDetails[]
+	discount: string
+	/** @format uint32 */
+	fullPrice: number
+	displayType: string
+	purchaseOptions: LolEventHubPurchaseOption[]
+}
+
+export interface LolEventHubItemChoices {
+	choices: LolEventHubItemChoiceDetails[]
+	validationErrors: LolEventHubValidationErrorEntry[]
+}
+
+export interface LolEventHubItemCost {
+	currency: string
+	/** @format int64 */
+	cost: number
+	/** @format float */
+	discount?: number
+}
+
+export interface LolEventHubItemDefinition {
+	/** @format int32 */
+	itemId: number
+	inventoryType: string
+	subInventoryType: string
+	name: string
+	description: string
+	subTitle: string
+	owned: boolean
+	assets: LolEventHubCatalogPluginItemAssets
+	tags: string[]
+	metadata: LolEventHubItemMetadataEntry[]
+	bundledItemPrice?: LolEventHubBundledItemPricingInfo
+	loyaltyUnlocked: boolean
+}
+
+export interface LolEventHubItemDetails {
+	title: string
+	subTitle: string
+	description: string
+	iconUrl: string
+}
+
+export interface LolEventHubItemKey {
+	inventoryType: string
+	/** @format int32 */
+	itemId: number
+}
+
+export interface LolEventHubItemMetadataEntry {
+	type: string
+	value: string
+}
+
+export interface LolEventHubItemOrderDTO {
+	inventoryType: string
+	/** @format int32 */
+	itemId: number
+	/** @format uint32 */
+	quantity: number
+	/** @format uint32 */
+	rpCost: number
+}
+
+export interface LolEventHubItemOwnership {
+	itemKey: LolEventHubItemKey
+	/** @format int32 */
+	quantity: number
+}
+
+export type LolEventHubItemOwnershipType = "F2P" | "LOYALTY" | "RENTED" | "OWNED"
+
+export interface LolEventHubItemPrice {
+	currencyType: string
+	/** @format int64 */
+	price: number
+	purchasable: boolean
+}
+
+export interface LolEventHubItemSale {
+	startDate: string
+	endDate: string
+	/** @format float */
+	discount?: number
+}
+
+export interface LolEventHubItemUIData {
+	itemId: string
+	inventoryType: string
+	/** @format uint32 */
+	price: number
+	/** @format uint32 */
+	quantity: number
+}
+
+export interface LolEventHubLoginSession {
+	puuid?: string
+	state: LolEventHubLoginSessionStates
+	/** @format uint64 */
+	summonerId: number
+	/** @format uint64 */
+	accountId: number
+	idToken: string
+}
+
+export type LolEventHubLoginSessionStates = "ERROR" | "LOGGING_OUT" | "SUCCEEDED" | "IN_PROGRESS"
+
+export interface LolEventHubLoyaltyRewards {
+	/** @format int32 */
+	freeRewardedChampionsCount: number
+	championIds: number[]
+	/** @format int32 */
+	freeRewardedSkinsCount: number
+	skinIds: number[]
+	/** @format int32 */
+	ipBoost: number
+	xpBoost: Record<string, number>
+	/** @format int32 */
+	loyaltyTFTMapSkinCount: number
+	/** @format int32 */
+	loyaltyTFTCompanionCount: number
+	/** @format int32 */
+	loyaltyTFTDamageSkinCount: number
+	loyaltySources: Record<string, boolean>
+}
+
+export interface LolEventHubLoyaltyRewardsSimplified {
+	/** @format int32 */
+	freeRewardedChampionsCount: number
+	championIds: number[]
+	/** @format int32 */
+	freeRewardedSkinsCount: number
+	skinIds: number[]
+	/** @format int32 */
+	ipBoost: number
+	/** @format int32 */
+	xpBoost: number
+	/** @format int32 */
+	loyaltyTFTMapSkinCount: number
+	/** @format int32 */
+	loyaltyTFTCompanionCount: number
+	/** @format int32 */
+	loyaltyTFTDamageSkinCount: number
+	loyaltySources: Record<string, boolean>
+}
+
+export type LolEventHubLoyaltyStatus = "DISABLED" | "REVOKE" | "CHANGE" | "EXPIRY" | "REWARDS_GRANT" | "LEGACY"
+
+export interface LolEventHubLoyaltyStatusNotification {
+	status: LolEventHubLoyaltyStatus
+	rewards: LolEventHubLoyaltyRewardsSimplified
+	reloadInventory: boolean
+}
+
+export interface LolEventHubMilestone {
+	id: string
+	name: string
+	groupId: string
+	counterId: string
+	/** @format int64 */
+	triggerValue: number
+	properties: Record<string, string>
+}
+
+export interface LolEventHubMilestoneInstance {
+	milestoneId: string
+	instanceId: string
+	ownerId: string
+	productId: string
+	groupId: string
+	counterId: string
+	/** @format int64 */
+	triggerValue: number
+	/** @format uint32 */
+	repeatSequence: number
+	triggered: boolean
+	triggeredTimestamp: string
+	triggers: LolEventHubTrigger[]
+}
+
+export interface LolEventHubNarrativeElement {
+	localizedNarrativeTitle: string
+	localizedNarrativeDescription: string
+	narrativeBackgroundImage: string
+	narrativeTrackLevelRange: LolEventHubNarrativeTrackLevelRange
+	localizedNarrativeVideoUrl: string
+}
+
+export interface LolEventHubNarrativeTrackLevelRange {
+	/** @format uint16 */
+	beginNarrativeLevel: number
+	/** @format uint16 */
+	endNarrativeLevel: number
+}
+
+export interface LolEventHubNavigationButtonUIData {
+	activeEventId: string
+	showPip: boolean
+	showGlow: boolean
+	iconPath: string
+}
+
+export interface LolEventHubOffer {
+	id: string
+	localizedTitle: string
+	localizedDescription: string
+	image: string
+	promotionType: LolEventHubOfferPromotionType
+	offerCategory: LolEventHubOfferCategory
+	items: LolEventHubItem[]
+}
+
+export type LolEventHubOfferCategory = "Currencies" | "Tft" | "Loot" | "Borders" | "Skins" | "Chromas" | "Featured"
+
+export type LolEventHubOfferPromotionType = "kFeaturedHighlighted" | "kFeatured" | "kNone"
+
+export type LolEventHubOfferStates = "kPurchasing" | "kUnrevealed" | "kUnavailable" | "kAvailable" | "kOwned"
+
+export interface LolEventHubOfferUIData {
+	id: string
+	localizedTitle: string
+	localizedDescription: string
+	image: string
+	highlighted: boolean
+	offerState: LolEventHubOfferStates
+	/** @format uint32 */
+	price: number
+	/** @format uint32 */
+	maxQuantity: number
+	items: LolEventHubItemUIData[]
+}
+
+export interface LolEventHubOrderNotificationResource {
+	eventTypeId: string
+	eventType: string
+	status: string
+}
+
+export interface LolEventHubPlayerNotification {
+	critical: boolean
+	detailKey: string
+	source: string
+	state: string
+	titleKey: string
+	type: string
+	iconUrl: string
+}
+
+export interface LolEventHubPlayerSettingsData {
+	lastTimeSeen: string
+	/** @format int64 */
+	lastSeenTokenBalance: number
+	/** @format uint32 */
+	lastSeenTokenShopOffersVersion: number
+}
+
+export interface LolEventHubPriceDetail {
+	itemKey: LolEventHubItemKey
+	price: LolEventHubItemPrice
+}
+
+export interface LolEventHubPriceOptionDto {
+	/** @format int64 */
+	price: number
+	currencyType: string
+	currencyPaymentOption?: string
+	currencyName?: string
+	currencyImagePath?: string
+}
+
+export interface LolEventHubProgressInfoUIData {
+	tokenImage: string
+	passPurchased: boolean
+	eventPassBundlesCatalogEntry: LolEventHubCatalogEntry[]
+}
+
+export interface LolEventHubProgressionPurchaseUIData {
+	offerId: string
+	/** @format int64 */
+	pricePerLevel: number
+	/** @format int64 */
+	rpBalance: number
+}
+
+export interface LolEventHubPurchasableItem {
+	item: LolEventHubItemDefinition
+	dependencies: LolEventHubItemDefinition[]
+	bundledItems: LolEventHubItemDefinition[]
+	sale?: LolEventHubItemSale
+	purchaseOptions: LolEventHubPurchaseOption[]
+	validationErrors: LolEventHubValidationErrorEntry[]
+}
+
+export interface LolEventHubPurchaseItem {
+	itemKey: LolEventHubItemKey
+	/** @format int32 */
+	quantity: number
+	source: string
+	purchaseCurrencyInfo: LolEventHubItemPrice
+}
+
+export type LolEventHubPurchaseOfferOrderStates = "SUCCESS" | "FAIL" | "IN_PROGRESS" | "NOT_STARTED"
+
+export interface LolEventHubPurchaseOfferOrderStatus {
+	orderState: LolEventHubPurchaseOfferOrderStates
+	message: string
+}
+
+export interface LolEventHubPurchaseOfferOrderStatuses {
+	statuses: Record<string, LolEventHubPurchaseOfferOrderStatus>
+}
+
+export interface LolEventHubPurchaseOfferRequest {
+	offerId: string
+	/** @format uint32 */
+	purchaseQuantity: number
+}
+
+export interface LolEventHubPurchaseOfferRequestV3 {
+	offerId: string
+	currencyType: string
+	/** @format uint32 */
+	quantity: number
+	/** @format uint32 */
+	price: number
+}
+
+export interface LolEventHubPurchaseOfferResponseV3 {
+	legacy: boolean
+	orderDto?: LolEventHubCapOrdersOrderDto
+}
+
+export interface LolEventHubPurchaseOption {
+	priceDetails: LolEventHubPriceDetail[]
+}
+
+export interface LolEventHubPurchaseOrderResponseDTO {
+	/** @format int64 */
+	rpBalance: number
+	/** @format int64 */
+	ipBalance: number
+	transactions: LolEventHubTransactionResponseDTO[]
+}
+
+export interface LolEventHubPurchaseRequest {
+	items: LolEventHubPurchaseItem[]
+}
+
+export interface LolEventHubPurchaseResponse {
+	items: LolEventHubPurchaseItem[]
+	transactions: LolEventHubTransaction[]
+	useRMSConfirmation: boolean
+}
+
+export interface LolEventHubPurchaseWidgetConfig {
+	enabled: boolean
+	nonRefundableDisclaimerEnabled: boolean
+	alwaysShowPurchaseDisclaimer: boolean
+}
+
+export interface LolEventHubRMSPayload {
+	productId: string
+	affinities: string[]
+}
+
+export interface LolEventHubRegionLocale {
+	region: string
+	locale: string
+}
+
+export interface LolEventHubRepeat {
+	/** @format int32 */
+	count: number
+	/** @format uint32 */
+	scope: number
+	/** @format float */
+	multiplier: number
+	milestones: LolEventHubMilestone[]
+	repeatTriggers: LolEventHubRepeatGroupTrigger[]
+}
+
+export interface LolEventHubRepeatGroupTrigger {
+	type: string
+	counterId: string
+	/** @format uint16 */
+	startTriggerValue: number
+	/** @format uint16 */
+	increaseBy: number
+	/** @format float */
+	multiplier: number
+}
+
+export interface LolEventHubRequestDTO_SelectionRequestDTO {
+	data: LolEventHubSelectionRequestDTO
+	metadata: LolEventHubRequestMetadataDTO
+}
+
+export interface LolEventHubRequestDTO_vector_SelectionRequestDTO {
+	data: LolEventHubSelectionRequestDTO[]
+	metadata: LolEventHubRequestMetadataDTO
+}
+
+export interface LolEventHubRequestDTO_vector_string {
+	data: string[]
+	metadata: LolEventHubRequestMetadataDTO
+}
+
+export interface LolEventHubRequestMetadataDTO {
+	transactionId?: string
+}
+
+export interface LolEventHubResponseDTO_SvcRewardGrant {
+	data: LolEventHubSvcRewardGrant
+	metadata: LolEventHubResponseMetadataDTO
+}
+
+export interface LolEventHubResponseDTO_map_RewardGroupId_SelectGrantStatus {
+	data: Record<string, LolEventHubSelectGrantStatusResponse>
+	metadata: LolEventHubResponseMetadataDTO
+}
+
+export interface LolEventHubResponseDTO_vector_SvcRewardGrant {
+	data: LolEventHubSvcRewardGrant[]
+	metadata: LolEventHubResponseMetadataDTO
+}
+
+export interface LolEventHubResponseDTO_vector_SvcRewardGroup {
+	data: LolEventHubSvcRewardGroup[]
+	metadata: LolEventHubResponseMetadataDTO
+}
+
+export interface LolEventHubResponseMetadataDTO {
+	[key: string | number]: any
+}
+
+export interface LolEventHubReward {
+	id: string
+	itemId: string
+	itemType: string
+	/** @format int32 */
+	quantity: number
+	fulfillmentSource: string
+	media: Record<string, string>
+	localizations: Record<string, string>
+}
+
+export interface LolEventHubRewardGrant {
+	info: LolEventHubSvcRewardGrant
+	rewardGroup: LolEventHubSvcRewardGroup
+}
+
+export type LolEventHubRewardStatus = "FAILED" | "FULFILLED" | "PENDING"
+
+export type LolEventHubRewardStrategy = "SELECTION" | "RANDOM" | "ALL"
+
+export interface LolEventHubRewardTrack {
+	trackConfig: LolEventHubRewardTrackConfiguration
+}
+
+export interface LolEventHubRewardTrackConfiguration {
+	id: string
+	premiumEntitlementId: string
+}
+
+export interface LolEventHubRewardTrackItem {
+	state: LolEventHubRewardTrackItemStates
+	rewardOptions: LolEventHubRewardTrackItemOption[]
+	rewardTags: LolEventHubRewardTrackItemTag[]
+	/** @format int64 */
+	progressRequired: number
+	threshold: string
+}
+
+export type LolEventHubRewardTrackItemHeaderType = "NONE" | "FREE" | "PREMIUM"
+
+export interface LolEventHubRewardTrackItemOption {
+	state: LolEventHubRewardTrackItemStates
+	thumbIconPath: string
+	largeDisplayImagePath: string
+	selected: boolean
+	overrideFooter: string
+	headerType: LolEventHubRewardTrackItemHeaderType
+	rewardName: string
+	rewardDescription: string
+	cardSize: string
+	rewardGroupId: string
+	celebrationType: LolEventHubCelebrationType
+}
+
+export type LolEventHubRewardTrackItemStates = "Selected" | "Unselected" | "Unlocked" | "Locked"
+
+export type LolEventHubRewardTrackItemTag = "Multiple" | "Choice" | "Instant" | "Free" | "Rare"
+
+export interface LolEventHubRewardTrackProgress {
+	/** @format int16 */
+	level: number
+	/** @format int16 */
+	totalLevels: number
+	/** @format uint16 */
+	levelProgress: number
+	/** @format uint16 */
+	futureLevelProgress: number
+	/** @format int64 */
+	passProgress: number
+	/** @format int64 */
+	currentLevelXP: number
+	/** @format int64 */
+	totalLevelXP: number
+	/** @format uint32 */
+	iteration: number
+}
+
+export interface LolEventHubRewardTrackXP {
+	/** @format int64 */
+	currentLevel: number
+	/** @format int64 */
+	currentLevelXP: number
+	/** @format int64 */
+	totalLevelXP: number
+	isBonusPhase: boolean
+	/** @format uint32 */
+	iteration: number
+}
+
+export interface LolEventHubRewardsConfig {
+	GrantFiltering: boolean
+}
+
+export interface LolEventHubRiotMessagingServiceMessage {
+	resource: string
+	service: string
+	version: string
+	/** @format int64 */
+	timestamp: number
+	payload: string
+}
+
+export interface LolEventHubRmsEntitlementPayload {
+	itemId: string
+	itemTypeId: string
+	entitlementTypeId: string
+	resourceOperation: string
+}
+
+export interface LolEventHubRmsStoreEntitlementItem {
+	inventoryType: string
+	itemId: string
+}
+
+export interface LolEventHubRmsStoreEntitlementPayload {
+	transactionId: string
+	items: LolEventHubRmsStoreEntitlementItem[]
+}
+
+export interface LolEventHubRmsWalletPayload {
+	[key: string | number]: any
+}
+
+export interface LolEventHubRmsXboxSubscriptionChange {
+	puuid: string
+	subscriptionId: string
+	active: string
+	identityProvider: string[]
+}
+
+export interface LolEventHubSale {
+	startDate: string
+	endDate: string
+	prices: LolEventHubItemCost[]
+}
+
+export type LolEventHubSelectGrantStatusResponse = "FAILED" | "SELECTED"
+
+export interface LolEventHubSelectionRequestDTO {
+	grantId: string
+	rewardGroupId: string
+	selections: string[]
+}
+
+export interface LolEventHubSelectionStrategyConfig {
+	/** @format uint32 */
+	minSelectionsAllowed: number
+	/** @format uint32 */
+	maxSelectionsAllowed: number
+}
+
+export interface LolEventHubSettingsResource {
+	data: LolEventHubPlayerSettingsData
+	/** @format int16 */
+	schemaVersion: number
+}
+
+export interface LolEventHubSimpleInventoryDTO {
+	items: Record<string, unknown>
+	itemsJwt: string
+	expires: string
+}
+
+export interface LolEventHubSimpleInventoryResponseDTO {
+	data: LolEventHubSimpleInventoryDTO
+}
+
+export interface LolEventHubSkinLineDescriptionDto {
+	title: string
+	description: string
+	iconImagePath: string
+}
+
+export interface LolEventHubSkinLineDescriptionInfo {
+	title: string
+	description: string
+	iconPath: string
+}
+
+export interface LolEventHubSkinLineInfo {
+	name: string
+	descriptionInfo: LolEventHubSkinLineDescriptionInfo[]
+	splashPath: string
+	tilePath: string
+	collectionCardPath: string
+	uncenteredSplashPath: string
+	collectionDescription: string
+	tiers: LolEventHubSkinLineTier[]
+}
+
+export interface LolEventHubSkinLineItemDto {
+	thumbnailImagePath: string
+	largeImagePath?: string
+	localizedLongName: string
+	localizedShortName: string
+	largeVideoPath?: string
+}
+
+export interface LolEventHubSkinLineTier {
+	/** @format int64 */
+	id: number
+	name: string
+	/** @format int64 */
+	stage: number
+	description?: string
+	splashPath: string
+	uncenteredSplashPath: string
+	tilePath: string
+	loadScreenPath: string
+	shortName: string
+	splashVideoPath?: string
+	collectionSplashVideoPath?: string
+}
+
+export interface LolEventHubSummonerIcon {
+	/** @format int32 */
+	itemId: number
+}
+
+export interface LolEventHubSvcRewardGrant {
+	id: string
+	granteeId: string
+	rewardGroupId: string
+	dateCreated: string
+	status: LolEventHubGrantStatus
+	grantElements: LolEventHubSvcRewardGrantElement[]
+	selectedIds: string[]
+	viewed: boolean
+	grantorDescription: LolEventHubGrantorDescription
+	messageParameters: Record<string, unknown>
+}
+
+export interface LolEventHubSvcRewardGrantElement {
+	elementId: string
+	itemId: string
+	itemType: string
+	fulfillmentSource: string
+	status: LolEventHubRewardStatus
+	/** @format int32 */
+	quantity: number
+	media: Record<string, string>
+	localizations: Record<string, string>
+}
+
+export interface LolEventHubSvcRewardGroup {
+	id: string
+	productId: string
+	types: string[]
+	rewards: LolEventHubReward[]
+	childRewardGroupIds: string[]
+	rewardStrategy: LolEventHubRewardStrategy
+	selectionStrategyConfig?: LolEventHubSelectionStrategyConfig
+	active: boolean
+	media: Record<string, string>
+	localizations: Record<string, string>
+	celebrationType: LolEventHubCelebrationType
+}
+
+export interface LolEventHubTokenShop {
+	tokenImage: string
+	tokenName: string
+	tokenUuid: string
+	offers: LolEventHubOffer[]
+	contentDrops: LolEventHubContentDrop[]
+	tokenBundlesCatalogEntry: LolEventHubCatalogEntry[]
+}
+
+export interface LolEventHubTokenShopUIData {
+	tokenName: string
+	tokenImage: string
+	tokenUuid: string
+	/** @format uint32 */
+	offersVersion: number
+	tokenBundlesCatalogEntry: LolEventHubCatalogEntry[]
+}
+
+export interface LolEventHubTokenUpsell {
+	id: string
+	internalName: string
+	title: string
+	buttonText: string
+	tooltipTitle: string
+	tooltipDescription: string
+	purchaseUrl: string
+	tooltipBackgroundUrl: string
+	backgroundUrl: string
+	currencyUrl: string
+	premiumCurrencyName: string
+	dependentInventoryType: string
+	/** @format int32 */
+	dependentInventoryId: number
+	currentlyLocked: LolEventHubTokenUpsellLockedType
+	/** @format int32 */
+	lockedCount: number
+	startDate: string
+	endDate: string
+}
+
+export type LolEventHubTokenUpsellLockedType = "UNLOCKED" | "LOCKED" | "UNASSIGNED"
+
+export interface LolEventHubTransaction {
+	transactionId: string
+	itemKey: LolEventHubItemKey
+	itemName: string
+	iconUrl: string
+}
+
+export interface LolEventHubTransactionResponseDTO {
+	id: string
+	inventoryType: string
+	/** @format int32 */
+	itemId: number
+}
+
+export interface LolEventHubTrigger {
+	type: string
+	counterId: string
+	/** @format uint64 */
+	triggerValue: number
+}
+
+export interface LolEventHubUnclaimedRewardsUIData {
+	/** @format int32 */
+	rewardsCount: number
+	/** @format int32 */
+	lockedTokensCount: number
+	/** @format int64 */
+	timeOfLastUnclaimedReward: number
+}
+
+export interface LolEventHubValidateOfferError {
+	errorKey: string
+	meta: string
+}
+
+export interface LolEventHubValidateOfferRequestV3 {
+	offerId: string
+}
+
+export interface LolEventHubValidateOfferResponseV3 {
+	validationErrors: LolEventHubValidateOfferError[]
+}
+
+export interface LolEventHubValidationError {
+	errorCode: string
+	message: string
+	errorDetails: Record<string, string>
+	responseItems: string[]
+}
+
+export interface LolEventHubValidationErrorEntry {
+	id: string
+}
+
+export interface LolEventHubValidationRequest {
+	items: LolEventHubValidationRequestItem[]
+	ownedItems: LolEventHubItemOwnership[]
+}
+
+export interface LolEventHubValidationRequestItem {
+	itemKey: LolEventHubItemKey
+	/** @format int32 */
+	quantity: number
+}
+
+export interface LolEventHubValidationResponse {
+	items: LolEventHubValidationResponseItem[]
+	valid: boolean
+}
+
+export interface LolEventHubValidationResponseItem {
+	itemKey: LolEventHubItemKey
+	/** @format int32 */
+	quantity: number
+	validationCurrencyInfo: LolEventHubItemPrice[]
+	sale?: LolEventHubSale
+	name?: string
+	description?: string
+}
+
+export interface LolEventHubWallet {
+	/** @format uint64 */
+	accountId: number
+	balances: LolEventHubBalance[]
+	/** @format int32 */
+	version: number
+}
+
+export interface LolEventHubWalletCacheEntry {
+	signedBalancesJwt: string
+	/** @format uint64 */
+	expirationMS: number
+	/** @format uint64 */
+	issuedAtMS: number
+	/** @format uint64 */
+	receivedAtMS: number
+	valid: boolean
+}
+
+export interface LolEventHubWalletDTO {
+	puuid: string
+	/** @format int64 */
+	accountId: number
+	expires: string
+	balances: Record<string, number>
+	balancesJwt: string
+}
+
+export interface LolEventHubWalletResponseDTO {
+	data: LolEventHubWalletDTO
+}
+
+export interface LolEventHubXboxSubscriptionStatus {
+	active: string
+	subscriptionId: string
+}
+
 export interface LolEventShopAccessTokenResource {
 	token: string
 	scopes: string[]
@@ -7042,6 +8556,7 @@ export interface LolEventShopEventDetailsUIData {
 	eventName: string
 	progressEndDate: string
 	shopEndDate: string
+	eventStartDate: string
 	helpModalImagePath: string
 }
 
@@ -7490,6 +9005,7 @@ export interface LolEventShopMilestone {
 
 export interface LolEventShopMilestoneInstance {
 	milestoneId: string
+	instanceId: string
 	ownerId: string
 	productId: string
 	groupId: string
@@ -7499,6 +9015,8 @@ export interface LolEventShopMilestoneInstance {
 	/** @format uint32 */
 	repeatSequence: number
 	triggered: boolean
+	triggeredTimestamp: string
+	triggers: LolEventShopTrigger[]
 }
 
 export interface LolEventShopNavigationButtonUIData {
@@ -7681,6 +9199,19 @@ export interface LolEventShopRepeat {
 	count: number
 	/** @format uint32 */
 	scope: number
+	/** @format float */
+	multiplier: number
+	milestones: LolEventShopMilestone[]
+	repeatTriggers: LolEventShopRepeatGroupTrigger[]
+}
+
+export interface LolEventShopRepeatGroupTrigger {
+	type: string
+	counterId: string
+	/** @format uint16 */
+	startTriggerValue: number
+	/** @format uint16 */
+	increaseBy: number
 	/** @format float */
 	multiplier: number
 }
@@ -8025,7 +9556,7 @@ export interface LolEventShopTokenUpsell {
 	endDate: string
 }
 
-export type LolEventShopTokenUpsellLockedType = "LOCKED" | "UNLOCKED" | "UNASSIGNED"
+export type LolEventShopTokenUpsellLockedType = "UNLOCKED" | "LOCKED" | "UNASSIGNED"
 
 export interface LolEventShopTransaction {
 	transactionId: string
@@ -8039,6 +9570,13 @@ export interface LolEventShopTransactionResponseDTO {
 	inventoryType: string
 	/** @format int32 */
 	itemId: number
+}
+
+export interface LolEventShopTrigger {
+	type: string
+	counterId: string
+	/** @format uint64 */
+	triggerValue: number
 }
 
 export interface LolEventShopUnclaimedRewardsUIData {
@@ -8311,7 +9849,7 @@ export type LolGameQueuesLoginSessionStates = "ERROR" | "LOGGING_OUT" | "SUCCEED
 export interface LolGameQueuesOperationalQueueConfig {
 	/** @format int32 */
 	queueId: number
-	queueState: boolean
+	isEnabled: boolean
 	mutators: string
 	isVisibleInClient: boolean
 	isSpectatable: boolean
@@ -10190,7 +11728,7 @@ export interface LolLobbyEligibilityRestriction {
 	summonerIdsString: string
 }
 
-export type LolLobbyEligibilityRestrictionCode = "MmrStandardDeviationTooLarge" | "InventoryQueuesInfoNotAvailable" | "InventoryChampsInfoNotAvailable" | "LeaguesInfoNotAvailable" | "SummonerInfoNotAvailable" | "MinorInfoNotAvailable" | "BanInfoNotAvailable" | "TooManyIncompleteSubteamsRestriction" | "QPScarcePositionsNotAvailableRestriction" | "QPNonUniquePrimarySlotRestriction" | "QPInvalidChampionSelectionRestriction" | "QPInvalidPositionSelectionRestriction" | "QPInvalidNumberOfPlayerSlotsRestriction" | "QPPlayerChampionCoverageRestriction" | "QPPartyChampionCoverageRestriction" | "QPPlayerPositionCoverageRestriction" | "QPPartyPositionCoverageRestriction" | "QPPlayerScarcePositionCoverageRestriction" | "UnknownRestriction" | "TFTNewPlayerRestriction" | "QueueEntryNotEntitledRestriction" | "GameVersionNotSupported" | "GameVersionMissing" | "GameVersionMismatch" | "PrerequisiteQueuesNotPlayedRestriction" | "TeamSizeRestriction" | "TeamHighMMRMaxSizeRestriction" | "PlayerRankedSuspensionRestriction" | "PlayerRankSoloOnlyRestriction" | "PlayerTimePlayedRestriction" | "PlayerMinorRestriction" | "PlayerMinLevelRestriction" | "PlayerMaxLevelRestriction" | "PlayerTimeBasedRankRestriction" | "PlayerGameBasedRankRestriction" | "PlayerLeaverTaintedWarningRestriction" | "PlayerLeaverQueueLockoutRestriction" | "PlayerLeaverBustedRestriction" | "PlayerInGameRestriction" | "PlayerDodgeRestriction" | "PlayerBingeRestriction" | "TeamMinSizeRestriction" | "TeamMaxSizeRestriction" | "TeamSkillRestriction" | "TeamDivisionRestriction" | "PlayerAvailableChampionRestriction" | "PlayerBannedRestriction" | "PlayerTimedRestriction" | "PlayerLevelRestriction" | "QueueUnsupported" | "QueueDisabled"
+export type LolLobbyEligibilityRestrictionCode = "MmrStandardDeviationTooLarge" | "InventoryQueuesInfoNotAvailable" | "InventoryChampsInfoNotAvailable" | "LeaguesInfoNotAvailable" | "SummonerInfoNotAvailable" | "MinorInfoNotAvailable" | "BanInfoNotAvailable" | "TooManyIncompleteSubteamsRestriction" | "QPScarcePositionsNotAvailableRestriction" | "QPNonUniquePrimarySlotRestriction" | "QPInvalidChampionSelectionRestriction" | "QPInvalidPositionSelectionRestriction" | "QPInvalidNumberOfPlayerSlotsRestriction" | "QPPlayerChampionCoverageRestriction" | "QPPartyChampionCoverageRestriction" | "QPPlayerPositionCoverageRestriction" | "QPPartyPositionCoverageRestriction" | "QPPlayerScarcePositionCoverageRestriction" | "UnknownRestriction" | "SeasonVersionLockout" | "TFTNewPlayerRestriction" | "QueueEntryNotEntitledRestriction" | "GameVersionNotSupported" | "GameVersionMissing" | "GameVersionMismatch" | "PrerequisiteQueuesNotPlayedRestriction" | "TeamSizeRestriction" | "TeamHighMMRMaxSizeRestriction" | "PlayerRankedSuspensionRestriction" | "PlayerRankSoloOnlyRestriction" | "PlayerTimePlayedRestriction" | "PlayerMinorRestriction" | "PlayerMinLevelRestriction" | "PlayerMaxLevelRestriction" | "PlayerTimeBasedRankRestriction" | "PlayerGameBasedRankRestriction" | "PlayerLeaverTaintedWarningRestriction" | "PlayerLeaverQueueLockoutRestriction" | "PlayerLeaverBustedRestriction" | "PlayerInGameRestriction" | "PlayerDodgeRestriction" | "PlayerBingeRestriction" | "TeamMinSizeRestriction" | "TeamMaxSizeRestriction" | "TeamSkillRestriction" | "TeamDivisionRestriction" | "PlayerAvailableChampionRestriction" | "PlayerBannedRestriction" | "PlayerTimedRestriction" | "PlayerLevelRestriction" | "QueueUnsupported" | "QueueDisabled"
 
 export interface LolLobbyFriendAvailabilityAnalytics {
 	puuid: string
@@ -10375,7 +11913,6 @@ export interface LolLobbyLobby {
 	requiredPositionCoverageMet: boolean
 	allowablePremadeSizes: number[]
 	queueAvailability: LolLobbyQueueAvailability
-	spectatorDelayEnabled: boolean
 }
 
 export interface LolLobbyLobbyBotChampion {
@@ -10459,6 +11996,7 @@ export interface LolLobbyLobbyCustomGameConfiguration {
 	tournamentPassbackUrl: string
 	tournamentPassbackDataPacket: string
 	gameServerRegion: string
+	spectatorDelayEnabled: boolean
 }
 
 export interface LolLobbyLobbyCustomGameLobby {
@@ -10647,6 +12185,7 @@ export interface LolLobbyLobbyParticipantDto {
 	/** @format int8 */
 	intraSubteamPosition?: number
 	tftNPEQueueBypass?: boolean
+	quickplayPlayerState?: string
 	playerSlots: LolLobbyQuickPlayPresetSlotDto[]
 	ready: boolean
 	showGhostedBanner: boolean
@@ -10836,6 +12375,7 @@ export interface LolLobbyPartyMemberMetadataDto {
 	playerSlots: LolLobbyQuickPlayPresetSlotDto[]
 	subteamData?: LolLobbySubteamDataDto
 	tftNPEQueueBypass?: boolean
+	quickplayPlayerState?: string
 }
 
 export type LolLobbyPartyMemberRoleEnum = "NONE" | "DECLINED" | "KICKED" | "HOLD" | "INVITED" | "MEMBER" | "LEADER"
@@ -12414,6 +13954,7 @@ export interface LolLootMilestone {
 
 export interface LolLootMilestoneInstance {
 	milestoneId: string
+	instanceId: string
 	ownerId: string
 	productId: string
 	groupId: string
@@ -12423,6 +13964,8 @@ export interface LolLootMilestoneInstance {
 	/** @format uint32 */
 	repeatSequence: number
 	triggered: boolean
+	triggeredTimestamp: string
+	triggers: LolLootTrigger[]
 }
 
 export interface LolLootMilestoneLootItemRewardGdsResource {
@@ -12629,6 +14172,19 @@ export interface LolLootRepeat {
 	scope: number
 	/** @format float */
 	multiplier: number
+	milestones: LolLootMilestone[]
+	repeatTriggers: LolLootRepeatGroupTrigger[]
+}
+
+export interface LolLootRepeatGroupTrigger {
+	type: string
+	counterId: string
+	/** @format uint16 */
+	startTriggerValue: number
+	/** @format uint16 */
+	increaseBy: number
+	/** @format float */
+	multiplier: number
 }
 
 export interface LolLootRequestDTO_SelectionRequestDTO {
@@ -12779,6 +14335,13 @@ export interface LolLootTFTMapSkinGroupedViewModel {
 	/** @format int32 */
 	defaultItemId: number
 	groups: LolLootTFTMapSkinGroupViewModel[]
+}
+
+export interface LolLootTrigger {
+	type: string
+	counterId: string
+	/** @format uint64 */
+	triggerValue: number
 }
 
 export interface LolLootVerboseLootOddsResponse {
@@ -13016,6 +14579,7 @@ export interface LolMatchHistoryMatchHistoryEvent {
 }
 
 export interface LolMatchHistoryMatchHistoryGame {
+	endOfGameResult: string
 	/** @format uint64 */
 	gameId: number
 	platformId: string
@@ -13401,6 +14965,8 @@ export interface LolMatchHistoryMatchHistoryTeam {
 	vilemawKills: number
 	/** @format uint32 */
 	riftHeraldKills: number
+	/** @format uint32 */
+	hordeKills: number
 	/** @format uint32 */
 	dominionVictoryScore: number
 	bans: LolMatchHistoryMatchHistoryTeamBan[]
@@ -13802,6 +15368,7 @@ export interface LolMissionsTftPaidBattlepassInfo {
 	premiumTitle: string
 	premiumEntitlementId: string
 	pcPurchaseRequirement: string
+	passId: string
 	media: Record<string, string>
 }
 
@@ -15322,59 +16889,6 @@ export interface LolPlayerMessagingSimpleMessage {
 	params: string[]
 }
 
-export interface LolPlayerNameTransitionAuthenticationResponse {
-	type: LolPlayerNameTransitionResponseType
-	success: LolPlayerNameTransitionSuccessResponseDetails
-	country: string
-	error: string
-}
-
-export interface LolPlayerNameTransitionPlayerNameTransitionModal {
-	modalState: LolPlayerNameTransitionPlayerNameTransitionModalState
-	riotIdLaunchDate: string
-	riotIdChangeUrl: string
-	faqUrl: string
-}
-
-export interface LolPlayerNameTransitionPlayerNameTransitionModalClientConfig {
-	dialogEnabled: boolean
-	dialogActivationDate: string
-	riotIdLaunchDate: string
-	riotIdChangeUrl: string
-	faqUrl: string
-}
-
-export interface LolPlayerNameTransitionPlayerNameTransitionModalSettingCategoryResource {
-	/** @format uint32 */
-	schemaVersion: number
-	data: LolPlayerNameTransitionPlayerNameTransitionModalSettings
-}
-
-export interface LolPlayerNameTransitionPlayerNameTransitionModalSettings {
-	mHasSeenRiotIdPreTransitionDialog: boolean
-	mHasSeenRiotIdPostTransitionDialog: boolean
-}
-
-export type LolPlayerNameTransitionPlayerNameTransitionModalState = "DISMISSED" | "POST_LAUNCH" | "PRE_LAUNCH" | "DISABLED" | "FOUNDATION_NOT_READY"
-
-export interface LolPlayerNameTransitionRegionLocale {
-	region: string
-	locale: string
-}
-
-export type LolPlayerNameTransitionResponseType = "error" | "success" | "multifactor" | "signup" | "healup" | "auth"
-
-export interface LolPlayerNameTransitionSuccessResponseDetails {
-	login_token: string
-	redirect_url: string
-	linked: string
-}
-
-export interface LolPlayerNameTransitionV1AuthenticationRedirectInput {
-	redirect_uri: string
-	language: string
-}
-
 export interface LolPlayerPreferencesLoginSession {
 	state: LolPlayerPreferencesLoginSessionStates
 	/** @format uint64 */
@@ -15707,6 +17221,7 @@ export interface LolProgressionMilestone {
 
 export interface LolProgressionMilestoneInstance {
 	milestoneId: string
+	instanceId: string
 	ownerId: string
 	productId: string
 	groupId: string
@@ -15716,6 +17231,8 @@ export interface LolProgressionMilestoneInstance {
 	/** @format uint32 */
 	repeatSequence: number
 	triggered: boolean
+	triggeredTimestamp: string
+	triggers: LolProgressionTrigger[]
 }
 
 export interface LolProgressionRepeat {
@@ -15725,6 +17242,26 @@ export interface LolProgressionRepeat {
 	scope: number
 	/** @format float */
 	multiplier: number
+	milestones: LolProgressionMilestone[]
+	repeatTriggers: LolProgressionRepeatGroupTrigger[]
+}
+
+export interface LolProgressionRepeatGroupTrigger {
+	type: string
+	counterId: string
+	/** @format uint16 */
+	startTriggerValue: number
+	/** @format uint16 */
+	increaseBy: number
+	/** @format float */
+	multiplier: number
+}
+
+export interface LolProgressionTrigger {
+	type: string
+	counterId: string
+	/** @format uint64 */
+	triggerValue: number
 }
 
 export interface LolPublishingContentAccountData {
@@ -17147,6 +18684,14 @@ export interface LolRegaliaSummonerProfileUpdate {
 	value: string
 }
 
+export interface LolRemedyMail {
+	mailId: string
+	message: string
+	state: string
+	/** @format uint64 */
+	createdAt: number
+}
+
 export interface LolReplaysClashPlaymodeRestrictedInfo {
 	isRestricted: boolean
 }
@@ -17807,7 +19352,7 @@ export interface LolSocialLeaderboardSummoner {
 }
 
 export interface LolSpectatorQueue {
-	isSpectatable: boolean
+	spectatorEnabled: boolean
 	/** @format uint32 */
 	id: number
 }
@@ -19004,6 +20549,7 @@ export interface LolTftEventLolTftEvent {
 	seriesId: string
 	queueIds: number[]
 	defaultLandingPage: boolean
+	eventHubTemplateType: string
 }
 
 export interface LolTftEventLolTftEvents {
@@ -19233,6 +20779,7 @@ export interface LolTftEventTftPaidBattlepassInfo {
 	premiumTitle: string
 	premiumEntitlementId: string
 	pcPurchaseRequirement: string
+	passId: string
 	media: Record<string, string>
 }
 
@@ -19302,6 +20849,7 @@ export interface LolTftLolTftEvent {
 	seriesId: string
 	queueIds: number[]
 	defaultLandingPage: boolean
+	eventHubTemplateType: string
 }
 
 export interface LolTftLolTftEvents {
@@ -19593,6 +21141,7 @@ export interface LolTftPassMilestone {
 
 export interface LolTftPassMilestoneInstance {
 	milestoneId: string
+	instanceId: string
 	ownerId: string
 	productId: string
 	groupId: string
@@ -19602,6 +21151,8 @@ export interface LolTftPassMilestoneInstance {
 	/** @format uint32 */
 	repeatSequence: number
 	triggered: boolean
+	triggeredTimestamp: string
+	triggers: LolTftPassTrigger[]
 }
 
 export interface LolTftPassPlayerNotification {
@@ -19626,8 +21177,8 @@ export interface LolTftPassRMSRewardsNotificationPayload {
 	purchaserId: string
 	recipientId: string
 	transactionId: string
-	milestoneId: string
-	milestoneInstanceId: string
+	rewardId: string
+	rewardInstanceId: string
 	status: string
 }
 
@@ -19636,6 +21187,19 @@ export interface LolTftPassRepeat {
 	count: number
 	/** @format uint32 */
 	scope: number
+	/** @format float */
+	multiplier: number
+	milestones: LolTftPassMilestone[]
+	repeatTriggers: LolTftPassRepeatGroupTrigger[]
+}
+
+export interface LolTftPassRepeatGroupTrigger {
+	type: string
+	counterId: string
+	/** @format uint16 */
+	startTriggerValue: number
+	/** @format uint16 */
+	increaseBy: number
 	/** @format float */
 	multiplier: number
 }
@@ -19781,6 +21345,7 @@ export interface LolTftPassTftPaidBattlepassInfo {
 	premiumTitle: string
 	premiumEntitlementId: string
 	pcPurchaseRequirement: string
+	passId: string
 	media: Record<string, string>
 }
 
@@ -19813,6 +21378,13 @@ export interface LolTftPassTftPaidBattlepassReward {
 	description: string
 	iconUrl: string
 	iconNeedsFrame: boolean
+}
+
+export interface LolTftPassTrigger {
+	type: string
+	counterId: string
+	/** @format uint64 */
+	triggerValue: number
 }
 
 export interface LolTftPassWallet {
@@ -19934,6 +21506,19 @@ export interface LolTftTrovesCapCounterBalanceDto {
 	active: boolean
 }
 
+export interface LolTftTrovesCapDropsDropTableDisplayMetadata {
+	isCollectorsBounty: boolean
+	nameTraKey: string
+	mythicOfferId: string
+	progressionId: string
+	/** @format uint8 */
+	priority: number
+	tables: Record<string, LolTftTrovesOddsTableDisplayMetadata>
+	/** @format uint8 */
+	version: number
+	chaseContentId: string
+}
+
 export interface LolTftTrovesCapOrdersRequestDTO {
 	data: unknown
 	meta: LolTftTrovesCapOrdersRequestMetaDTO
@@ -19956,7 +21541,7 @@ export interface LolTftTrovesCounterNotificationResource {
 
 export interface LolTftTrovesDropCounterDTO {
 	dropTableId: string
-	/** @format int32 */
+	/** @format uint16 */
 	count: number
 }
 
@@ -19978,6 +21563,7 @@ export interface LolTftTrovesDropsDropTableWithPityDTO {
 	cost: number
 	totalRollsInfo: LolTftTrovesTotalRollsInfoDTO
 	pityInfo: LolTftTrovesDropsDropTablePityInfo
+	displayMetadata: LolTftTrovesCapDropsDropTableDisplayMetadata
 }
 
 export interface LolTftTrovesDropsOddsListEntryDTO {
@@ -20020,16 +21606,17 @@ export interface LolTftTrovesGameDataTrovesBanner {
 }
 
 export interface LolTftTrovesGameDataTrovesBannerReward {
-	id: string
+	itemInstanceId: string
+	itemTypeId: string
+	/** @format uint32 */
+	starLevel: number
 	name: string
 	/** @format uint32 */
 	quantity: number
 	rarity: LolTftTrovesLootRarity
 	currencyId: string
-	loadoutsItem: LolTftTrovesLoadoutsItem
 	rewardTexturePath: string
 	highlightRewardAssetPath: string
-	isChaseReward: boolean
 }
 
 export interface LolTftTrovesGameDataTrovesBannerTable {
@@ -20088,10 +21675,22 @@ export interface LolTftTrovesLootOddsResponse {
 
 export type LolTftTrovesLootRarity = "Ultimate" | "Mythic" | "Legendary" | "Epic" | "Default"
 
+export interface LolTftTrovesOddsTableDisplayMetadata {
+	nameTraKey: string
+	/** @format uint8 */
+	priority: number
+}
+
 export interface LolTftTrovesOrderNotificationResource {
 	eventTypeId: string
 	eventType: string
 	status: string
+}
+
+export interface LolTftTrovesPityCounterDTO {
+	dropTableId: string
+	/** @format uint8 */
+	count: number
 }
 
 export interface LolTftTrovesPlayerLoot {
@@ -20111,7 +21710,7 @@ export interface LolTftTrovesRiotMessagingServiceMessage {
 
 export interface LolTftTrovesTotalRollsInfoDTO {
 	totalRollsCounterId: string
-	/** @format int32 */
+	/** @format uint16 */
 	maxTotalRolls: number
 }
 
@@ -20125,15 +21724,21 @@ export interface LolTftTrovesTrovePurchaseResponse {
 
 export interface LolTftTrovesTroves {
 	enabled: boolean
+	useDisplayMetadata: boolean
+	"v2Enabled": boolean
 	bannerList?: LolTftTrovesTrovesActiveBanner[]
 }
 
 export interface LolTftTrovesTrovesActiveBanner {
 	id: string
+	/** @format uint8 */
+	version: number
 }
 
 export interface LolTftTrovesTrovesBanner {
 	id: string
+	/** @format uint8 */
+	version: number
 	sourceId: string
 	startDate: string
 	endDate: string
@@ -20154,6 +21759,7 @@ export interface LolTftTrovesTrovesBanner {
 	maxTotalRolls: number
 	/** @format uint32 */
 	pullCost: number
+	chaseContentId: string
 	celebrationTheme: LolTftTrovesTrovesCelebrationThemeData
 	status: LolTftTrovesTrovesStatus
 }
@@ -20297,11 +21903,11 @@ export interface LolTftTrovesTrovesStatus {
 	owned: boolean
 	/** @format uint32 */
 	availableContents: number
-	/** @format uint32 */
+	/** @format uint8 */
 	pityCount: number
 	dropTableId: string
 	hasPullError: boolean
-	/** @format uint32 */
+	/** @format uint16 */
 	totalRollsCount: number
 	isCollectorBountyMaxRollsMet: boolean
 }
@@ -20406,6 +22012,14 @@ export interface LolVanguardVanguardMachineSpecs {
 	"tpm2Enabled": boolean
 	secureBootEnabled: boolean
 }
+
+export interface LolVanguardVanguardSession {
+	state: LolVanguardVanguardSessionState
+	/** @format int32 */
+	vanguardStatus: number
+}
+
+export type LolVanguardVanguardSessionState = "ERROR" | "CONNECTED" | "IN_PROGRESS"
 
 export interface LolVanguardVanguardSystemCheckTelemetryEvent {
 	passedOsCheck: boolean
