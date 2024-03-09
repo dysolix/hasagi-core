@@ -208,10 +208,10 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
      * Send a request to the League of Legends client (LCU). Authentication is automatically included and the base url is already set.
      */
     public async request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>, ReturnAxiosResponse extends boolean = false>(config: AxiosRequestConfig & { method: Method, url: Path } & { returnAxiosResponse?: ReturnAxiosResponse }): Promise<ReturnAxiosResponse extends true ? AxiosResponse<LCUEndpointResponseType<Method, Path>> : LCUEndpointResponseType<Method, Path>>;
-    public async request<Method extends string, Path extends string, ReturnAxiosResponse extends boolean = false>(config: AxiosRequestConfig & { method: Method, url: Path } & { returnAxiosResponse?: ReturnAxiosResponse }): Promise<ReturnAxiosResponse extends true ? AxiosResponse<LCUEndpointResponseType<Method, Path>> : LCUEndpointResponseType<Method, Path>>;
+    //public async request<Method extends string, Path extends string, ReturnAxiosResponse extends boolean = false>(config: AxiosRequestConfig & { method: Method, url: Path } & { returnAxiosResponse?: ReturnAxiosResponse }): Promise<ReturnAxiosResponse extends true ? AxiosResponse<LCUEndpointResponseType<Method, Path>> : LCUEndpointResponseType<Method, Path>>;
 
     public async request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(method: Method, path: Path, ...options: LCURequestParametersParameter<Method, Path>): Promise<LCUEndpointResponseType<Method, Path>>;
-    public async request<Method extends string, Path extends string>(method: Method, path: Path, ...options: LCURequestParametersParameter<Method, Path>): Promise<LCUEndpointResponseType<Method, Path>>;
+    //public async request<Method extends string, Path extends string>(method: Method, path: Path, ...options: LCURequestParametersParameter<Method, Path>): Promise<LCUEndpointResponseType<Method, Path>>;
 
     public async request() {
         if (this.lcuAxiosInstance === null)
@@ -345,20 +345,21 @@ type FilteredParts<Path> = Path extends `${infer PartA}/${infer PartB}`
 
 type ParamsWithoutBracket<Path extends string> = FilteredParts<Path>;
 
-type LCURequestParametersParameter<Method extends string, Path extends string> = Path extends keyof LCUEndpoints ? Method extends keyof LCUEndpoints[Path] ? LCUEndpoints[Path][Method] extends { path: any, params: any, body: any, response: any } ?
-    {} extends { [key in ParamsWithoutBracket<Path>]: string } ? [options?: LCURequestParameters<Method, Path>] : [options: LCURequestParameters<Method, Path>] :
-    [options?: LCURequestParameters<Method, Path>] : [options?: LCURequestParameters<Method, Path>] : [options?: LCURequestParameters<Method, Path>];
+type LCURequestParameters<Method extends string, Path extends string> = { headers?: Record<string, any> } &
+    (ParamsWithoutBracket<Path> extends never ? {} : string extends ParamsWithoutBracket<Path> ? {} : { path: { [K in ParamsWithoutBracket<Path>]: string } }) &
+    (Path extends keyof LCUEndpoints ? Method extends keyof LCUEndpoints[Path] ? LCUEndpoints[Path][Method] extends { path: any, params: any, body: any, response: any } ? (
+        (LCUEndpoints[Path][Method]["body"] extends never ? {} : { body: LCUEndpoints[Path][Method]["body"] }) &
+        (LCUEndpoints[Path][Method]["params"] extends never ? {} : { query: LCUEndpoints[Path][Method]["params"] })
+    ) : {
+        query?: Record<string, any>;
+        body?: any;
+    } : {
+        query?: Record<string, any>;
+        body?: any;
+    } : {
+        query?: Record<string, any>;
+        body?: any;
+    });
 
-type LCURequestParameters<Method extends string, Path extends string> = { headers?: Record<string, any> } & (ParamsWithoutBracket<Path> extends never ? {} : { path: { [K in ParamsWithoutBracket<Path>]: string } }) & (Path extends keyof LCUEndpoints ? Method extends keyof LCUEndpoints[Path] ? LCUEndpoints[Path][Method] extends { path: any, params: any, body: any, response: any } ? (
-    (LCUEndpoints[Path][Method]["body"] extends never ? {} : { body: LCUEndpoints[Path][Method]["body"] }) &
-    (LCUEndpoints[Path][Method]["params"] extends never ? {} : { query: LCUEndpoints[Path][Method]["params"] })
-) : {
-    query?: Record<string, any>;
-    body?: any;
-} : {
-    query?: Record<string, any>;
-    body?: any;
-} : {
-    query?: Record<string, any>;
-    body?: any;
-});
+type LCURequestParametersParameter<Method extends string, Path extends string> = {} extends LCURequestParameters<Method, Path> ? [options?: LCURequestParameters<Method, Path>] : [options: LCURequestParameters<Method, Path>];
+
