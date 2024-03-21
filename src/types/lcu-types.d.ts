@@ -4277,6 +4277,8 @@ export interface LolClashBracketUpdateNotification {
 	bracketId: number
 	/** @format int64 */
 	currentMatchId: number
+	/** @format int64 */
+	winnerRosterId: number
 	notifyReason: LolClashRosterNotifyReason
 }
 
@@ -4842,7 +4844,7 @@ export interface LolClashRosterMember {
 
 export type LolClashRosterMemberState = "READY" | "FORCED_NOT_READY" | "NOT_READY" | "PENDING" | "DECLINED"
 
-export type LolClashRosterNotifyReason = "GAME_RESCHEDULED" | "GAME_START_FAILED_OPPONENT" | "GAME_START_FAILED_SUMMONERS" | "GAME_START_FAILED" | "GAME_START_RETRY_OPPONENT" | "GAME_START_RETRY_SUMMONERS" | "GAME_START_RETRY" | "TICKET_COULD_NOT_BE_CHARGED" | "TICKET_REFUNDED" | "TICKET_CHARGED" | "BANNED_SMURF_OPPONENT" | "BANNED_SMURF_TEAMMATE" | "BANNED_SMURF" | "CANNOT_FIND_MATCH" | "BRACKET_ROSTER_REPLACED" | "BRACKET_ROSTER_REMOVED" | "TIER_CHANGED" | "NO_SHOW_PING" | "ROUND_COMPLETE" | "WITHDRAW" | "VOTE_WITHDRAW_DISMISS" | "VOTE_WITHDRAW_UPDATE" | "OWNER_TRANSFER" | "QUEUE_DODGE" | "GAME_END_ERROR" | "GAME_STARTED_ERROR" | "GAME_STARTED" | "GAME_SCHEDULED" | "GAME_COMPLETED" | "PERIOD_SPLIT" | "PERIOD_CANCEL" | "PHASE_BACKOUT" | "PHASE_CHECKIN" | "PHASE_READY" | "PHASE_UNREADY" | "RESTRICTION_AUTO_WIN" | "REGISTERED" | "EOG_PLAYER_UPDATE" | "CHANGE_POSITION" | "BRACKET_READY" | "BYE_AUTO_WIN" | "ROSTER_REVOKED_TICKET" | "ROSTER_DECLINE_TICKET" | "ROSTER_ACCEPT_TICKET" | "ROSTER_OFFER_TICKET" | "ROSTER_SET_TICKET"
+export type LolClashRosterNotifyReason = "GAME_RESCHEDULED" | "GAME_START_FAILED_OPPONENT" | "GAME_START_FAILED_SUMMONERS" | "GAME_START_FAILED" | "GAME_START_RETRY_OPPONENT" | "GAME_START_RETRY_SUMMONERS" | "GAME_START_RETRY" | "TICKET_COULD_NOT_BE_CHARGED" | "TICKET_REFUNDED" | "TICKET_CHARGED" | "BANNED_SMURF_OPPONENT" | "BANNED_SMURF_TEAMMATE" | "BANNED_SMURF" | "CANNOT_FIND_MATCH" | "BRACKET_ROSTER_REPLACED" | "BRACKET_ROSTER_REMOVED" | "TIER_CHANGED" | "NO_SHOW_PING" | "ROUND_COMPLETE" | "WITHDRAW" | "VOTE_WITHDRAW_DISMISS" | "VOTE_WITHDRAW_UPDATE" | "OWNER_TRANSFER" | "QUEUE_DODGE" | "GAME_END_ERROR" | "GAME_STARTED_ERROR" | "GAME_STARTED" | "GAME_SCHEDULED" | "GAME_COMPLETED" | "PERIOD_SPLIT" | "PERIOD_CANCEL" | "PHASE_BACKOUT" | "PHASE_CHECKIN" | "PHASE_READY" | "PHASE_UNREADY" | "RESTRICTION_AUTO_WIN" | "REGISTERED" | "EOG_PLAYER_UPDATE" | "CHEATER_DETECT" | "CHANGE_POSITION" | "BRACKET_READY" | "BYE_AUTO_WIN" | "ROSTER_REVOKED_TICKET" | "ROSTER_DECLINE_TICKET" | "ROSTER_ACCEPT_TICKET" | "ROSTER_OFFER_TICKET" | "ROSTER_SET_TICKET"
 
 export interface LolClashRosterPeriodAggregatedStats {
 	/** @format int32 */
@@ -5875,8 +5877,8 @@ export interface LolCosmeticsCosmeticsTFTPlaybookViewModel {
 
 export interface LolCosmeticsFavoriteCosmetics {
 	companions: string[]
-	tft_damage_skins: string[]
 	tft_map_skins: string[]
+	tft_damage_skins: string[]
 }
 
 export interface LolCosmeticsGameDataCompanion {
@@ -6090,6 +6092,7 @@ export interface LolDropsCapDropsDropTableDisplayMetadata {
 	/** @format uint8 */
 	version: number
 	chaseContentId: string
+	oddsTree: LolDropsCapDropsOddsTreeNodeDTO
 }
 
 export interface LolDropsCapDropsDropTablePityInfo {
@@ -6125,6 +6128,8 @@ export interface LolDropsCapDropsOddsTreeNodeDTO {
 	/** @format float */
 	odds: number
 	children: LolDropsCapDropsOddsTreeNodeDTO[]
+	/** @format uint16 */
+	quantity: number
 }
 
 export interface LolDropsOddsTableDisplayMetadata {
@@ -6810,6 +6815,7 @@ export interface LolEventHubActivationClientConfig {
 	firstActivationThresholdSeconds: number
 	activeEventId: string
 	startDate: string
+	progressEndDate: string
 	endDate: string
 }
 
@@ -7165,7 +7171,6 @@ export interface LolEventHubEventShop {
 }
 
 export interface LolEventHubEventShopClientConfig {
-	progressEndDate: string
 	disabledOfferIds: string[]
 	contentDrops: LolEventHubContentDropClientConfig[]
 }
@@ -7280,6 +7285,7 @@ export interface LolEventHubHallOfLegends {
 	navbarIconImage: string
 	headerIconImage: string
 	startDate: string
+	progressEndDate: string
 	endDate: string
 	helpModalImage: string
 	backgroundImage: string
@@ -7291,6 +7297,13 @@ export interface LolEventHubHallOfLegends {
 	skinIds: string[]
 	rewardTrack: LolEventHubRewardTrack
 	narrativeElements: LolEventHubNarrativeElement[]
+	localizedUpsellTitle: string
+	localizedUpsellTooltipTitle: string
+	localizedUpsellTooltipDescription: string
+	localizedUpsellButtonText: string
+	upsellBackgroundImageUrl: string
+	upsellTooltipBackgroundImageUrl: string
+	upsellIconUrl: string
 }
 
 export interface LolEventHubInventoryCacheEntry {
@@ -7588,7 +7601,7 @@ export interface LolEventHubNarrativeElement {
 	localizedNarrativeDescription: string
 	narrativeBackgroundImage: string
 	narrativeTrackLevelRange: LolEventHubNarrativeTrackLevelRange
-	localizedNarrativeVideoUrl: string
+	narrativeVideo: LolEventHubNarrativeVideo
 }
 
 export interface LolEventHubNarrativeTrackLevelRange {
@@ -7596,6 +7609,11 @@ export interface LolEventHubNarrativeTrackLevelRange {
 	beginNarrativeLevel: number
 	/** @format uint16 */
 	endNarrativeLevel: number
+}
+
+export interface LolEventHubNarrativeVideo {
+	localizedNarrativeVideoUrl: string
+	localizedPlayNarrativeButtonLabel: string
 }
 
 export interface LolEventHubNavigationButtonUIData {
@@ -18184,6 +18202,8 @@ export interface LolRankedRankedQueueStats {
 	highestDivision: LolRankedLeagueDivision
 	previousSeasonEndTier: string
 	previousSeasonEndDivision: LolRankedLeagueDivision
+	previousSeasonHighestTier: string
+	previousSeasonHighestDivision: LolRankedLeagueDivision
 	warnings?: LolRankedRankedQueueWarnings
 }
 
@@ -18209,6 +18229,8 @@ export interface LolRankedRankedQueueStatsDTO {
 	highestRank: string
 	previousSeasonEndTier: string
 	previousSeasonEndRank: string
+	previousSeasonHighestTier: string
+	previousSeasonHighestRank: string
 	warnings?: LolRankedRankedQueueWarningsDTO
 }
 
@@ -21256,6 +21278,12 @@ export interface LolTftPassSummonerIcon {
 	itemId: number
 }
 
+export interface LolTftPassTFTPassAsset {
+	internalName: string
+	iconTexturePath: string
+	iconNeedsFrame: boolean
+}
+
 export interface LolTftPassTFTPassClientConfig {
 	enabled: boolean
 	battlePassId: string
@@ -21289,7 +21317,7 @@ export interface LolTftPassTFTPassMilestoneDTO {
 	id: string
 	title: string
 	description: string
-	iconURL: string
+	assetInternalName: string
 	keystone: boolean
 	bonus: boolean
 	/** @format int32 */
@@ -21307,8 +21335,7 @@ export interface LolTftPassTFTPassMilestoneDTO {
 export interface LolTftPassTFTPassRewardDTO {
 	title: string
 	description: string
-	iconURL: string
-	framedIcon: boolean
+	assetInternalName: string
 	premium: boolean
 }
 
@@ -21517,6 +21544,7 @@ export interface LolTftTrovesCapDropsDropTableDisplayMetadata {
 	/** @format uint8 */
 	version: number
 	chaseContentId: string
+	oddsTree: LolTftTrovesDropsOddsTreeNodeDTO
 }
 
 export interface LolTftTrovesCapOrdersRequestDTO {
@@ -21575,6 +21603,8 @@ export interface LolTftTrovesDropsOddsTreeNodeDTO {
 	/** @format float */
 	odds: number
 	children: LolTftTrovesDropsOddsTreeNodeDTO[]
+	/** @format uint16 */
+	quantity: number
 }
 
 export interface LolTftTrovesEntitlementNotificationResource {
@@ -24132,6 +24162,7 @@ export interface basicOperatingSystemInfo {
 	platform: string
 	versionMajor: string
 	versionMinor: string
+	buildNumber: string
 }
 
 /** User Experience Settings System Information */

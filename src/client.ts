@@ -20,45 +20,6 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
     /** The base64 encoded basic auth token ("riot:{password}") */
     getBasicAuthToken = () => this.basicAuthToken;
 
-    /**
-     * Builds a request function that calls a specific endpoint with full type support for parameter and response types
-     * @param method The http method the request should use
-     * @param path The path the request should use
-     * @returns A function that takes all of the endpoint's parameters that returns a Promise resolving to the response data including full auto-generated types for most endpoints
-     * @throws {RequestError} 
-    */
-    buildRequest<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>, ParameterTypes extends any[] = Parameters<LCUEndpoint<Method, Path>>, ResponseType = LCUEndpointResponseType<Method, Path>>(method: Method, path: Path, options?: { transformResponse?: (response: Awaited<ReturnType<LCUEndpoint<Method, Path>>>) => ResponseType; transformParameters?: (...args: ParameterTypes) => Readonly<Parameters<LCUEndpoint<Method, Path>>> | Promise<Readonly<Parameters<LCUEndpoint<Method, Path>>>> }): (...args: ParameterTypes) => Promise<ResponseType> {
-        const callableEndpoint = async (...args: any) => {
-            if (options?.transformParameters)
-                args = await options.transformParameters(...args);
-
-            const pathParams = path.match(/{(.*?)}/g)?.map(str => str.substring(1, str.length - 1)) ?? [];
-            let i = 0;
-            let requestPath = path;
-            for (const param of pathParams)
-                requestPath = requestPath.replace(`{${param}}`, args[i++]) as any;
-
-            const body = args[i];
-
-            const lcuResponse = await this.request({
-                method,
-                url: requestPath,
-                data: method !== "get" ? body : undefined,
-                params: method === "get" ? body : undefined,
-                headers: {
-                    "Content-Type": body !== undefined && method !== "get" ? "application/json" : undefined
-                },
-            });
-
-            if (options?.transformResponse)
-                return options.transformResponse(lcuResponse);
-
-            return lcuResponse;
-        }
-
-        return callableEndpoint as any;
-    }
-
     //#region WebSocket
 
     private subscribedEvents = new Set<keyof LCUWebSocketEvents>();
@@ -208,11 +169,7 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
      * Send a request to the League of Legends client (LCU). Authentication is automatically included and the base url is already set.
      */
     public async request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>, ReturnAxiosResponse extends boolean = false>(config: AxiosRequestConfig & { method: Method, url: Path } & { returnAxiosResponse?: ReturnAxiosResponse }): Promise<ReturnAxiosResponse extends true ? AxiosResponse<LCUEndpointResponseType<Method, Path>> : LCUEndpointResponseType<Method, Path>>;
-    //public async request<Method extends string, Path extends string, ReturnAxiosResponse extends boolean = false>(config: AxiosRequestConfig & { method: Method, url: Path } & { returnAxiosResponse?: ReturnAxiosResponse }): Promise<ReturnAxiosResponse extends true ? AxiosResponse<LCUEndpointResponseType<Method, Path>> : LCUEndpointResponseType<Method, Path>>;
-
-    public async request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(method: Method, path: Path, ...options: LCURequestParametersParameter<Method, Path>): Promise<LCUEndpointResponseType<Method, Path>>;
-    //public async request<Method extends string, Path extends string>(method: Method, path: Path, ...options: LCURequestParametersParameter<Method, Path>): Promise<LCUEndpointResponseType<Method, Path>>;
-
+    public async request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(method: Method, path: Path, ...options: LCURequestOptionsParameter<Method, Path>): Promise<LCUEndpointResponseType<Method, Path>>;
     public async request() {
         if (this.lcuAxiosInstance === null)
             throw new Error("Hasagi is not connected to the League of Legends client.");
@@ -228,7 +185,7 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
         } else {
             const method = arguments[0] as string;
             let path = arguments[1] as string;
-            const _config = arguments[2] as LCURequestParameters<string, string> | undefined;
+            const _config = arguments[2] as LCURequestOptions<string, string> | undefined;
 
             // Replace path parameters
             if (_config && "path" in _config) {
@@ -254,6 +211,45 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
             return axiosResponse;
 
         return axiosResponse.data;
+    }
+
+    /**
+     * Builds a request function that calls a specific endpoint with full type support for parameter and response types
+     * @param method The http method the request should use
+     * @param path The path the request should use
+     * @returns A function that takes all of the endpoint's parameters that returns a Promise resolving to the response data including full auto-generated types for most endpoints
+     * @throws {RequestError} 
+    */
+    buildRequest<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>, ParameterTypes extends any[] = Parameters<LCUEndpoint<Method, Path>>, ResponseType = LCUEndpointResponseType<Method, Path>>(method: Method, path: Path, options?: { transformResponse?: (response: Awaited<ReturnType<LCUEndpoint<Method, Path>>>) => ResponseType; transformParameters?: (...args: ParameterTypes) => Readonly<Parameters<LCUEndpoint<Method, Path>>> | Promise<Readonly<Parameters<LCUEndpoint<Method, Path>>>> }): (...args: ParameterTypes) => Promise<ResponseType> {
+        const callableEndpoint = async (...args: any) => {
+            if (options?.transformParameters)
+                args = await options.transformParameters(...args);
+
+            const pathParams = path.match(/{(.*?)}/g)?.map(str => str.substring(1, str.length - 1)) ?? [];
+            let i = 0;
+            let requestPath = path;
+            for (const param of pathParams)
+                requestPath = requestPath.replace(`{${param}}`, args[i++]) as any;
+
+            const body = args[i];
+
+            const lcuResponse = await this.request({
+                method,
+                url: requestPath,
+                data: method !== "get" ? body : undefined,
+                params: method === "get" ? body : undefined,
+                headers: {
+                    "Content-Type": body !== undefined && method !== "get" ? "application/json" : undefined
+                },
+            });
+
+            if (options?.transformResponse)
+                return options.transformResponse(lcuResponse);
+
+            return lcuResponse;
+        }
+
+        return callableEndpoint as any;
     }
     //#endregion
 
@@ -338,15 +334,13 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
     //#endregion
 }
 
-type IsParameter<Part> = Part extends `{${infer ParamName}}` ? ParamName : never;
-type FilteredParts<Path> = Path extends `${infer PartA}/${infer PartB}`
-    ? IsParameter<PartA> | FilteredParts<PartB>
-    : IsParameter<Path>;
+type ExtractParemeter<Part> = Part extends `{${infer ParamName}}` ? ParamName : never;
+type PathParameters<Path> = Path extends `${infer PartA}/${infer PartB}`
+    ? ExtractParemeter<PartA> | PathParameters<PartB>
+    : ExtractParemeter<Path>;
 
-type ParamsWithoutBracket<Path extends string> = FilteredParts<Path>;
-
-type LCURequestParameters<Method extends string, Path extends string> = { headers?: Record<string, any> } &
-    (ParamsWithoutBracket<Path> extends never ? {} : string extends ParamsWithoutBracket<Path> ? {} : { path: { [K in ParamsWithoutBracket<Path>]: string } }) &
+type LCURequestOptions<Method extends string, Path extends string> = { headers?: Record<string, any> } &
+    (PathParameters<Path> extends never ? {} : string extends PathParameters<Path> ? {} : { path: { [K in PathParameters<Path>]: string } }) &
     (Path extends keyof LCUEndpoints ? Method extends keyof LCUEndpoints[Path] ? LCUEndpoints[Path][Method] extends { path: any, params: any, body: any, response: any } ? (
         (LCUEndpoints[Path][Method]["body"] extends never ? {} : { body: LCUEndpoints[Path][Method]["body"] }) &
         (LCUEndpoints[Path][Method]["params"] extends never ? {} : { query: LCUEndpoints[Path][Method]["params"] })
@@ -361,5 +355,4 @@ type LCURequestParameters<Method extends string, Path extends string> = { header
         body?: any;
     });
 
-type LCURequestParametersParameter<Method extends string, Path extends string> = {} extends LCURequestParameters<Method, Path> ? [options?: LCURequestParameters<Method, Path>] : [options: LCURequestParameters<Method, Path>];
-
+type LCURequestOptionsParameter<Method extends string, Path extends string> = {} extends LCURequestOptions<Method, Path> ? [options?: LCURequestOptions<Method, Path>] : [options: LCURequestOptions<Method, Path>];
