@@ -1762,6 +1762,9 @@ export interface LCUEndpoints {
 	"/lol-player-behavior/v1/config": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolPlayerBehaviorPlayerBehaviorConfig }
 	},
+	"/lol-player-behavior/v1/credibility-behavior-warnings": {
+		get: { path: never, params: never, body: never, response: void }
+	},
 	"/lol-player-behavior/v1/ranked-restriction": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolPlayerBehaviorRestrictionNotification }
 	},
@@ -2236,6 +2239,9 @@ export interface LCUEndpoints {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolTastesDataModelResponse }
 	},
 	"/lol-tft-pass/v1/battle-pass": {
+		get: { path: never, params: never, body: never, response: LCUTypes.LolTftPassTftPaidBattlepass }
+	},
+	"/lol-tft-pass/v1/daily-login-pass": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolTftPassTftPaidBattlepass }
 	},
 	"/lol-tft-pass/v1/enabled": {
@@ -3503,6 +3509,9 @@ export interface LCUEndpoints {
 	},
 	"/lol-perks/v1/perks/ack-gameplay-updated": {
 		put: { path: never, params: never, body: number[], response: unknown }
+	},
+	"/lol-player-behavior/v1/ack-credibility-behavior-warning/{mailId}": {
+		put: { path: [mailId: string], params: never, body: never, response: void }
 	},
 	"/lol-player-behavior/v3/reform-card/{id}": {
 		put: { path: [id: string], params: never, body: never, response: void }

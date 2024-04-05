@@ -1,36 +1,27 @@
-import axios from "axios";
-import getProcesses from "ps-list";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { Agent } from "https";
 import { execSync } from "child_process";
 
-export type MaybePromise<T> = T | Promise<T>
+export type LCUCredentials = {
+    processId?: number;
+    port: number;
+    password: string;
+}
+
 /**
  * @param lockfile Required if source="lockfile". Can either be the absolute path to the lockfile or it's content.
  */
-export async function getPortAndBasicAuthToken(source: "process" | "lockfile" = "process", lockfile?: string) {
+export async function getPortAndBasicAuthToken(source: "process" | "lockfile" = "process", lockfile?: string): Promise<LCUCredentials> {
     if (source === "process") {
-        const processArr = await getProcesses();
-        let commandLine: string;
-
-        if (process.platform === "win32") {
-            const process = processArr.find(p => p.name === "LeagueClientUx.exe");
-            if (process === undefined) throw new Error("Unable to find process 'LeagueClientUx.exe'.");
-            commandLine = execSync(`(Get-CimInstance Win32_Process -Filter \"ProcessId=${process.pid}\").CommandLine`, { shell: "powershell.exe" }).toString("utf-8");
-        } else {
-            // UNSUPPORTED
+        if (process.platform !== "win32")
             throw new Error(`Authentication strategy 'process' is not supported on this platform. (${process.platform})`);
-        }
 
-        let portArr = commandLine.match("--app-port=([0-9]*)");
-        let passArr = commandLine.match("--remoting-auth-token=([\\w-]*)");
+        const processId = getLeagueClientUxProcesses()[0];
+        if (!processId)
+            throw new Error("Could not find process 'LeagueClientUx.exe'.");
 
-        if (portArr !== null && passArr !== null && (portArr?.length ?? 0) === 2 && (passArr?.length ?? 0) === 2) {
-            return { port: Number(portArr[1]), password: passArr[1] };
-        } else {
-            throw new Error("Found process 'LeagueClientUx', but could not retrieve port password.");
-        }
+        const credentials = getCredentialsByProcessId(processId);
+        return credentials;
     } else {
         if (typeof lockfile !== "string")
             throw new Error("Parameter 'lockfile' not provided or has an invalid type.");
@@ -62,4 +53,29 @@ function getPortAndBasicAuthTokenFromLockfile(lockfileContent: string) {
     throw new Error("Could not retrieve port and password from lockfile.");
 }
 
+/** Returns the process ids of all LeagueClientUx processes */
+export function getLeagueClientUxProcesses() {
+    return execSync(`(Get-CimInstance Win32_Process -Filter "Name='LeagueClientUx.exe'").ProcessId`, { shell: "powershell.exe" }).toString('utf-8').split('\r\n').map(x => parseInt(x)).filter(x => !isNaN(x));
+}
+
+export function getCredentialsByProcessId(processId: number): LCUCredentials {
+    const commandLine = execSync(`(Get-CimInstance Win32_Process -Filter "ProcessId=${processId}").CommandLine`, { shell: "powershell.exe" }).toString('utf-8');
+    if (!commandLine)
+        throw new Error(`Process with PID ${processId} not found.`);
+
+    const port = parseInt(commandLine.match("--app-port=([0-9]*)")?.at(1)!);
+    const password = commandLine.match("--remoting-auth-token=([\\w-]*)")?.at(1);
+
+    if (!port || !password)
+        throw new Error(`Found process with PID ${processId}, but could not retrieve port and password.`);
+
+    return {
+        processId,
+        port,
+        password
+    }
+}
+
 export const delay = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
+
+export type MaybePromise<T> = T | Promise<T>
