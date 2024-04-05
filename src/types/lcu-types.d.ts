@@ -2571,6 +2571,22 @@ export interface LolChampSelectChampionSelection {
 	pickedByOtherOrBanned: boolean
 }
 
+export interface LolChampSelectChampionSkinAugment {
+	contentId: string
+	overlays: LolChampSelectChampionSkinAugmentOverlays[]
+}
+
+export interface LolChampSelectChampionSkinAugmentOverlays {
+	centeredLCOverlayPath: string
+	friendCardLCOverlayPath: string
+	carouselLCOverlayPath: string
+	uncenteredLCOverlayPath: string
+}
+
+export interface LolChampSelectChampionSkinAugments {
+	augments: LolChampSelectChampionSkinAugment[]
+}
+
 export interface LolChampSelectCollectionsChampionChroma {
 	/** @format int32 */
 	championId: number
@@ -2622,6 +2638,7 @@ export interface LolChampSelectCollectionsChampionQuestSkin {
 	stillObtainable: boolean
 	splashPath: string
 	tilePath: string
+	skinAugments: LolChampSelectChampionSkinAugments
 	/** @format uint64 */
 	stage: number
 	shortName: string
@@ -2641,6 +2658,7 @@ export interface LolChampSelectCollectionsChampionSkin {
 	stillObtainable: boolean
 	splashPath: string
 	tilePath: string
+	skinAugments: LolChampSelectChampionSkinAugments
 	chromas: LolChampSelectCollectionsChampionChroma[]
 	questSkinInfo: LolChampSelectChampionQuestSkinInfo
 	emblems: LolChampSelectCollectionsChampionSkinEmblem[]
@@ -2677,6 +2695,7 @@ export interface LolChampSelectCollectionsChampionSkinMinimal {
 	stillObtainable: boolean
 	splashPath: string
 	tilePath: string
+	skinAugments: LolChampSelectChampionSkinAugments
 }
 
 export interface LolChampSelectCollectionsOwnership {
@@ -2981,6 +3000,7 @@ export interface LolChampSelectSkinSelectorChildSkin {
 	splashVideoPath?: string
 	tilePath: string
 	unlocked: boolean
+	skinAugments: Record<string, LolChampSelectChampionSkinAugmentOverlays>
 	/** @format int32 */
 	parentSkinId: number
 	colors: string[]
@@ -3016,6 +3036,7 @@ export interface LolChampSelectSkinSelectorSkin {
 	splashVideoPath?: string
 	tilePath: string
 	unlocked: boolean
+	skinAugments: Record<string, LolChampSelectChampionSkinAugmentOverlays>
 	childSkins: LolChampSelectSkinSelectorChildSkin[]
 	emblems: LolChampSelectCollectionsChampionSkinEmblem[]
 	rarityGemPath: string
@@ -3141,6 +3162,7 @@ export interface LolChampionsCollectionsChampionQuestSkin {
 	lastSelected: boolean
 	splashPath: string
 	tilePath: string
+	skinAugments: LolChampionsCollectionsChampionSkinAugments
 	/** @format uint64 */
 	stage: number
 	description: string
@@ -3165,6 +3187,7 @@ export interface LolChampionsCollectionsChampionSkin {
 	lastSelected: boolean
 	splashPath: string
 	tilePath: string
+	skinAugments: LolChampionsCollectionsChampionSkinAugments
 	chromas: LolChampionsCollectionsChampionChroma[]
 	questSkinInfo: LolChampionsChampionQuestSkinInfo
 	emblems: LolChampionsCollectionsChampionSkinEmblem[]
@@ -3175,6 +3198,22 @@ export interface LolChampionsCollectionsChampionSkin {
 	collectionSplashVideoPath?: string
 	skinType?: string
 	featuresText?: string
+}
+
+export interface LolChampionsCollectionsChampionSkinAugment {
+	contentId: string
+	overlays: LolChampionsCollectionsChampionSkinAugmentOverlays[]
+}
+
+export interface LolChampionsCollectionsChampionSkinAugmentOverlays {
+	centeredLCOverlayPath: string
+	friendCardLCOverlayPath: string
+	carouselLCOverlayPath: string
+	uncenteredLCOverlayPath: string
+}
+
+export interface LolChampionsCollectionsChampionSkinAugments {
+	augments: LolChampionsCollectionsChampionSkinAugment[]
 }
 
 export interface LolChampionsCollectionsChampionSkinEmblem {
@@ -3207,6 +3246,7 @@ export interface LolChampionsCollectionsChampionSkinMinimal {
 	lastSelected: boolean
 	splashPath: string
 	tilePath: string
+	skinAugments: LolChampionsCollectionsChampionSkinAugments
 }
 
 export interface LolChampionsCollectionsChampionSpell {
@@ -3277,6 +3317,7 @@ export interface LolChampionsGameDataChampionQuestSkin {
 	tilePath: string
 	loadScreenPath: string
 	shortName: string
+	skinAugments: LolChampionsCollectionsChampionSkinAugments
 }
 
 export interface LolChampionsGameDataChampionSkin {
@@ -3296,6 +3337,7 @@ export interface LolChampionsGameDataChampionSkin {
 	chromaPath?: string
 	skinType?: string
 	featuresText?: string
+	skinAugments: LolChampionsCollectionsChampionSkinAugments
 }
 
 export interface LolChampionsGameDataChampionSpell {
@@ -5254,9 +5296,15 @@ export interface LolCollectionsCollectionsSummonerBackdrop {
 	championId: number
 	backdropType: LolCollectionsCollectionsSummonerBackdropType
 	backdropImage: string
+	backdropAugments: LolCollectionsCollectionsSummonerBackdropAugments[]
 	backdropVideo: string
 	backdropMaskColor: string
 	puuid: string
+}
+
+export interface LolCollectionsCollectionsSummonerBackdropAugments {
+	centeredLCOverlayPath: string
+	friendCardLCOverlayPath: string
 }
 
 export type LolCollectionsCollectionsSummonerBackdropType = "specified-skin" | "highest-mastery" | "summoner-icon" | "default"
@@ -5314,6 +5362,7 @@ export interface LolCollectionsGameDataChampionQuestSkin {
 	name: string
 	splashPath: string
 	splashVideoPath: string
+	skinAugments: LolCollectionsGameDataChampionSkinAugments
 }
 
 export interface LolCollectionsGameDataChampionSkin {
@@ -5324,6 +5373,23 @@ export interface LolCollectionsGameDataChampionSkin {
 	questSkinInfo: LolCollectionsGameDataQuestSkinInfo
 	splashPath: string
 	splashVideoPath?: string
+	skinAugments: LolCollectionsGameDataChampionSkinAugments
+}
+
+export interface LolCollectionsGameDataChampionSkinAugment {
+	contentId: string
+	overlays: LolCollectionsGameDataChampionSkinAugmentOverlays[]
+}
+
+export interface LolCollectionsGameDataChampionSkinAugmentOverlays {
+	centeredLCOverlayPath: string
+	friendCardLCOverlayPath: string
+	carouselLCOverlayPath: string
+	uncenteredLCOverlayPath: string
+}
+
+export interface LolCollectionsGameDataChampionSkinAugments {
+	augments: LolCollectionsGameDataChampionSkinAugment[]
 }
 
 export interface LolCollectionsGameDataChampionSummary {
@@ -5457,6 +5523,7 @@ export interface LolCollectionsSummoner {
 export interface LolCollectionsSummonerProfile {
 	/** @format int32 */
 	backgroundSkinId?: number
+	backgroundSkinAugments?: string
 }
 
 export interface LolCollectionsSummonerProfileUpdate {
@@ -5659,7 +5726,6 @@ export interface LolCosmeticsCompanionsGroupedViewModel {
 	/** @format int32 */
 	defaultItemId: number
 	groups: LolCosmeticsCompanionsGroupViewModel[]
-	favorites: LolCosmeticsCosmeticsCompanionViewModel[]
 }
 
 export interface LolCosmeticsCosmeticSettingsResource {
@@ -5999,7 +6065,6 @@ export interface LolCosmeticsTFTDamageSkinGroupedViewModel {
 	/** @format int32 */
 	defaultItemId: number
 	groups: LolCosmeticsTFTDamageSkinGroupViewModel[]
-	favorites: LolCosmeticsCosmeticsTFTDamageSkinViewModel[]
 }
 
 export interface LolCosmeticsTFTMapSkinFavoritesViewModel {
@@ -6022,7 +6087,6 @@ export interface LolCosmeticsTFTMapSkinGroupedViewModel {
 	/** @format int32 */
 	defaultItemId: number
 	groups: LolCosmeticsTFTMapSkinGroupViewModel[]
-	favorites: LolCosmeticsCosmeticsTFTMapSkinViewModel[]
 }
 
 export interface LolCosmeticsTFTPlaybookGroupViewModel {
@@ -7103,7 +7167,6 @@ export interface LolEventHubEntityInstance {
 
 export interface LolEventHubEventBackgroundUIData {
 	backgroundImagePath: string
-	premiumBackgroundImagePath: string
 }
 
 export interface LolEventHubEventDetailsUIData {
@@ -7288,8 +7351,6 @@ export interface LolEventHubHallOfLegends {
 	progressEndDate: string
 	endDate: string
 	helpModalImage: string
-	backgroundImage: string
-	premiumBackgroundImage: string
 	inducteeName: string
 	promotionBannerImage: string
 	eventPassBundlesCatalogEntry: LolEventHubCatalogEntry[]
@@ -7304,6 +7365,10 @@ export interface LolEventHubHallOfLegends {
 	upsellBackgroundImageUrl: string
 	upsellTooltipBackgroundImageUrl: string
 	upsellIconUrl: string
+}
+
+export interface LolEventHubHallOfLegendsClientConfig {
+	narrativeElements: LolEventHubNarrativeElement[]
 }
 
 export interface LolEventHubInventoryCacheEntry {
@@ -7600,20 +7665,15 @@ export interface LolEventHubNarrativeElement {
 	localizedNarrativeTitle: string
 	localizedNarrativeDescription: string
 	narrativeBackgroundImage: string
-	narrativeTrackLevelRange: LolEventHubNarrativeTrackLevelRange
+	/** @format uint16 */
+	narrativeStartingTrackLevel: number
 	narrativeVideo: LolEventHubNarrativeVideo
-}
-
-export interface LolEventHubNarrativeTrackLevelRange {
-	/** @format uint16 */
-	beginNarrativeLevel: number
-	/** @format uint16 */
-	endNarrativeLevel: number
 }
 
 export interface LolEventHubNarrativeVideo {
 	localizedNarrativeVideoUrl: string
 	localizedPlayNarrativeButtonLabel: string
+	narrativeVideoIsLockedOnLevel?: boolean
 }
 
 export interface LolEventHubNavigationButtonUIData {
@@ -11618,6 +11678,7 @@ export interface LolLobbyAutoFillQueueDto {
 	autoFillEligible: boolean
 	autoFillProtectedForStreaking: boolean
 	autoFillProtectedForPromos: boolean
+	autoFillProtectedForRemedy: boolean
 }
 
 export interface LolLobbyBotParticipantDto {
@@ -11746,7 +11807,7 @@ export interface LolLobbyEligibilityRestriction {
 	summonerIdsString: string
 }
 
-export type LolLobbyEligibilityRestrictionCode = "MmrStandardDeviationTooLarge" | "InventoryQueuesInfoNotAvailable" | "InventoryChampsInfoNotAvailable" | "LeaguesInfoNotAvailable" | "SummonerInfoNotAvailable" | "MinorInfoNotAvailable" | "BanInfoNotAvailable" | "TooManyIncompleteSubteamsRestriction" | "QPScarcePositionsNotAvailableRestriction" | "QPNonUniquePrimarySlotRestriction" | "QPInvalidChampionSelectionRestriction" | "QPInvalidPositionSelectionRestriction" | "QPInvalidNumberOfPlayerSlotsRestriction" | "QPPlayerChampionCoverageRestriction" | "QPPartyChampionCoverageRestriction" | "QPPlayerPositionCoverageRestriction" | "QPPartyPositionCoverageRestriction" | "QPPlayerScarcePositionCoverageRestriction" | "UnknownRestriction" | "SeasonVersionLockout" | "TFTNewPlayerRestriction" | "QueueEntryNotEntitledRestriction" | "GameVersionNotSupported" | "GameVersionMissing" | "GameVersionMismatch" | "PrerequisiteQueuesNotPlayedRestriction" | "TeamSizeRestriction" | "TeamHighMMRMaxSizeRestriction" | "PlayerRankedSuspensionRestriction" | "PlayerRankSoloOnlyRestriction" | "PlayerTimePlayedRestriction" | "PlayerMinorRestriction" | "PlayerMinLevelRestriction" | "PlayerMaxLevelRestriction" | "PlayerTimeBasedRankRestriction" | "PlayerGameBasedRankRestriction" | "PlayerLeaverTaintedWarningRestriction" | "PlayerLeaverQueueLockoutRestriction" | "PlayerLeaverBustedRestriction" | "PlayerInGameRestriction" | "PlayerDodgeRestriction" | "PlayerBingeRestriction" | "TeamMinSizeRestriction" | "TeamMaxSizeRestriction" | "TeamSkillRestriction" | "TeamDivisionRestriction" | "PlayerAvailableChampionRestriction" | "PlayerBannedRestriction" | "PlayerTimedRestriction" | "PlayerLevelRestriction" | "QueueUnsupported" | "QueueDisabled"
+export type LolLobbyEligibilityRestrictionCode = "MmrStandardDeviationTooLarge" | "UserInfoNotAvailable" | "InventoryQueuesInfoNotAvailable" | "InventoryChampsInfoNotAvailable" | "LeaguesInfoNotAvailable" | "SummonerInfoNotAvailable" | "MinorInfoNotAvailable" | "BanInfoNotAvailable" | "TooManyIncompleteSubteamsRestriction" | "QPScarcePositionsNotAvailableRestriction" | "QPNonUniquePrimarySlotRestriction" | "QPInvalidChampionSelectionRestriction" | "QPInvalidPositionSelectionRestriction" | "QPInvalidNumberOfPlayerSlotsRestriction" | "QPPlayerChampionCoverageRestriction" | "QPPartyChampionCoverageRestriction" | "QPPlayerPositionCoverageRestriction" | "QPPartyPositionCoverageRestriction" | "QPPlayerScarcePositionCoverageRestriction" | "UnknownRestriction" | "SeasonVersionLockout" | "TFTNewPlayerRestriction" | "QueueEntryNotEntitledRestriction" | "GameVersionNotSupported" | "GameVersionMissing" | "GameVersionMismatch" | "PrerequisiteQueuesNotPlayedRestriction" | "TeamSizeRestriction" | "TeamHighMMRMaxSizeRestriction" | "PlayerRankedSuspensionRestriction" | "PlayerRankSoloOnlyRestriction" | "PlayerTimePlayedRestriction" | "PlayerMinorRestriction" | "PlayerMinLevelRestriction" | "PlayerMaxLevelRestriction" | "PlayerTimeBasedRankRestriction" | "PlayerGameBasedRankRestriction" | "PlayerLeaverTaintedWarningRestriction" | "PlayerLeaverQueueLockoutRestriction" | "PlayerLeaverBustedRestriction" | "PlayerInGameRestriction" | "PlayerDodgeRestriction" | "PlayerBingeRestriction" | "TeamMinSizeRestriction" | "TeamMaxSizeRestriction" | "TeamSkillRestriction" | "TeamDivisionRestriction" | "PlayerAvailableChampionRestriction" | "PlayerBannedRestriction" | "PlayerTimedRestriction" | "PlayerLevelRestriction" | "QueueUnsupported" | "QueueDisabled"
 
 export interface LolLobbyFriendAvailabilityAnalytics {
 	puuid: string
@@ -12211,6 +12272,7 @@ export interface LolLobbyLobbyParticipantDto {
 	autoFillProtectedForStreaking: boolean
 	autoFillProtectedForPromos: boolean
 	autoFillProtectedForSoloing: boolean
+	autoFillProtectedForRemedy: boolean
 	isBot: boolean
 	botId: string
 	botDifficulty: LolLobbyLobbyBotDifficulty
@@ -16665,6 +16727,14 @@ export interface LolPlayerBehaviorCodeOfConductNotification {
 
 export type LolPlayerBehaviorGameflowPhase = "TerminatedInError" | "EndOfGame" | "PreEndOfGame" | "WaitingForStats" | "Reconnect" | "InProgress" | "FailedToLaunch" | "GameStart" | "ChampSelect" | "ReadyCheck" | "CheckedIntoTournament" | "Matchmaking" | "Lobby" | "None"
 
+export interface LolPlayerBehaviorMail {
+	mailId: string
+	message: string
+	state: string
+	/** @format uint64 */
+	createdAt: number
+}
+
 export type LolPlayerBehaviorNotificationSource = "Message" | "ForcedShutdown" | "Login" | "Invalid"
 
 export interface LolPlayerBehaviorPlayerBehaviorConfig {
@@ -18718,6 +18788,408 @@ export interface LolReplaysClashPlaymodeRestrictedInfo {
 	isRestricted: boolean
 }
 
+export interface LolReplaysGAMHSEvent {
+	type: string
+	/** @format uint64 */
+	timestamp: number
+	/** @format uint16 */
+	participantId: number
+	/** @format uint16 */
+	teamId: number
+	/** @format uint16 */
+	itemId: number
+	/** @format uint16 */
+	killerId: number
+	/** @format uint16 */
+	victimId: number
+	/** @format uint16 */
+	skillSlot: number
+	position: LolReplaysGAMHSPosition
+	assistingParticipantIds: number[]
+	buildingType: string
+	laneType: string
+	towerType: string
+	monsterType: string
+	monsterSubType: string
+}
+
+export interface LolReplaysGAMHSGame {
+	endOfGameResult: string
+	/** @format uint64 */
+	gameCreation: number
+	/** @format uint32 */
+	gameDuration: number
+	/** @format uint64 */
+	gameEndTimestamp: number
+	/** @format uint64 */
+	gameId: number
+	gameMode: string
+	gameName: string
+	/** @format uint64 */
+	gameStartTimestamp: number
+	gameType: string
+	gameVersion: string
+	/** @format uint16 */
+	mapId: number
+	platformId: string
+	/** @format int32 */
+	queueId: number
+	/** @format uint16 */
+	seasonId: number
+	tournamentCode: string
+}
+
+export interface LolReplaysGAMHSMatchHistoryData {
+	metadata: LolReplaysGAMHSMatchHistoryMetadata
+	json: unknown
+}
+
+export interface LolReplaysGAMHSMatchHistoryMetadata {
+	product: string
+	/** @format uint8 */
+	data_version: number
+	info_type: string
+	match_id: string
+	tags: string[]
+	participants: string[]
+	/** @format uint64 */
+	timestamp: number
+	private: boolean
+}
+
+export interface LolReplaysGAMHSParticipant {
+	/** @format uint16 */
+	participantId: number
+	/** @format uint16 */
+	teamId: number
+	/** @format int32 */
+	championId: number
+	/** @format uint16 */
+	"spell1Id": number
+	/** @format uint16 */
+	"spell2Id": number
+	highestAchievedSeasonTier: string
+	stats: LolReplaysGAMHSParticipantStatistics
+	timeline: LolReplaysGAMHSTimeline
+}
+
+export interface LolReplaysGAMHSParticipantFrame {
+	/** @format uint16 */
+	participantId: number
+	position: LolReplaysGAMHSPosition
+	/** @format int32 */
+	currentGold: number
+	/** @format int32 */
+	totalGold: number
+	/** @format uint16 */
+	level: number
+	/** @format uint32 */
+	xp: number
+	/** @format uint16 */
+	minionsKilled: number
+	/** @format uint16 */
+	jungleMinionsKilled: number
+	/** @format uint16 */
+	dominionScore: number
+	/** @format uint16 */
+	teamScore: number
+}
+
+export interface LolReplaysGAMHSParticipantIdentities {
+	/** @format uint16 */
+	participantId: number
+	player: LolReplaysGAMHSParticipantIdentityPlayer
+}
+
+export interface LolReplaysGAMHSParticipantIdentityPlayer {
+	puuid: string
+	platformId: string
+	/** @format uint64 */
+	accountId: number
+	/** @format uint64 */
+	summonerId: number
+	summonerName: string
+	gameName: string
+	tagLine: string
+	currentPlatformId: string
+	/** @format uint64 */
+	currentAccountId: number
+	matchHistoryUri: string
+	/** @format int32 */
+	profileIcon: number
+}
+
+export interface LolReplaysGAMHSParticipantStatistics {
+	/** @format uint16 */
+	participantId: number
+	win: boolean
+	/** @format int32 */
+	"item0": number
+	/** @format int32 */
+	"item1": number
+	/** @format int32 */
+	"item2": number
+	/** @format int32 */
+	"item3": number
+	/** @format int32 */
+	"item4": number
+	/** @format int32 */
+	"item5": number
+	/** @format int32 */
+	"item6": number
+	/** @format int64 */
+	kills: number
+	/** @format int64 */
+	deaths: number
+	/** @format int64 */
+	assists: number
+	/** @format int64 */
+	largestKillingSpree: number
+	/** @format int64 */
+	largestMultiKill: number
+	/** @format int64 */
+	killingSprees: number
+	/** @format int64 */
+	longestTimeSpentLiving: number
+	/** @format int64 */
+	doubleKills: number
+	/** @format int64 */
+	tripleKills: number
+	/** @format int64 */
+	quadraKills: number
+	/** @format int64 */
+	pentaKills: number
+	/** @format int64 */
+	unrealKills: number
+	/** @format int64 */
+	totalDamageDealt: number
+	/** @format int64 */
+	magicDamageDealt: number
+	/** @format int64 */
+	physicalDamageDealt: number
+	/** @format int64 */
+	trueDamageDealt: number
+	/** @format int64 */
+	largestCriticalStrike: number
+	/** @format int64 */
+	totalDamageDealtToChampions: number
+	/** @format int64 */
+	magicDamageDealtToChampions: number
+	/** @format int64 */
+	physicalDamageDealtToChampions: number
+	/** @format int64 */
+	trueDamageDealtToChampions: number
+	/** @format int64 */
+	totalHeal: number
+	/** @format int64 */
+	totalUnitsHealed: number
+	/** @format int64 */
+	totalDamageTaken: number
+	/** @format int64 */
+	magicalDamageTaken: number
+	/** @format int64 */
+	physicalDamageTaken: number
+	/** @format int64 */
+	trueDamageTaken: number
+	/** @format int64 */
+	goldEarned: number
+	/** @format int64 */
+	goldSpent: number
+	/** @format int64 */
+	turretKills: number
+	/** @format int64 */
+	inhibitorKills: number
+	/** @format int64 */
+	totalMinionsKilled: number
+	/** @format int64 */
+	neutralMinionsKilled: number
+	/** @format int64 */
+	neutralMinionsKilledTeamJungle: number
+	/** @format int64 */
+	neutralMinionsKilledEnemyJungle: number
+	/** @format int64 */
+	totalTimeCrowdControlDealt: number
+	/** @format int64 */
+	champLevel: number
+	/** @format int64 */
+	visionWardsBoughtInGame: number
+	/** @format int64 */
+	sightWardsBoughtInGame: number
+	/** @format int64 */
+	wardsPlaced: number
+	/** @format int64 */
+	wardsKilled: number
+	firstBloodKill: boolean
+	firstBloodAssist: boolean
+	firstTowerKill: boolean
+	firstTowerAssist: boolean
+	firstInhibitorKill: boolean
+	firstInhibitorAssist: boolean
+	gameEndedInEarlySurrender: boolean
+	gameEndedInSurrender: boolean
+	causedEarlySurrender: boolean
+	earlySurrenderAccomplice: boolean
+	teamEarlySurrendered: boolean
+	/** @format int64 */
+	combatPlayerScore: number
+	/** @format int64 */
+	objectivePlayerScore: number
+	/** @format int64 */
+	totalPlayerScore: number
+	/** @format int64 */
+	totalScoreRank: number
+	/** @format int64 */
+	damageSelfMitigated: number
+	/** @format int64 */
+	damageDealtToObjectives: number
+	/** @format int64 */
+	damageDealtToTurrets: number
+	/** @format int64 */
+	visionScore: number
+	/** @format int64 */
+	timeCCingOthers: number
+	/** @format int64 */
+	"playerScore0": number
+	/** @format int64 */
+	"playerScore1": number
+	/** @format int64 */
+	"playerScore2": number
+	/** @format int64 */
+	"playerScore3": number
+	/** @format int64 */
+	"playerScore4": number
+	/** @format int64 */
+	"playerScore5": number
+	/** @format int64 */
+	"playerScore6": number
+	/** @format int64 */
+	"playerScore7": number
+	/** @format int64 */
+	"playerScore8": number
+	/** @format int64 */
+	"playerScore9": number
+	/** @format int64 */
+	perkPrimaryStyle: number
+	/** @format int64 */
+	perkSubStyle: number
+	/** @format int64 */
+	"perk0": number
+	/** @format int64 */
+	"perk0Var1": number
+	/** @format int64 */
+	"perk0Var2": number
+	/** @format int64 */
+	"perk0Var3": number
+	/** @format int64 */
+	"perk1": number
+	/** @format int64 */
+	"perk1Var1": number
+	/** @format int64 */
+	"perk1Var2": number
+	/** @format int64 */
+	"perk1Var3": number
+	/** @format int64 */
+	"perk2": number
+	/** @format int64 */
+	"perk2Var1": number
+	/** @format int64 */
+	"perk2Var2": number
+	/** @format int64 */
+	"perk2Var3": number
+	/** @format int64 */
+	"perk3": number
+	/** @format int64 */
+	"perk3Var1": number
+	/** @format int64 */
+	"perk3Var2": number
+	/** @format int64 */
+	"perk3Var3": number
+	/** @format int64 */
+	"perk4": number
+	/** @format int64 */
+	"perk4Var1": number
+	/** @format int64 */
+	"perk4Var2": number
+	/** @format int64 */
+	"perk4Var3": number
+	/** @format int64 */
+	"perk5": number
+	/** @format int64 */
+	"perk5Var1": number
+	/** @format int64 */
+	"perk5Var2": number
+	/** @format int64 */
+	"perk5Var3": number
+	/** @format int32 */
+	"playerAugment1": number
+	/** @format int32 */
+	"playerAugment2": number
+	/** @format int32 */
+	"playerAugment3": number
+	/** @format int32 */
+	"playerAugment4": number
+	/** @format int32 */
+	playerSubteamId: number
+	/** @format int32 */
+	subteamPlacement: number
+}
+
+export interface LolReplaysGAMHSPosition {
+	/** @format int16 */
+	x: number
+	/** @format int16 */
+	y: number
+}
+
+export interface LolReplaysGAMHSTeam {
+	/** @format uint16 */
+	teamId: number
+	win: string
+	firstBlood: boolean
+	firstTower: boolean
+	firstInhibitor: boolean
+	firstBaron: boolean
+	firstDargon: boolean
+	/** @format uint32 */
+	towerKills: number
+	/** @format uint32 */
+	inhibitorKills: number
+	/** @format uint32 */
+	baronKills: number
+	/** @format uint32 */
+	dragonKills: number
+	/** @format uint32 */
+	vilemawKills: number
+	/** @format uint32 */
+	riftHeraldKills: number
+	/** @format uint32 */
+	hordeKills: number
+	/** @format uint32 */
+	dominionVictoryScore: number
+	bans: LolReplaysGAMHSTeamBan[]
+}
+
+export interface LolReplaysGAMHSTeamBan {
+	/** @format int32 */
+	championId: number
+	/** @format uint16 */
+	pickTurn: number
+}
+
+export interface LolReplaysGAMHSTimeline {
+	/** @format uint16 */
+	participantId: number
+	role: string
+	lane: string
+	creepsPerMinDeltas: Record<string, number>
+	xpPerMinDeltas: Record<string, number>
+	goldPerMinDeltas: Record<string, number>
+	csDiffPerMinDeltas: Record<string, number>
+	xpDiffPerMinDeltas: Record<string, number>
+	damageTakenPerMinDeltas: Record<string, number>
+	damageTakenDiffPerMinDeltas: Record<string, number>
+}
+
 export interface LolReplaysGameflowAvailability {
 	state: string
 }
@@ -20264,6 +20736,7 @@ export interface LolSummonerAutoFillQueueDto {
 	autoFillEligible: boolean
 	autoFillProtectedForStreaking: boolean
 	autoFillProtectedForPromos: boolean
+	autoFillProtectedForRemedy: boolean
 }
 
 export interface LolSummonerConsoleNameset {
@@ -21288,6 +21761,7 @@ export interface LolTftPassTFTPassClientConfig {
 	enabled: boolean
 	battlePassId: string
 	eventPassId: string
+	dailyLoginPassId: string
 }
 
 export interface LolTftPassTFTPassDTO {
@@ -21510,6 +21984,7 @@ export interface LolTftTeamPlannerTFTTeamPlannerConfig {
 	enabled: boolean
 	remindersEnabled: boolean
 	traitTooltipChampsEnabled: boolean
+	multipleSetsEnabled: boolean
 }
 
 export interface LolTftTeamPlannerTeamPlan {
@@ -21612,6 +22087,11 @@ export interface LolTftTrovesEntitlementNotificationResource {
 	itemTypeId: string
 	entitlementTypeId: string
 	resourceOperation: string
+}
+
+export interface LolTftTrovesGameDataTFTContent {
+	name: string
+	nameTraKey: string
 }
 
 export interface LolTftTrovesGameDataTrovesBanner {
@@ -21940,6 +22420,11 @@ export interface LolTftTrovesTrovesStatus {
 	/** @format uint16 */
 	totalRollsCount: number
 	isCollectorBountyMaxRollsMet: boolean
+}
+
+export interface LolTftTrovesTrovesTable {
+	nameTraKey: string
+	translatedName: string
 }
 
 export interface LolTftTrovesVerboseLootOddsResponse {

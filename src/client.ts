@@ -1,24 +1,42 @@
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, Method } from "axios";
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import { Agent } from "https";
 import { WebSocket } from "ws";
-import { delay, getPortAndBasicAuthToken } from "./util.js";
-import RequestError from "./request-error.js";
+import { LCUCredentials, MaybePromise, delay, getPortAndBasicAuthToken } from "./util.js";
 import { TypedEmitter } from "tiny-typed-emitter";
-import { LCUEndpoint, LCUEndpointResponseType, LCUWebSocketEvents, HttpMethod, EndpointsWithMethod, ConnectionOptions, HasagiEvents, LCUEventListener, LCUEndpoints } from "./index"
+import RIOT_GAMES_CERTIFICATE from "./riot-games-certificate.js";
+import { EndpointsWithMethod, HttpMethod, LCUEndpoint, LCUEndpointResponseType, LCUEndpoints } from "./types/lcu-endpoints.js";
+import { LCUError, NotConnectedError, RequestError } from "./errors.js";
+import { LCUWebSocketEvents } from "./types/lcu-events.js";
 
-export default class HasagiClient extends TypedEmitter<HasagiEvents> {
+export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
     public isConnected: boolean = false;
+    /** Will always be null if lockfile authentication is used */
+    private processId: number | null = null;
     private port: number | null = null;
     private password: string | null = null;
     private basicAuthToken: string | null = null;
     private lcuAxiosInstance: AxiosInstance | null = null;
     private webSocket: WebSocket | null = null;
     private lcuEventListeners: LCUEventListener[] = [];
+    private defaultRetryOptions: RequestRetryOptions | null = null;
 
-    getPassword = () => this.password;
-    getPort = () => this.port;
+    constructor(options?: { defaultRetryOptions?: RequestRetryOptions }) {
+        super();
+
+        this.defaultRetryOptions = options?.defaultRetryOptions ?? null;
+    }
+
+    /** Will always be null if lockfile authentication is used */
+    public readonly getProcessId = () => this.processId;
+    public readonly getPassword = () => this.password;
+    public readonly getPort = () => this.port;
     /** The base64 encoded basic auth token ("riot:{password}") */
-    getBasicAuthToken = () => this.basicAuthToken;
+    public readonly getBasicAuthToken = () => this.basicAuthToken;
+
+    /** e.g. riot:123456789@127.0.0.1:12345 */
+    public readonly getHostWithAuthentication = () => this.password && this.port ? `riot:${encodeURIComponent(this.password)}@127.0.0.1:${this.port}` : null;
+
+    public readonly setDefaultRetryOptions = (options: RequestRetryOptions) => this.defaultRetryOptions = options;
 
     //#region WebSocket
 
@@ -52,46 +70,74 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
         const authenticationStrategy = options?.authenticationStrategy ?? "process";
         const lockfile = options?.authenticationStrategy === "lockfile" ? options.lockfile : null;
 
+        this.processId = null;
         this.port = null;
         this.basicAuthToken = null;
         this.lcuAxiosInstance = null;
         this.webSocket = null;
         this.password = null;
 
-        let attempt = 0;
-        while (maxConnectionAttempts === -1 || attempt++ < maxConnectionAttempts) {
-            this.emit("connecting");
+        const agent = {
+            rejectUnauthorized: options?.certificate !== null,
+            ca: options?.certificate === null ? undefined : (options?.certificate ?? RIOT_GAMES_CERTIFICATE)
+        }
 
-            try {
-                const authData = authenticationStrategy === "process" ? await getPortAndBasicAuthToken("process") : await getPortAndBasicAuthToken("lockfile", lockfile!);
+        if (options?.authenticationStrategy === "manual") {
+            const credentials = options.credentials;
+            if (!credentials)
+                throw new Error("No credentials provided for manual authentication strategy.");
 
-                this.port = authData.port;
-                this.password = authData.password;
-                this.basicAuthToken = Buffer.from(`riot:${authData.password}`).toString("base64");
+            this.processId = credentials.processId ?? null;
+            this.port = credentials.port;
+            this.password = credentials.password;
+            this.basicAuthToken = Buffer.from(`riot:${credentials.password}`).toString("base64");
 
-                this.lcuAxiosInstance = axios.create({
-                    baseURL: "https://127.0.0.1:" + this.port,
-                    httpsAgent: new Agent({ rejectUnauthorized: false }),
-                    auth: {
-                        username: "riot",
-                        password: authData.password
-                    },
-                    adapter: "http"
-                });
+            this.lcuAxiosInstance = axios.create({
+                baseURL: "https://127.0.0.1:" + this.port,
+                httpsAgent: new Agent(agent),
+                auth: {
+                    username: "riot",
+                    password: credentials.password
+                },
+                adapter: "http"
+            });
+        } else {
+            let attempt = 0;
+            while (maxConnectionAttempts === -1 || attempt++ < maxConnectionAttempts) {
+                this.emit("connecting");
 
-                break;
-            } catch (e) {
-                if (attempt >= maxConnectionAttempts && maxConnectionAttempts !== -1)
-                    throw new Error("Could not connect to the League of Legends client.", { cause: e });
+                try {
+                    const authData = authenticationStrategy === "process" ? await getPortAndBasicAuthToken("process") : await getPortAndBasicAuthToken("lockfile", lockfile!);
 
-                this.emit("connection-attempt-failed");
-                await delay(connectionAttemptDelay);
+                    this.processId = authData.processId ?? null;
+                    this.port = authData.port;
+                    this.password = authData.password;
+                    this.basicAuthToken = Buffer.from(`riot:${authData.password}`).toString("base64");
+
+                    this.lcuAxiosInstance = axios.create({
+                        baseURL: "https://127.0.0.1:" + this.port,
+                        httpsAgent: new Agent(agent),
+                        auth: {
+                            username: "riot",
+                            password: authData.password
+                        },
+                        adapter: "http"
+                    });
+
+                    break;
+                } catch (e) {
+                    if (attempt >= maxConnectionAttempts && maxConnectionAttempts !== -1)
+                        throw new Error("Could not connect to the League of Legends client.", { cause: e });
+
+                    this.emit("connection-attempt-failed");
+                    await delay(connectionAttemptDelay);
+                }
             }
         }
 
         this.lcuAxiosInstance!.interceptors.response.use(res => { return res; }, err => {
             if (err instanceof AxiosError) {
-                if (err.code === "ECONNREFUSED") {
+                if (err.code === "ECONNREFUSED") { // TODO: Check if code ECONNREFUSED is possible when the client is still running
                     if (this.webSocket === null) {
                         this.onDisconnected();
                     }
@@ -101,15 +147,14 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
             throw err;
         })
 
-        // Waits for the client to be ready. TODO: Add timeout
-        while (await this.request("get", "/lol-summoner/v1/current-summoner").then(() => false, () => true))
-            await delay(1000);
+        // Waits for the client to be ready
+        await this.request("get", "/lol-summoner/v1/current-summoner", { retryOptions: { maxRetries: 10, retryDelay: 1000 } }).catch(() => { throw new Error("Successfully retrieved credentials but could not connect to the League of Legends client.") })
 
         if (useWebSocket) {
             let resolve: any;
             const webSocketConnectionPromise = new Promise(res => resolve = res);
 
-            this.webSocket = new WebSocket(("wss://127.0.0.1:" + this.port), undefined, { headers: { Authorization: "Basic " + this.basicAuthToken }, rejectUnauthorized: false });
+            this.webSocket = new WebSocket(("wss://127.0.0.1:" + this.port), undefined, { headers: { Authorization: "Basic " + this.basicAuthToken }, ...agent });
             this.webSocket.onopen = async (ev) => {
                 while (this.webSocket?.readyState !== WebSocket.OPEN) // TODO Check if this is still needed
                     await delay(250);
@@ -153,6 +198,8 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
             return;
 
         this.isConnected = false;
+
+        this.processId = null;
         this.port = null;
         this.basicAuthToken = null;
         this.lcuAxiosInstance = null;
@@ -168,20 +215,32 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
     /**
      * Send a request to the League of Legends client (LCU). Authentication is automatically included and the base url is already set.
      */
-    public async request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>, ReturnAxiosResponse extends boolean = false>(config: AxiosRequestConfig & { method: Method, url: Path } & { returnAxiosResponse?: ReturnAxiosResponse }): Promise<ReturnAxiosResponse extends true ? AxiosResponse<LCUEndpointResponseType<Method, Path>> : LCUEndpointResponseType<Method, Path>>;
+    public async request<ReturnAxiosResponse extends boolean = false>(config: AxiosRequestConfig & { returnAxiosResponse?: ReturnAxiosResponse, retryOptions?: RequestRetryOptions }): Promise<ReturnAxiosResponse extends true ? AxiosResponse<unknown> : unknown>;
     public async request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(method: Method, path: Path, ...options: LCURequestOptionsParameter<Method, Path>): Promise<LCUEndpointResponseType<Method, Path>>;
     public async request() {
         if (this.lcuAxiosInstance === null)
-            throw new Error("Hasagi is not connected to the League of Legends client.");
+            throw new NotConnectedError();
 
         let axiosConfig: AxiosRequestConfig;
         let returnAxiosResponse = false;
 
+        let retryOptions: RequestRetryOptions = {
+            maxRetries: 0,
+            retryDelay: 1000,
+            noRetryStatusCodes: [400],
+            ...this.defaultRetryOptions
+        };
+
         if (arguments.length === 1) {
             axiosConfig = arguments[0] as AxiosRequestConfig;
+            if (axiosConfig.data !== undefined)
+                axiosConfig.headers = { "Content-Type": "application/json", ...axiosConfig.headers };
 
             if (arguments[0].returnAxiosResponse)
                 returnAxiosResponse = true;
+
+            if (arguments[0].retryOptions)
+                retryOptions = arguments[0].retryOptions;
         } else {
             const method = arguments[0] as string;
             let path = arguments[1] as string;
@@ -199,18 +258,82 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
                 url: path,
                 data: _config?.body,
                 params: _config?.query,
-                headers: _config?.headers
+                headers: {
+                    "Content-Type": _config?.body !== undefined ? "application/json" : undefined,
+                    ..._config?.headers
+                }
             }
 
             returnAxiosResponse = false;
+
+            if (_config?.retryOptions)
+                retryOptions = _config.retryOptions;
         }
 
-        const axiosResponse = await this.lcuAxiosInstance.request(axiosConfig).catch(err => { throw new RequestError(err); });
+        const maxAttempts = (retryOptions?.maxRetries ?? 0) + 1;
+        const retryDelay = retryOptions?.retryDelay ?? 1000;
+        const noRetryStatusCodes = retryOptions?.noRetryStatusCodes ?? [400];
 
-        if (returnAxiosResponse)
-            return axiosResponse;
+        let errors: any[] = [];
+        while (errors.length < maxAttempts) {
+            try {
+                const axiosResponse = await this.lcuAxiosInstance.request(axiosConfig).catch(err => {
+                    if (err instanceof AxiosError && err.response)
+                        throw new LCUError(err);
 
-        return axiosResponse.data;
+                    throw new RequestError(err);
+                });
+
+                if (returnAxiosResponse)
+                    return axiosResponse;
+
+                return axiosResponse.data;
+            } catch (err) {
+                errors.push(err);
+
+                if (err instanceof LCUError && noRetryStatusCodes.includes(err.statusCode))
+                    throw new AggregateError(errors, `Request failed after ${errors.length} attempt(s).`);
+
+                if (errors.length >= maxAttempts)
+                    throw new AggregateError(errors, `Request failed after ${errors.length} attempt(s).`);
+
+                await delay(retryDelay);
+            }
+        }
+
+        throw new Error("An unknown error occurred. Please report this issue to the developer."); // Should never be reached
+    }
+
+    /**
+     * Polls an endpoint with a specific interval and executes callbacks on response, distinct response and error
+     */
+    public async poll<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(method: Method, path: Path, pollOptions: PollOptions<Method, Path>, ...options: LCURequestOptionsParameter<Method, Path>): Promise<void> {
+        const pollFunction = async () => {
+            let lastResponse: any = null;
+            let executions = 1;
+
+            while (executions++ < (pollOptions.maxExecutions ?? Number.MAX_SAFE_INTEGER)) {
+                try {
+                    const response = await this.request(method, path, { ...arguments[3], retryOptions: { maxRetries: 0 } }); // Disable retries for poll requests
+
+                    if (pollOptions.onResponse && await pollOptions.onResponse(response))
+                        return;
+
+                    if (lastResponse === null || JSON.stringify(lastResponse) !== JSON.stringify(response)) {
+                        lastResponse = response;
+                        if (pollOptions.onDistinctResponse && await pollOptions.onDistinctResponse(response))
+                            return;
+                    }
+                } catch (err) {
+                    if (pollOptions.onError && await pollOptions.onError(err))
+                        return;
+                }
+
+                await delay(pollOptions.intervalMs);
+            }
+        }
+
+        await pollFunction();
     }
 
     /**
@@ -218,9 +341,8 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
      * @param method The http method the request should use
      * @param path The path the request should use
      * @returns A function that takes all of the endpoint's parameters that returns a Promise resolving to the response data including full auto-generated types for most endpoints
-     * @throws {RequestError} 
     */
-    buildRequest<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>, ParameterTypes extends any[] = Parameters<LCUEndpoint<Method, Path>>, ResponseType = LCUEndpointResponseType<Method, Path>>(method: Method, path: Path, options?: { transformResponse?: (response: Awaited<ReturnType<LCUEndpoint<Method, Path>>>) => ResponseType; transformParameters?: (...args: ParameterTypes) => Readonly<Parameters<LCUEndpoint<Method, Path>>> | Promise<Readonly<Parameters<LCUEndpoint<Method, Path>>>> }): (...args: ParameterTypes) => Promise<ResponseType> {
+    public buildRequest<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>, ParameterTypes extends any[] = Parameters<LCUEndpoint<Method, Path>>, ResponseType = LCUEndpointResponseType<Method, Path>>(method: Method, path: Path, options?: { retryOptions?: RequestRetryOptions, transformResponse?: (response: Awaited<ReturnType<LCUEndpoint<Method, Path>>>) => ResponseType; transformParameters?: (...args: ParameterTypes) => Readonly<Parameters<LCUEndpoint<Method, Path>>> | Promise<Readonly<Parameters<LCUEndpoint<Method, Path>>>> }): (...args: ParameterTypes) => Promise<ResponseType> {
         const callableEndpoint = async (...args: any) => {
             if (options?.transformParameters)
                 args = await options.transformParameters(...args);
@@ -241,10 +363,11 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
                 headers: {
                     "Content-Type": body !== undefined && method !== "get" ? "application/json" : undefined
                 },
+                retryOptions: options?.retryOptions
             });
 
             if (options?.transformResponse)
-                return options.transformResponse(lcuResponse);
+                return options.transformResponse(lcuResponse as any);
 
             return lcuResponse;
         }
@@ -255,7 +378,7 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
 
     //#region LCU Events
     /**
-     * Adds a LCU event listener 
+     * Adds a LCU event listener. If only a path is provided then OnJsonApiEvent will automatically be subscribed.
      */
     public addLCUEventListener<EventName extends keyof LCUWebSocketEvents = "OnJsonApiEvent">(listener: {
         /** If present, the callback will only be called if the event's path matches. OnJsonApiEvent needs to be subscribed if you only use the path. */
@@ -268,6 +391,9 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
     }) {
         if (listener.name)
             this.subscribeWebSocketEvent(listener.name);
+
+        if (!listener.name && listener.path)
+            this.subscribeWebSocketEvent("OnJsonApiEvent");
 
         this.lcuEventListeners.push(listener);
     }
@@ -334,12 +460,66 @@ export default class HasagiClient extends TypedEmitter<HasagiEvents> {
     //#endregion
 }
 
-type ExtractParemeter<Part> = Part extends `{${infer ParamName}}` ? ParamName : never;
-type PathParameters<Path> = Path extends `${infer PartA}/${infer PartB}`
-    ? ExtractParemeter<PartA> | PathParameters<PartB>
-    : ExtractParemeter<Path>;
+export interface HasagiCoreEvents {
+    "connected": () => void,
+    "connecting": () => void,
+    "connection-attempt-failed": () => void,
+    "disconnected": () => void,
+    "lcu-event": <EventName extends keyof LCUWebSocketEvents = "OnJsonApiEvent">(event: [opcode: number, name: EventName, data: LCUWebSocketEvents[EventName]]) => void
+}
 
-type LCURequestOptions<Method extends string, Path extends string> = { headers?: Record<string, any> } &
+export type LCUEventListener<EventName extends keyof LCUWebSocketEvents = keyof LCUWebSocketEvents> = {
+    /** If present, the callback will only be called if the event's path matches */
+    path?: string | RegExp;
+    /** If present, the callback will only be called if the event's type is in the array */
+    types?: ("Create" | "Update" | "Delete")[];
+    /** If present, the callback will only be called if the event's name matches */
+    name?: EventName;
+    callback: (event: LCUWebSocketEvents[EventName]) => void;
+}
+
+export type ConnectionOptions = {
+    useWebSocket?: boolean;
+    /** The amount of attempts before the connection fails. Defaults to infinite */
+    maxConnectionAttempts?: number;
+    /** The delay in milliseconds between each (re)connection attempt. Defaults to 5000 */
+    connectionAttemptDelay?: number;
+
+    /** The self signed Riot Games certificate in string format; Use 'null' to disable certificate validation or omit to use the certificate that is built into Hasagi (works unless Riot changes their root certificate) */
+    certificate?: string | null;
+} & ({
+    authenticationStrategy: "lockfile",
+    /**
+     * This should either be the lockfile's content or an absolute path to the lockfile
+     */
+    lockfile: string
+} | {
+    authenticationStrategy: "process"
+} | {
+    authenticationStrategy: "manual",
+    credentials: LCUCredentials
+})
+
+export type RequestRetryOptions = {
+    maxRetries: number;
+    /** In milliseconds */
+    retryDelay: number;
+    /** Won't retry if one of these status codes is returned. Defaults to [400] */
+    noRetryStatusCodes?: number[];
+}
+
+export type PollOptions<Method extends string, Path extends string> = {
+    intervalMs: number;
+    maxExecutions?: number;
+    /** Called whenever the poll function is executed and a response is received; Polling will be cancelled if 'true' is returned */
+    onResponse?: (response: LCUEndpointResponseType<Method, Path>) => MaybePromise<boolean | void>;
+    /** Called whenever the poll function is executed and the response is distinct from the last one; Polling will be cancelled if 'true' is returned */
+    onDistinctResponse?: (response: LCUEndpointResponseType<Method, Path>) => MaybePromise<boolean | void>;
+    /** Called whenever the poll function fails; Polling will be cancelled if 'true' is returned */
+    onError?: (error: any) => MaybePromise<boolean | void>;
+};
+
+type LCURequestOptions<Method extends string, Path extends string> = { headers?: Record<string, any>, retryOptions?: RequestRetryOptions } &
     (PathParameters<Path> extends never ? {} : string extends PathParameters<Path> ? {} : { path: { [K in PathParameters<Path>]: string } }) &
     (Path extends keyof LCUEndpoints ? Method extends keyof LCUEndpoints[Path] ? LCUEndpoints[Path][Method] extends { path: any, params: any, body: any, response: any } ? (
         (LCUEndpoints[Path][Method]["body"] extends never ? {} : { body: LCUEndpoints[Path][Method]["body"] }) &
@@ -355,4 +535,13 @@ type LCURequestOptions<Method extends string, Path extends string> = { headers?:
         body?: any;
     });
 
-type LCURequestOptionsParameter<Method extends string, Path extends string> = {} extends LCURequestOptions<Method, Path> ? [options?: LCURequestOptions<Method, Path>] : [options: LCURequestOptions<Method, Path>];
+type LCURequestOptionsParameter<Method extends string, Path extends string, AdditionalOptions = {}> = OptionsParameter<LCURequestOptions<Method, Path> & AdditionalOptions>;
+
+type OptionsParameter<T> = {} extends T ? [options?: T] : [options: T];
+
+type ExtractParemeter<Part> = Part extends `{${infer ParamName}}` ? ParamName : never;
+
+/** Extracts parameters wrapped in braces to a string union type */
+type PathParameters<Path> = Path extends `${infer PartA}/${infer PartB}`
+    ? ExtractParemeter<PartA> | PathParameters<PartB>
+    : ExtractParemeter<Path>;
