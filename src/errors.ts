@@ -2,6 +2,8 @@ import { AxiosError } from "axios";
 
 /** Thrown when a request fails without a response */
 export class RequestError extends Error {
+    public readonly errorCode?: string;
+
     constructor(error: any) {
         if (error instanceof AxiosError && !error.response) {
             const errorCode = error.code;
@@ -15,6 +17,7 @@ export class RequestError extends Error {
                 message = "An unknown error occurred during the request.";
 
             super(message, { cause: error });
+            this.errorCode = errorCode;
         } else {
             super("An unknown error occurred during the request.", { cause: error });
         }
@@ -46,6 +49,12 @@ export class LCUError extends Error {
             this.errorCode = null;
             this.implementationDetails = null;
         }
+    }
+}
+
+export class ConnectionRefusedError extends Error {
+    constructor() {
+        super("Can't reach League of Legends client (ECONNREFUSED). The client is like no longer running.");
     }
 }
 

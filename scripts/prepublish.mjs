@@ -9,7 +9,7 @@ prompt.start();
 let { version } = await prompt.get(
     {
         name: 'version',
-        validator: /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/,
+        //validator: /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/,
         allowEmpty: true,
         default: packageObj.version,
     }

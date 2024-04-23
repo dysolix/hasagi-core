@@ -2578,8 +2578,8 @@ export interface LolChampSelectChampionSkinAugment {
 
 export interface LolChampSelectChampionSkinAugmentOverlays {
 	centeredLCOverlayPath: string
-	friendCardLCOverlayPath: string
-	carouselLCOverlayPath: string
+	socialCardLCOverlayPath: string
+	tileLCOverlayPath: string
 	uncenteredLCOverlayPath: string
 }
 
@@ -3059,6 +3059,168 @@ export interface LolChampSelectTeamBoost {
 	unlocked: boolean
 }
 
+export interface LolChampionMasteryAllChampionMasterySetReward {
+	championMasteries: LolChampionMasteryChampionMastery[]
+	championSet: LolChampionMasteryChampionSet
+	championSetRewards: Record<string, string>
+	seasonMilestoneRequireAndRewards: Record<string, LolChampionMasterySeasonMilestoneRequireAndRewards>
+	newPlayerNextLevel: LolChampionMasteryLevelMark
+	/** @format int32 */
+	totalScore: number
+}
+
+export interface LolChampionMasteryChampionMastery {
+	puuid: string
+	/** @format int32 */
+	championId: number
+	/** @format int32 */
+	championLevel: number
+	/** @format int32 */
+	championPoints: number
+	/** @format uint64 */
+	lastPlayTime: number
+	/** @format int32 */
+	championPointsSinceLastLevel: number
+	/** @format int32 */
+	championPointsUntilNextLevel: number
+	/** @format int32 */
+	markRequiredForNextLevel: number
+	chestGranted: boolean
+	/** @format int32 */
+	tokensEarned: number
+	/** @format int32 */
+	championSeasonMilestone: number
+	milestoneGrades: string[]
+	nextSeasonMilestone: LolChampionMasterySeasonMilestoneRequireAndRewards
+}
+
+export interface LolChampionMasteryChampionMasteryChangeNotification {
+	/** @format int64 */
+	gameId: number
+	puuid: string
+	/** @format int32 */
+	championId: number
+	/** @format int32 */
+	championLevel: number
+	/** @format int32 */
+	championPointsBeforeGame: number
+	/** @format int32 */
+	championPointsGained: number
+	/** @format int32 */
+	championPointsGainedIndividualContribution: number
+	/** @format int32 */
+	bonusChampionPointsGained: number
+	playerGrade: string
+	/** @format int32 */
+	championPointsSinceLastLevelBeforeGame: number
+	/** @format int32 */
+	championPointsUntilNextLevelBeforeGame: number
+	/** @format int32 */
+	championPointsUntilNextLevelAfterGame: number
+	championLevelUp: boolean
+	/** @format int32 */
+	score: number
+	levelUpList: LolChampionMasteryChampionMasteryMini[]
+	memberGrades: LolChampionMasteryChampionMasteryGrade[]
+	win: boolean
+	/** @format int32 */
+	mapId: number
+	/** @format int32 */
+	tokensEarned: number
+	tokenEarnedAfterGame: boolean
+	/** @format int32 */
+	markRequiredForNextLevel: number
+	/** @format int32 */
+	championSeasonMilestone: number
+	championSeasonMilestoneUp: boolean
+	milestoneGrades: string[]
+	seasonMilestone: LolChampionMasterySeasonMilestoneRequireAndRewards
+}
+
+export interface LolChampionMasteryChampionMasteryGrade {
+	puuid: string
+	/** @format int32 */
+	championId: number
+	grade: string
+}
+
+export interface LolChampionMasteryChampionMasteryMini {
+	puuid: string
+	/** @format int32 */
+	championId: number
+	/** @format int32 */
+	championLevel: number
+}
+
+export interface LolChampionMasteryChampionSet {
+	champions: number[]
+	/** @format int32 */
+	totalMilestone: number
+	completed: boolean
+}
+
+export interface LolChampionMasteryLevelMark {
+	/** @format int32 */
+	level: number
+	/** @format int32 */
+	championPoints: number
+	/** @format int32 */
+	marks: number
+}
+
+export interface LolChampionMasteryLoginSession {
+	state: LolChampionMasteryLoginSessionStates
+	/** @format uint64 */
+	summonerId: number
+	puuid: string
+	connected: boolean
+}
+
+export type LolChampionMasteryLoginSessionStates = "ERROR" | "LOGGING_OUT" | "SUCCEEDED" | "IN_PROGRESS"
+
+export interface LolChampionMasteryRewardConfigurationEntry {
+	rewardValue: string
+	/** @format int32 */
+	maximumReward: number
+}
+
+export interface LolChampionMasterySeasonMilestoneRequireAndRewards {
+	requireGradeCounts: Record<string, number>
+	/** @format uint16 */
+	rewardMarks: number
+	bonus: boolean
+	rewardConfig: LolChampionMasteryRewardConfigurationEntry
+}
+
+export interface LolChampionMasteryTopChampionMasteries {
+	puuid: string
+	/** @format uint64 */
+	summonerId: number
+	/** @format uint64 */
+	score: number
+	masteries: LolChampionMasteryChampionMastery[]
+}
+
+export interface LolChampionMasteryUIAllChampionMasteryWithSets {
+	championMasteries: LolChampionMasteryChampionMastery[]
+	championSet: LolChampionMasteryChampionSet
+	championSetRewards: Record<string, string>
+	seasonMilestoneRequireAndRewards: Record<string, LolChampionMasterySeasonMilestoneRequireAndRewards>
+	defaultChampionMastery: LolChampionMasteryChampionMastery
+	customRewards: LolChampionMasteryUIChampionMasteryCustomReward[]
+	/** @format int32 */
+	totalScore: number
+}
+
+export interface LolChampionMasteryUIChampionMasteryCustomReward {
+	type: string
+	/** @format int32 */
+	level: number
+	rewardValue: string
+	/** @format int32 */
+	quantity: number
+}
+
 export interface LolChampionsChampionQuestSkinInfo {
 	name: string
 	descriptionInfo: LolChampionsQuestSkinDescriptionInfo[]
@@ -3207,8 +3369,8 @@ export interface LolChampionsCollectionsChampionSkinAugment {
 
 export interface LolChampionsCollectionsChampionSkinAugmentOverlays {
 	centeredLCOverlayPath: string
-	friendCardLCOverlayPath: string
-	carouselLCOverlayPath: string
+	socialCardLCOverlayPath: string
+	tileLCOverlayPath: string
 	uncenteredLCOverlayPath: string
 }
 
@@ -5304,7 +5466,7 @@ export interface LolCollectionsCollectionsSummonerBackdrop {
 
 export interface LolCollectionsCollectionsSummonerBackdropAugments {
 	centeredLCOverlayPath: string
-	friendCardLCOverlayPath: string
+	socialCardLCOverlayPath: string
 }
 
 export type LolCollectionsCollectionsSummonerBackdropType = "specified-skin" | "highest-mastery" | "summoner-icon" | "default"
@@ -5383,8 +5545,8 @@ export interface LolCollectionsGameDataChampionSkinAugment {
 
 export interface LolCollectionsGameDataChampionSkinAugmentOverlays {
 	centeredLCOverlayPath: string
-	friendCardLCOverlayPath: string
-	carouselLCOverlayPath: string
+	socialCardLCOverlayPath: string
+	tileLCOverlayPath: string
 	uncenteredLCOverlayPath: string
 }
 
@@ -6194,6 +6356,9 @@ export interface LolDropsCapDropsOddsTreeNodeDTO {
 	children: LolDropsCapDropsOddsTreeNodeDTO[]
 	/** @format uint16 */
 	quantity: number
+	nameTraKey: string
+	/** @format uint8 */
+	priority: number
 }
 
 export interface LolDropsOddsTableDisplayMetadata {
@@ -6207,6 +6372,8 @@ export interface LolDropsTotalRollsInfoDTO {
 	/** @format uint8 */
 	maxTotalRolls: number
 }
+
+export type LolDx9DeprecationDx9DeprecationNotificationType = "TURN_OFF_DX9_LEGACY_MODE" | "HARDWARE_UPGRADE" | "NONE"
 
 export interface LolEmailVerificationAccessToken {
 	token: string
@@ -6525,7 +6692,7 @@ export interface LolEndOfGameGameDataTftItem {
 	name: string
 	/** @format int32 */
 	id: number
-	loadoutsIcon: string
+	squareIconPath: string
 	nameId: string
 }
 
@@ -7144,6 +7311,8 @@ export interface LolEventHubCurrencyDTO {
 export interface LolEventHubDiscountPricingInfo {
 	/** @format int32 */
 	cost: number
+	/** @format int32 */
+	originalCost: number
 	costType: string
 	currency: string
 	/** @format float */
@@ -7509,12 +7678,14 @@ export interface LolEventHubItemDefinition {
 	name: string
 	description: string
 	subTitle: string
+	imagePath: string
 	owned: boolean
 	assets: LolEventHubCatalogPluginItemAssets
 	tags: string[]
 	metadata: LolEventHubItemMetadataEntry[]
 	bundledItemPrice?: LolEventHubBundledItemPricingInfo
 	loyaltyUnlocked: boolean
+	hasVisibleLootOdds: boolean
 }
 
 export interface LolEventHubItemDetails {
@@ -7959,7 +8130,7 @@ export type LolEventHubRewardTrackItemHeaderType = "NONE" | "FREE" | "PREMIUM"
 export interface LolEventHubRewardTrackItemOption {
 	state: LolEventHubRewardTrackItemStates
 	thumbIconPath: string
-	largeDisplayImagePath: string
+	splashImagePath: string
 	selected: boolean
 	overrideFooter: string
 	headerType: LolEventHubRewardTrackItemHeaderType
@@ -8329,1424 +8500,6 @@ export interface LolEventHubWalletResponseDTO {
 }
 
 export interface LolEventHubXboxSubscriptionStatus {
-	active: string
-	subscriptionId: string
-}
-
-export interface LolEventShopAccessTokenResource {
-	token: string
-	scopes: string[]
-	/** @format uint64 */
-	expiry: number
-}
-
-export interface LolEventShopBalance {
-	currencyType: string
-	/** @format int32 */
-	amount: number
-}
-
-export interface LolEventShopBaseSkinLineDto {
-	items: LolEventShopSkinLineItemDto[]
-	localizedName: string
-	skinLineDescriptions: LolEventShopSkinLineDescriptionDto[]
-	pricingOptions: LolEventShopPriceOptionDto[]
-	splashPath: string
-	uncenteredSplashPath: string
-	collectionCardPath: string
-	collectionDescription: string
-	tilePath: string
-}
-
-export interface LolEventShopBundleOfferUIData {
-	details: LolEventShopBundledItemUIData
-	/** @format int64 */
-	initialPrice: number
-	/** @format int64 */
-	finalPrice: number
-	/** @format int64 */
-	futureBalance: number
-	isPurchasable: boolean
-	/** @format double */
-	discountPercentage: number
-	bundledItems: LolEventShopBundledItemUIData[]
-}
-
-export interface LolEventShopBundledItemPricingInfo {
-	discountPrices: LolEventShopDiscountPricingInfo[]
-	inventoryType: string
-	/** @format int32 */
-	itemId: number
-	/** @format int32 */
-	quantity: number
-}
-
-export interface LolEventShopBundledItemUIData {
-	name: string
-	/** @format int32 */
-	itemId: number
-	description: string
-	inventoryType: string
-	subInventoryType: string
-	splashImage: string
-	owned: boolean
-}
-
-export interface LolEventShopCapOffer {
-	id: string
-	typeId: string
-	label: string
-	productId: string
-	merchantId: string
-	payload: LolEventShopCapOfferPayloadEntry[]
-	active: boolean
-	startDate: string
-	createdDate: string
-}
-
-export interface LolEventShopCapOfferPayloadEntry {
-	itemPriceMap: Record<string, number>
-	itemInstanceId: string
-	fulfillmentTypeId: string
-	inventoryTypeUUID: string
-}
-
-export interface LolEventShopCapOrdersDataDto {
-	id: string
-	subOrders: LolEventShopCapOrdersSubOrderDto[]
-	purchaser: LolEventShopCapOrdersTypedIdentifierDto
-	location: string
-	source: string
-}
-
-export interface LolEventShopCapOrdersMetaDto {
-	xid: string
-}
-
-export interface LolEventShopCapOrdersOfferContextDto {
-	/** @format uint32 */
-	quantity: number
-	paymentOption: string
-}
-
-export interface LolEventShopCapOrdersOfferDto {
-	id: string
-	productId: string
-}
-
-export interface LolEventShopCapOrdersOrderDto {
-	data: LolEventShopCapOrdersDataDto
-	meta: LolEventShopCapOrdersMetaDto
-}
-
-export interface LolEventShopCapOrdersSubOrderDto {
-	recipientId: string
-	offerContext: LolEventShopCapOrdersOfferContextDto
-	offer: LolEventShopCapOrdersOfferDto
-}
-
-export interface LolEventShopCapOrdersTypedIdentifierDto {
-	id: string
-	typeId: string
-}
-
-export interface LolEventShopCatalogEntry {
-	contentId: string
-	/** @format int32 */
-	itemId: number
-	offerId: string
-	typeId: string
-}
-
-export interface LolEventShopCatalogItem {
-	/** @format int32 */
-	itemId: number
-	inventoryType: string
-	itemInstanceId?: string
-}
-
-export interface LolEventShopCatalogPluginItem {
-	/** @format int32 */
-	itemId: number
-	itemInstanceId: string
-	owned: boolean
-	inventoryType: string
-	subInventoryType: string
-	name: string
-	subTitle: string
-	description: string
-	imagePath: string
-	/** @format uint64 */
-	purchaseDate: number
-	/** @format uint64 */
-	releaseDate: number
-	/** @format uint64 */
-	inactiveDate: number
-	prices: LolEventShopCatalogPluginPrice[]
-	tags?: string[]
-	metadata?: LolEventShopItemMetadataEntry[]
-	questSkinInfo?: LolEventShopSkinLineInfo
-	active: boolean
-	ownershipType?: LolEventShopInventoryOwnership
-}
-
-export interface LolEventShopCatalogPluginItemAssets {
-	splashPath: string
-	iconPath: string
-	tilePath: string
-	emblems: LolEventShopChampionSkinEmblem[]
-	colors: string[]
-}
-
-export interface LolEventShopCatalogPluginItemWithDetails {
-	item: LolEventShopCatalogPluginItem
-	/** @format uint32 */
-	quantity: number
-	requiredItems?: LolEventShopCatalogPluginItemWithDetails[]
-	bundledItems?: LolEventShopCatalogPluginItemWithDetails[]
-	minimumBundlePrices?: LolEventShopCatalogPluginPrice[]
-	bundledDiscountPrices?: LolEventShopCatalogPluginPrice[]
-	assets: LolEventShopCatalogPluginItemAssets
-}
-
-export interface LolEventShopCatalogPluginPrice {
-	currency: string
-	/** @format int64 */
-	cost: number
-	costType?: string
-	sale?: LolEventShopCatalogPluginSale
-}
-
-export interface LolEventShopCatalogPluginSale {
-	startDate: string
-	endDate: string
-	/** @format float */
-	discount?: number
-	/** @format int64 */
-	cost: number
-}
-
-export interface LolEventShopCategoryOffersUIData {
-	category: LolEventShopOfferCategory
-	categoryIconPath: string
-	offers: LolEventShopOfferUIData[]
-}
-
-export type LolEventShopCelebrationType = "FULLSCREEN" | "TOAST" | "NONE"
-
-export interface LolEventShopCelebrationUIData {
-	rewardTrackItems: LolEventShopRewardTrackItem[]
-}
-
-export interface LolEventShopChampionSkinEmblem {
-	name: string
-	emblemPath: LolEventShopChampionSkinEmblemPath
-	emblemPosition: LolEventShopChampionSkinEmblemPosition
-}
-
-export interface LolEventShopChampionSkinEmblemPath {
-	large: string
-	small: string
-}
-
-export interface LolEventShopChampionSkinEmblemPosition {
-	vertical: string
-	horizontal: string
-}
-
-export interface LolEventShopClaimSelectUIData {
-	selectedRewardTrackItem: LolEventShopRewardTrackItem
-	/** @format uint16 */
-	unclaimedRewardCount: number
-}
-
-export interface LolEventShopClientCacheClearMessageDTO {
-	regions: string[]
-	clearAll: boolean
-	inventoryTypes: string[]
-}
-
-export interface LolEventShopClientConfigContentDrop {
-	Patch: string
-	ActivationDate: string
-}
-
-export interface LolEventShopContentDrop {
-	patch: string
-	activationDate: string
-	offers: LolEventShopOffer[]
-}
-
-export interface LolEventShopCounter {
-	id: string
-	name: string
-	groupId: string
-	direction: string
-	/** @format int64 */
-	startValue: number
-}
-
-export interface LolEventShopCounterInstance {
-	ownerId: string
-	productId: string
-	groupId: string
-	counterId: string
-	/** @format int64 */
-	counterValue: number
-}
-
-export interface LolEventShopCurrencyDTO {
-	/** @format int32 */
-	amount: number
-	subCurrencies: Record<string, number>
-}
-
-export interface LolEventShopDiscountPricingInfo {
-	/** @format int32 */
-	cost: number
-	costType: string
-	currency: string
-	/** @format float */
-	discount: number
-}
-
-export interface LolEventShopEndOfGameXp {
-	/** @format uint32 */
-	PER_WIN: number
-}
-
-export interface LolEventShopEndOfGameXpNotification {
-	xp: LolEventShopEndOfGameXp
-}
-
-export interface LolEventShopEntityInstance {
-	groupId: string
-	counters: LolEventShopCounterInstance[]
-	milestones: LolEventShopMilestoneInstance[]
-}
-
-export interface LolEventShopEventBackgroundUIData {
-	backgroundImagePath: string
-}
-
-export interface LolEventShopEventDetailsUIData {
-	eventIconPath: string
-	eventName: string
-	progressEndDate: string
-	shopEndDate: string
-	eventStartDate: string
-	helpModalImagePath: string
-}
-
-export interface LolEventShopEventShop {
-	eventId: string
-	localizedName: string
-	backgroundImage: string
-	navbarIconImage: string
-	headerIconImage: string
-	startDate: string
-	progressEndDate: string
-	shopEndDate: string
-	localizedUpsellTitle: string
-	localizedUpsellTooltipTitle: string
-	localizedUpsellTooltipDescription: string
-	localizedUpsellButtonText: string
-	upsellBackgroundImageUrl: string
-	upsellTooltipBackgroundImageUrl: string
-	helpModalImage: string
-	eventPassBundlesCatalogEntry: LolEventShopCatalogEntry[]
-	tokenShop: LolEventShopTokenShop
-	rewardTrack: LolEventShopRewardTrack
-}
-
-export interface LolEventShopEventShopClientConfig {
-	Enabled: boolean
-	ActiveEventId: string
-	StartDate: string
-	ProgressEndDate: string
-	ShopEndDate: string
-	DisabledOfferIds: string[]
-	ContentDrops: LolEventShopClientConfigContentDrop[]
-	/** @format double */
-	ActivationSpreadSeconds: number
-	/** @format double */
-	FirstActivationThresholdSeconds: number
-}
-
-export interface LolEventShopEventShopError {
-	errorMessage: string
-	errorId: string
-}
-
-export interface LolEventShopEventShopInfoUIData {
-	eventId: string
-	eventName: string
-	eventIcon: string
-	eventTokenImage: string
-	/** @format int64 */
-	currentTokenBalance?: number
-	/** @format int64 */
-	lockedTokenCount?: number
-	/** @format int32 */
-	unclaimedRewardCount?: number
-	isPassPurchased: boolean
-	isEventActive: boolean
-	showPip: boolean
-	eventPassBundles: LolEventShopCatalogEntry[]
-	tokenBundles: LolEventShopCatalogEntry[]
-}
-
-export type LolEventShopExternalCatalogInventoryOwnership = "F2P" | "LOYALTY" | "RENTED" | "OWNED"
-
-export interface LolEventShopExternalCatalogItemCost {
-	currency: string
-	/** @format int64 */
-	cost: number
-	/** @format float */
-	discount?: number
-}
-
-export interface LolEventShopExternalCatalogItemKey {
-	inventoryType: string
-	/** @format int32 */
-	itemId: number
-}
-
-export interface LolEventShopExternalCatalogPluginItem {
-	/** @format int32 */
-	itemId: number
-	itemInstanceId: string
-	owned: boolean
-	ownershipType?: LolEventShopExternalCatalogInventoryOwnership
-	inventoryType: string
-	subInventoryType: string
-	name: string
-	subTitle: string
-	description: string
-	imagePath: string
-	/** @format uint64 */
-	purchaseDate: number
-	/** @format uint64 */
-	releaseDate: number
-	/** @format uint64 */
-	inactiveDate: number
-	prices: LolEventShopExternalCatalogPluginPrice[]
-	tags?: string[]
-	active: boolean
-	sale?: LolEventShopExternalCatalogSale
-	offerId?: string
-}
-
-export interface LolEventShopExternalCatalogPluginItemAssets {
-	splashPath: string
-	iconPath: string
-	tilePath: string
-	colors: string[]
-}
-
-export interface LolEventShopExternalCatalogPluginItemWithDetails {
-	item: LolEventShopExternalCatalogPluginItem
-	/** @format uint32 */
-	quantity: number
-	requiredItems?: LolEventShopExternalCatalogPluginItemWithDetails[]
-	bundledItems?: LolEventShopExternalCatalogPluginItemWithDetails[]
-	minimumBundlePrices?: LolEventShopExternalCatalogPluginPrice[]
-	bundledDiscountPrices?: LolEventShopExternalCatalogPluginPrice[]
-	metadata: LolEventShopExternalItemMetadataEntry[]
-}
-
-export interface LolEventShopExternalCatalogPluginPrice {
-	currency: string
-	/** @format int64 */
-	cost: number
-	costType?: string
-}
-
-export interface LolEventShopExternalCatalogPluginRetailDiscount {
-	startDate: string
-	endDate: string
-	/** @format float */
-	discount?: number
-	/** @format int64 */
-	cost: number
-}
-
-export interface LolEventShopExternalCatalogSale {
-	startDate: string
-	endDate: string
-	prices: LolEventShopExternalCatalogItemCost[]
-}
-
-export interface LolEventShopExternalItemMetadataEntry {
-	type: string
-	value: string
-}
-
-export type LolEventShopGrantStatus = "FAILED" | "FULFILLED" | "PENDING_SELECTION" | "PENDING_FULFILLMENT"
-
-export interface LolEventShopGrantorDescription {
-	appName: string
-	entityId: string
-}
-
-export interface LolEventShopGroup {
-	id: string
-	productId: string
-	name: string
-	repeat: LolEventShopRepeat
-	counters: LolEventShopCounter[]
-	milestones: LolEventShopMilestone[]
-}
-
-export interface LolEventShopInventoryCacheEntry {
-	signedInventoryJwt: string
-	/** @format uint64 */
-	expirationMS: number
-	/** @format uint64 */
-	issuedAtMS: number
-	/** @format uint64 */
-	receivedAtMS: number
-	valid: boolean
-}
-
-export interface LolEventShopInventoryDTO {
-	puuid: string
-	/** @format uint64 */
-	accountId: number
-	/** @format uint64 */
-	summonerId: number
-	items: Record<string, unknown>
-	expires: string
-	itemsJwt: string
-}
-
-export interface LolEventShopInventoryItem {
-	uuid: string
-	/** @format int32 */
-	itemId: number
-	inventoryType: string
-	purchaseDate: string
-	/** @format uint64 */
-	quantity: number
-	ownershipType: LolEventShopItemOwnershipType
-	expirationDate: string
-	/** @format uint64 */
-	wins: number
-}
-
-export interface LolEventShopInventoryItemDTO {
-	/** @format int32 */
-	itemId: number
-	inventoryType: string
-	expirationDate: string
-	purchaseDate: string
-	/** @format uint64 */
-	quantity: number
-	/** @format uint64 */
-	ownedQuantity: number
-	usedInGameDate: string
-	entitlementId: string
-	entitlementTypeId: string
-	instanceId: string
-	instanceTypeId: string
-	payload: unknown
-	"f2p": boolean
-	rental: boolean
-	loyalty: boolean
-	loyaltySources: string[]
-	lsb: boolean
-	/** @format uint64 */
-	wins: number
-}
-
-export interface LolEventShopInventoryItemWithPayload {
-	uuid: string
-	/** @format int32 */
-	itemId: number
-	inventoryType: string
-	purchaseDate: string
-	/** @format uint64 */
-	quantity: number
-	ownershipType: LolEventShopItemOwnershipType
-	expirationDate: string
-	"f2p": boolean
-	rental: boolean
-	loyalty: boolean
-	loyaltySources: string[]
-	owned: boolean
-	/** @format uint64 */
-	wins: number
-	payload: unknown
-}
-
-export interface LolEventShopInventoryNotification {
-	/** @format int64 */
-	id: number
-	/** @format int32 */
-	itemId: number
-	inventoryType: string
-	type: string
-	acknowledged: boolean
-}
-
-export type LolEventShopInventoryOwnership = "F2P" | "LOYALTY" | "RENTED" | "OWNED"
-
-export interface LolEventShopInventoryResponseDTO {
-	data: LolEventShopInventoryDTO
-}
-
-export interface LolEventShopItem {
-	itemId: string
-	inventoryType: string
-	/** @format uint32 */
-	price: number
-	/** @format uint32 */
-	quantity: number
-}
-
-export interface LolEventShopItemChoiceDetails {
-	item: LolEventShopCatalogPluginItem
-	backgroundImage: string
-	contents: LolEventShopItemDetails[]
-	discount: string
-	/** @format uint32 */
-	fullPrice: number
-	displayType: string
-	purchaseOptions: LolEventShopPurchaseOption[]
-}
-
-export interface LolEventShopItemChoices {
-	choices: LolEventShopItemChoiceDetails[]
-	validationErrors: LolEventShopValidationErrorEntry[]
-}
-
-export interface LolEventShopItemCost {
-	currency: string
-	/** @format int64 */
-	cost: number
-	/** @format float */
-	discount?: number
-}
-
-export interface LolEventShopItemDefinition {
-	/** @format int32 */
-	itemId: number
-	inventoryType: string
-	subInventoryType: string
-	name: string
-	description: string
-	subTitle: string
-	owned: boolean
-	assets: LolEventShopCatalogPluginItemAssets
-	tags: string[]
-	metadata: LolEventShopItemMetadataEntry[]
-	bundledItemPrice?: LolEventShopBundledItemPricingInfo
-	loyaltyUnlocked: boolean
-}
-
-export interface LolEventShopItemDetails {
-	title: string
-	subTitle: string
-	description: string
-	iconUrl: string
-}
-
-export interface LolEventShopItemKey {
-	inventoryType: string
-	/** @format int32 */
-	itemId: number
-}
-
-export interface LolEventShopItemMetadataEntry {
-	type: string
-	value: string
-}
-
-export interface LolEventShopItemOrderDTO {
-	inventoryType: string
-	/** @format int32 */
-	itemId: number
-	/** @format uint32 */
-	quantity: number
-	/** @format uint32 */
-	rpCost: number
-}
-
-export interface LolEventShopItemOwnership {
-	itemKey: LolEventShopItemKey
-	/** @format int32 */
-	quantity: number
-}
-
-export type LolEventShopItemOwnershipType = "F2P" | "LOYALTY" | "RENTED" | "OWNED"
-
-export interface LolEventShopItemPrice {
-	currencyType: string
-	/** @format int64 */
-	price: number
-	purchasable: boolean
-}
-
-export interface LolEventShopItemSale {
-	startDate: string
-	endDate: string
-	/** @format float */
-	discount?: number
-}
-
-export interface LolEventShopItemUIData {
-	itemId: string
-	inventoryType: string
-	/** @format uint32 */
-	price: number
-	/** @format uint32 */
-	quantity: number
-}
-
-export interface LolEventShopLargeSelectionDisplayUIData {
-	selectedRewardTrackItem: LolEventShopRewardTrackItem
-}
-
-export interface LolEventShopLevelBoostPurchaseUIData {
-	offerId: string
-	rewardTrackItems: LolEventShopRewardTrackItem[]
-}
-
-export interface LolEventShopLoginSession {
-	puuid?: string
-	state: LolEventShopLoginSessionStates
-	/** @format uint64 */
-	summonerId: number
-	/** @format uint64 */
-	accountId: number
-	idToken: string
-}
-
-export type LolEventShopLoginSessionStates = "ERROR" | "LOGGING_OUT" | "SUCCEEDED" | "IN_PROGRESS"
-
-export interface LolEventShopLoyaltyRewards {
-	/** @format int32 */
-	freeRewardedChampionsCount: number
-	championIds: number[]
-	/** @format int32 */
-	freeRewardedSkinsCount: number
-	skinIds: number[]
-	/** @format int32 */
-	ipBoost: number
-	xpBoost: Record<string, number>
-	/** @format int32 */
-	loyaltyTFTMapSkinCount: number
-	/** @format int32 */
-	loyaltyTFTCompanionCount: number
-	/** @format int32 */
-	loyaltyTFTDamageSkinCount: number
-	loyaltySources: Record<string, boolean>
-}
-
-export interface LolEventShopLoyaltyRewardsSimplified {
-	/** @format int32 */
-	freeRewardedChampionsCount: number
-	championIds: number[]
-	/** @format int32 */
-	freeRewardedSkinsCount: number
-	skinIds: number[]
-	/** @format int32 */
-	ipBoost: number
-	/** @format int32 */
-	xpBoost: number
-	/** @format int32 */
-	loyaltyTFTMapSkinCount: number
-	/** @format int32 */
-	loyaltyTFTCompanionCount: number
-	/** @format int32 */
-	loyaltyTFTDamageSkinCount: number
-	loyaltySources: Record<string, boolean>
-}
-
-export type LolEventShopLoyaltyStatus = "DISABLED" | "REVOKE" | "CHANGE" | "EXPIRY" | "REWARDS_GRANT" | "LEGACY"
-
-export interface LolEventShopLoyaltyStatusNotification {
-	status: LolEventShopLoyaltyStatus
-	rewards: LolEventShopLoyaltyRewardsSimplified
-	reloadInventory: boolean
-}
-
-export interface LolEventShopMilestone {
-	id: string
-	name: string
-	groupId: string
-	counterId: string
-	/** @format int64 */
-	triggerValue: number
-	properties: Record<string, string>
-}
-
-export interface LolEventShopMilestoneInstance {
-	milestoneId: string
-	instanceId: string
-	ownerId: string
-	productId: string
-	groupId: string
-	counterId: string
-	/** @format int64 */
-	triggerValue: number
-	/** @format uint32 */
-	repeatSequence: number
-	triggered: boolean
-	triggeredTimestamp: string
-	triggers: LolEventShopTrigger[]
-}
-
-export interface LolEventShopNavigationButtonUIData {
-	activeEventId: string
-	showPip: boolean
-	showGlow: boolean
-	iconPath: string
-}
-
-export interface LolEventShopOffer {
-	id: string
-	localizedTitle: string
-	localizedDescription: string
-	image: string
-	promotionType: LolEventShopOfferPromotionType
-	offerCategory: LolEventShopOfferCategory
-	items: LolEventShopItem[]
-}
-
-export type LolEventShopOfferCategory = "Currencies" | "Tft" | "Loot" | "Borders" | "Skins" | "Chromas" | "Featured"
-
-export type LolEventShopOfferPromotionType = "kFeaturedHighlighted" | "kFeatured" | "kNone"
-
-export type LolEventShopOfferStates = "kPurchasing" | "kUnrevealed" | "kUnavailable" | "kAvailable" | "kOwned"
-
-export interface LolEventShopOfferUIData {
-	id: string
-	localizedTitle: string
-	localizedDescription: string
-	image: string
-	highlighted: boolean
-	offerState: LolEventShopOfferStates
-	/** @format uint32 */
-	price: number
-	/** @format uint32 */
-	maxQuantity: number
-	items: LolEventShopItemUIData[]
-}
-
-export interface LolEventShopOrderNotificationResource {
-	eventTypeId: string
-	eventType: string
-	status: string
-}
-
-export type LolEventShopPassOwnershipTypes = "Purchased" | "Unowned"
-
-export interface LolEventShopPlayerNotification {
-	critical: boolean
-	detailKey: string
-	source: string
-	state: string
-	titleKey: string
-	type: string
-	iconUrl: string
-}
-
-export interface LolEventShopPlayerSettingsData {
-	lastTimeSeen: string
-	/** @format int64 */
-	lastSeenTokenBalance: number
-	/** @format uint32 */
-	lastSeenTokenShopOffersVersion: number
-}
-
-export interface LolEventShopPriceDetail {
-	itemKey: LolEventShopItemKey
-	price: LolEventShopItemPrice
-}
-
-export interface LolEventShopPriceOptionDto {
-	/** @format int64 */
-	price: number
-	currencyType: string
-	currencyPaymentOption?: string
-	currencyName?: string
-	currencyImagePath?: string
-}
-
-export interface LolEventShopProgressInfoUIData {
-	tokenImage: string
-	passPurchased: boolean
-	eventPassBundlesCatalogEntry: LolEventShopCatalogEntry[]
-}
-
-export interface LolEventShopPurchasableItem {
-	item: LolEventShopItemDefinition
-	dependencies: LolEventShopItemDefinition[]
-	bundledItems: LolEventShopItemDefinition[]
-	sale?: LolEventShopItemSale
-	purchaseOptions: LolEventShopPurchaseOption[]
-	validationErrors: LolEventShopValidationErrorEntry[]
-}
-
-export interface LolEventShopPurchaseItem {
-	itemKey: LolEventShopItemKey
-	/** @format int32 */
-	quantity: number
-	source: string
-	purchaseCurrencyInfo: LolEventShopItemPrice
-}
-
-export type LolEventShopPurchaseOfferOrderStates = "SUCCESS" | "FAIL" | "IN_PROGRESS" | "NOT_STARTED"
-
-export interface LolEventShopPurchaseOfferOrderStatus {
-	orderState: LolEventShopPurchaseOfferOrderStates
-	message: string
-}
-
-export interface LolEventShopPurchaseOfferOrderStatuses {
-	statuses: Record<string, LolEventShopPurchaseOfferOrderStatus>
-}
-
-export interface LolEventShopPurchaseOfferRequest {
-	offerId: string
-	/** @format uint32 */
-	purchaseQuantity: number
-}
-
-export interface LolEventShopPurchaseOfferRequestV3 {
-	offerId: string
-	currencyType: string
-	/** @format uint32 */
-	quantity: number
-	/** @format uint32 */
-	price: number
-}
-
-export interface LolEventShopPurchaseOfferResponseV3 {
-	legacy: boolean
-	orderDto?: LolEventShopCapOrdersOrderDto
-}
-
-export interface LolEventShopPurchaseOption {
-	priceDetails: LolEventShopPriceDetail[]
-}
-
-export interface LolEventShopPurchaseOrderRequestDTO {
-	/** @format uint64 */
-	accountId: number
-	items: LolEventShopItemOrderDTO[]
-}
-
-export interface LolEventShopPurchaseOrderResponseDTO {
-	/** @format int64 */
-	rpBalance: number
-	/** @format int64 */
-	ipBalance: number
-	transactions: LolEventShopTransactionResponseDTO[]
-}
-
-export interface LolEventShopPurchaseRequest {
-	items: LolEventShopPurchaseItem[]
-}
-
-export interface LolEventShopPurchaseResponse {
-	items: LolEventShopPurchaseItem[]
-	transactions: LolEventShopTransaction[]
-	useRMSConfirmation: boolean
-}
-
-export interface LolEventShopPurchaseWidgetConfig {
-	enabled: boolean
-	nonRefundableDisclaimerEnabled: boolean
-	alwaysShowPurchaseDisclaimer: boolean
-}
-
-export interface LolEventShopRMSPayload {
-	productId: string
-	affinities: string[]
-}
-
-export interface LolEventShopRegionLocale {
-	region: string
-	locale: string
-}
-
-export interface LolEventShopRepeat {
-	/** @format int32 */
-	count: number
-	/** @format uint32 */
-	scope: number
-	/** @format float */
-	multiplier: number
-	milestones: LolEventShopMilestone[]
-	repeatTriggers: LolEventShopRepeatGroupTrigger[]
-}
-
-export interface LolEventShopRepeatGroupTrigger {
-	type: string
-	counterId: string
-	/** @format uint16 */
-	startTriggerValue: number
-	/** @format uint16 */
-	increaseBy: number
-	/** @format float */
-	multiplier: number
-}
-
-export interface LolEventShopRequestDTO_SelectionRequestDTO {
-	data: LolEventShopSelectionRequestDTO
-	metadata: LolEventShopRequestMetadataDTO
-}
-
-export interface LolEventShopRequestDTO_vector_SelectionRequestDTO {
-	data: LolEventShopSelectionRequestDTO[]
-	metadata: LolEventShopRequestMetadataDTO
-}
-
-export interface LolEventShopRequestDTO_vector_string {
-	data: string[]
-	metadata: LolEventShopRequestMetadataDTO
-}
-
-export interface LolEventShopRequestMetadataDTO {
-	transactionId?: string
-}
-
-export interface LolEventShopResponseDTO_SvcRewardGrant {
-	data: LolEventShopSvcRewardGrant
-	metadata: LolEventShopResponseMetadataDTO
-}
-
-export interface LolEventShopResponseDTO_map_RewardGroupId_SelectGrantStatus {
-	data: Record<string, LolEventShopSelectGrantStatusResponse>
-	metadata: LolEventShopResponseMetadataDTO
-}
-
-export interface LolEventShopResponseDTO_vector_SvcRewardGrant {
-	data: LolEventShopSvcRewardGrant[]
-	metadata: LolEventShopResponseMetadataDTO
-}
-
-export interface LolEventShopResponseDTO_vector_SvcRewardGroup {
-	data: LolEventShopSvcRewardGroup[]
-	metadata: LolEventShopResponseMetadataDTO
-}
-
-export interface LolEventShopResponseMetadataDTO {
-	[key: string | number]: any
-}
-
-export interface LolEventShopReward {
-	id: string
-	itemId: string
-	itemType: string
-	/** @format int32 */
-	quantity: number
-	fulfillmentSource: string
-	media: Record<string, string>
-	localizations: Record<string, string>
-}
-
-export interface LolEventShopRewardChoiceUIData {
-	rewardTrackItems: LolEventShopRewardTrackItem[]
-}
-
-export interface LolEventShopRewardGrant {
-	info: LolEventShopSvcRewardGrant
-	rewardGroup: LolEventShopSvcRewardGroup
-}
-
-export type LolEventShopRewardStatus = "FAILED" | "FULFILLED" | "PENDING"
-
-export type LolEventShopRewardStrategy = "SELECTION" | "RANDOM" | "ALL"
-
-export interface LolEventShopRewardTrack {
-	trackConfig: LolEventShopRewardTrackConfiguration
-}
-
-export interface LolEventShopRewardTrackConfiguration {
-	id: string
-	premiumEntitlementId: string
-}
-
-export interface LolEventShopRewardTrackItem {
-	state: LolEventShopRewardTrackItemStates
-	rewardOptions: LolEventShopRewardTrackItemOption[]
-	rewardTags: LolEventShopRewardTrackItemTag[]
-	/** @format int64 */
-	progressRequired: number
-	threshold: string
-}
-
-export type LolEventShopRewardTrackItemHeaderType = "NONE" | "FREE" | "PREMIUM"
-
-export interface LolEventShopRewardTrackItemOption {
-	state: LolEventShopRewardTrackItemStates
-	thumbIconPath: string
-	largeDisplayImagePath: string
-	selected: boolean
-	overrideFooter: string
-	headerType: LolEventShopRewardTrackItemHeaderType
-	rewardName: string
-	rewardDescription: string
-}
-
-export type LolEventShopRewardTrackItemStates = "Selected" | "Unselected" | "Unlocked" | "Locked"
-
-export type LolEventShopRewardTrackItemTag = "Multiple" | "Choice" | "Instant" | "Free" | "Rare"
-
-export interface LolEventShopRewardTrackProgress {
-	/** @format int16 */
-	level: number
-	/** @format uint16 */
-	levelProgress: number
-	/** @format uint16 */
-	futureLevelProgress: number
-	/** @format int64 */
-	passProgress: number
-	/** @format int64 */
-	currentLevelXP: number
-	/** @format int64 */
-	totalLevelXP: number
-	/** @format uint32 */
-	iteration: number
-}
-
-export interface LolEventShopRewardTrackXP {
-	/** @format int64 */
-	currentLevel: number
-	/** @format int64 */
-	currentLevelXP: number
-	/** @format int64 */
-	totalLevelXP: number
-	isBonusPhase: boolean
-	/** @format uint32 */
-	iteration: number
-}
-
-export interface LolEventShopRewardsConfig {
-	GrantFiltering: boolean
-}
-
-export interface LolEventShopRiotMessagingServiceMessage {
-	resource: string
-	service: string
-	version: string
-	/** @format int64 */
-	timestamp: number
-	payload: string
-}
-
-export interface LolEventShopRmsEntitlementPayload {
-	itemId: string
-	itemTypeId: string
-	entitlementTypeId: string
-	resourceOperation: string
-}
-
-export interface LolEventShopRmsStoreEntitlementItem {
-	inventoryType: string
-	itemId: string
-}
-
-export interface LolEventShopRmsStoreEntitlementPayload {
-	transactionId: string
-	items: LolEventShopRmsStoreEntitlementItem[]
-}
-
-export interface LolEventShopRmsWalletPayload {
-	[key: string | number]: any
-}
-
-export interface LolEventShopRmsXboxSubscriptionChange {
-	puuid: string
-	subscriptionId: string
-	active: string
-	identityProvider: string[]
-}
-
-export interface LolEventShopSale {
-	startDate: string
-	endDate: string
-	prices: LolEventShopItemCost[]
-}
-
-export type LolEventShopSelectGrantStatusResponse = "FAILED" | "SELECTED"
-
-export interface LolEventShopSelectionRequestDTO {
-	grantId: string
-	rewardGroupId: string
-	selections: string[]
-}
-
-export interface LolEventShopSelectionStrategyConfig {
-	/** @format uint32 */
-	minSelectionsAllowed: number
-	/** @format uint32 */
-	maxSelectionsAllowed: number
-}
-
-export interface LolEventShopSettingsResource {
-	data: LolEventShopPlayerSettingsData
-	/** @format int16 */
-	schemaVersion: number
-}
-
-export interface LolEventShopSimpleInventoryDTO {
-	items: Record<string, unknown>
-	itemsJwt: string
-	expires: string
-}
-
-export interface LolEventShopSimpleInventoryResponseDTO {
-	data: LolEventShopSimpleInventoryDTO
-}
-
-export interface LolEventShopSkinLineDescriptionDto {
-	title: string
-	description: string
-	iconImagePath: string
-}
-
-export interface LolEventShopSkinLineDescriptionInfo {
-	title: string
-	description: string
-	iconPath: string
-}
-
-export interface LolEventShopSkinLineInfo {
-	name: string
-	descriptionInfo: LolEventShopSkinLineDescriptionInfo[]
-	splashPath: string
-	tilePath: string
-	collectionCardPath: string
-	uncenteredSplashPath: string
-	collectionDescription: string
-	tiers: LolEventShopSkinLineTier[]
-}
-
-export interface LolEventShopSkinLineItemDto {
-	thumbnailImagePath: string
-	largeImagePath?: string
-	localizedLongName: string
-	localizedShortName: string
-	largeVideoPath?: string
-}
-
-export interface LolEventShopSkinLineTier {
-	/** @format int64 */
-	id: number
-	name: string
-	/** @format int64 */
-	stage: number
-	description?: string
-	splashPath: string
-	uncenteredSplashPath: string
-	tilePath: string
-	loadScreenPath: string
-	shortName: string
-	splashVideoPath?: string
-	collectionSplashVideoPath?: string
-}
-
-export interface LolEventShopSummonerIcon {
-	/** @format int32 */
-	itemId: number
-}
-
-export interface LolEventShopSvcRewardGrant {
-	id: string
-	granteeId: string
-	rewardGroupId: string
-	dateCreated: string
-	status: LolEventShopGrantStatus
-	grantElements: LolEventShopSvcRewardGrantElement[]
-	selectedIds: string[]
-	viewed: boolean
-	grantorDescription: LolEventShopGrantorDescription
-	messageParameters: Record<string, unknown>
-}
-
-export interface LolEventShopSvcRewardGrantElement {
-	elementId: string
-	itemId: string
-	itemType: string
-	fulfillmentSource: string
-	status: LolEventShopRewardStatus
-	/** @format int32 */
-	quantity: number
-	media: Record<string, string>
-	localizations: Record<string, string>
-}
-
-export interface LolEventShopSvcRewardGroup {
-	id: string
-	productId: string
-	types: string[]
-	rewards: LolEventShopReward[]
-	childRewardGroupIds: string[]
-	rewardStrategy: LolEventShopRewardStrategy
-	selectionStrategyConfig?: LolEventShopSelectionStrategyConfig
-	active: boolean
-	media: Record<string, string>
-	localizations: Record<string, string>
-	celebrationType: LolEventShopCelebrationType
-}
-
-export interface LolEventShopTokenShop {
-	tokenImage: string
-	tokenName: string
-	tokenUuid: string
-	offers: LolEventShopOffer[]
-	contentDrops: LolEventShopContentDrop[]
-	tokenBundlesCatalogEntry: LolEventShopCatalogEntry[]
-}
-
-export interface LolEventShopTokenShopUIData {
-	tokenName: string
-	tokenImage: string
-	tokenUuid: string
-	/** @format uint32 */
-	offersVersion: number
-	tokenBundlesCatalogEntry: LolEventShopCatalogEntry[]
-}
-
-export interface LolEventShopTokenUpsell {
-	id: string
-	internalName: string
-	title: string
-	buttonText: string
-	tooltipTitle: string
-	tooltipDescription: string
-	purchaseUrl: string
-	tooltipBackgroundUrl: string
-	backgroundUrl: string
-	currencyUrl: string
-	premiumCurrencyName: string
-	dependentInventoryType: string
-	/** @format int32 */
-	dependentInventoryId: number
-	currentlyLocked: LolEventShopTokenUpsellLockedType
-	/** @format int32 */
-	lockedCount: number
-	startDate: string
-	endDate: string
-}
-
-export type LolEventShopTokenUpsellLockedType = "UNLOCKED" | "LOCKED" | "UNASSIGNED"
-
-export interface LolEventShopTransaction {
-	transactionId: string
-	itemKey: LolEventShopItemKey
-	itemName: string
-	iconUrl: string
-}
-
-export interface LolEventShopTransactionResponseDTO {
-	id: string
-	inventoryType: string
-	/** @format int32 */
-	itemId: number
-}
-
-export interface LolEventShopTrigger {
-	type: string
-	counterId: string
-	/** @format uint64 */
-	triggerValue: number
-}
-
-export interface LolEventShopUnclaimedRewardsUIData {
-	/** @format int32 */
-	rewardsCount: number
-	/** @format int32 */
-	lockedTokensCount: number
-}
-
-export interface LolEventShopValidateOfferError {
-	errorKey: string
-	meta: string
-}
-
-export interface LolEventShopValidateOfferRequestV3 {
-	offerId: string
-}
-
-export interface LolEventShopValidateOfferResponseV3 {
-	validationErrors: LolEventShopValidateOfferError[]
-}
-
-export interface LolEventShopValidationError {
-	errorCode: string
-	message: string
-	errorDetails: Record<string, string>
-	responseItems: string[]
-}
-
-export interface LolEventShopValidationErrorEntry {
-	id: string
-}
-
-export interface LolEventShopValidationRequest {
-	items: LolEventShopValidationRequestItem[]
-	ownedItems: LolEventShopItemOwnership[]
-}
-
-export interface LolEventShopValidationRequestItem {
-	itemKey: LolEventShopItemKey
-	/** @format int32 */
-	quantity: number
-}
-
-export interface LolEventShopValidationResponse {
-	items: LolEventShopValidationResponseItem[]
-	valid: boolean
-}
-
-export interface LolEventShopValidationResponseItem {
-	itemKey: LolEventShopItemKey
-	/** @format int32 */
-	quantity: number
-	validationCurrencyInfo: LolEventShopItemPrice[]
-	sale?: LolEventShopSale
-	name?: string
-	description?: string
-}
-
-export interface LolEventShopWallet {
-	/** @format uint64 */
-	accountId: number
-	balances: LolEventShopBalance[]
-	/** @format int32 */
-	version: number
-}
-
-export interface LolEventShopWalletCacheEntry {
-	signedBalancesJwt: string
-	/** @format uint64 */
-	expirationMS: number
-	/** @format uint64 */
-	issuedAtMS: number
-	/** @format uint64 */
-	receivedAtMS: number
-	valid: boolean
-}
-
-export interface LolEventShopWalletDTO {
-	puuid: string
-	/** @format int64 */
-	accountId: number
-	expires: string
-	balances: Record<string, number>
-	balancesJwt: string
-}
-
-export interface LolEventShopWalletResponseDTO {
-	data: LolEventShopWalletDTO
-}
-
-export interface LolEventShopXboxSubscriptionStatus {
 	active: string
 	subscriptionId: string
 }
@@ -15474,6 +14227,7 @@ export interface LolMissionsTftPaidBattlepassMilestone {
 	isLocked: boolean
 	isKeystone: boolean
 	isBonus: boolean
+	isClaimRequestPending: boolean
 }
 
 export interface LolMissionsTftPaidBattlepassReward {
@@ -17610,6 +16364,8 @@ export interface LolPurchaseWidgetChampionSkinEmblemPosition {
 export interface LolPurchaseWidgetDiscountPricingInfo {
 	/** @format int32 */
 	cost: number
+	/** @format int32 */
+	originalCost: number
 	costType: string
 	currency: string
 	/** @format float */
@@ -17650,12 +16406,14 @@ export interface LolPurchaseWidgetItemDefinition {
 	name: string
 	description: string
 	subTitle: string
+	imagePath: string
 	owned: boolean
 	assets: LolPurchaseWidgetCatalogPluginItemAssets
 	tags: string[]
 	metadata: LolPurchaseWidgetItemMetadataEntry[]
 	bundledItemPrice?: LolPurchaseWidgetBundledItemPricingInfo
 	loyaltyUnlocked: boolean
+	hasVisibleLootOdds: boolean
 }
 
 export interface LolPurchaseWidgetItemDetails {
@@ -21300,6 +20058,7 @@ export interface LolTftEventTftPaidBattlepassMilestone {
 	isLocked: boolean
 	isKeystone: boolean
 	isBonus: boolean
+	isClaimRequestPending: boolean
 }
 
 export interface LolTftEventTftPaidBattlepassReward {
@@ -21872,6 +20631,7 @@ export interface LolTftPassTftPaidBattlepassMilestone {
 	isLocked: boolean
 	isKeystone: boolean
 	isBonus: boolean
+	isClaimRequestPending: boolean
 }
 
 export interface LolTftPassTftPaidBattlepassReward {
@@ -22080,6 +20840,9 @@ export interface LolTftTrovesDropsOddsTreeNodeDTO {
 	children: LolTftTrovesDropsOddsTreeNodeDTO[]
 	/** @format uint16 */
 	quantity: number
+	nameTraKey: string
+	/** @format uint8 */
+	priority: number
 }
 
 export interface LolTftTrovesEntitlementNotificationResource {
