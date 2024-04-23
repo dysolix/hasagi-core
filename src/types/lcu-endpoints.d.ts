@@ -351,6 +351,9 @@ export interface LCUEndpoints {
 	"/deep-links/v1/settings": {
 		get: { path: never, params: never, body: never, response: LCUTypes.DeepLinksDeepLinksSettings }
 	},
+	"/dx9-deprecation/notification-type": {
+		get: { path: never, params: never, body: never, response: LCUTypes.LolDx9DeprecationDx9DeprecationNotificationType }
+	},
 	"/entitlements/v1/token": {
 		get: { path: never, params: never, body: never, response: LCUTypes.EntitlementsToken }
 	},
@@ -575,6 +578,21 @@ export interface LCUEndpoints {
 	},
 	"/lol-champ-select/v1/team-boost": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolChampSelectTeamBoost }
+	},
+	"/lol-champion-mastery/v1/{puuid}/champion-mastery": {
+		get: { path: [puuid: string], params: never, body: never, response: LCUTypes.LolChampionMasteryChampionMastery[] }
+	},
+	"/lol-champion-mastery/v1/local-player/champion-mastery": {
+		get: { path: never, params: never, body: never, response: LCUTypes.LolChampionMasteryChampionMastery[] }
+	},
+	"/lol-champion-mastery/v1/local-player/champion-mastery-score": {
+		get: { path: never, params: never, body: never, response: number }
+	},
+	"/lol-champion-mastery/v1/local-player/champion-mastery-sets-and-rewards": {
+		get: { path: never, params: never, body: never, response: LCUTypes.LolChampionMasteryUIAllChampionMasteryWithSets }
+	},
+	"/lol-champion-mastery/v1/notifications": {
+		get: { path: never, params: never, body: never, response: LCUTypes.LolChampionMasteryChampionMasteryChangeNotification }
 	},
 	"/lol-champions/v1/inventories/{summonerId}/champions": {
 		get: { path: [summonerId: number], params: never, body: never, response: LCUTypes.LolChampionsCollectionsChampion[] }
@@ -964,63 +982,6 @@ export interface LCUEndpoints {
 	},
 	"/lol-event-mission/v1/event-mission": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolTftEventTFTEventMissionChain[] }
-	},
-	"/lol-event-shop/v1/categories-offers": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolEventShopCategoryOffersUIData[] }
-	},
-	"/lol-event-shop/v1/event-details-data": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolEventShopEventDetailsUIData }
-	},
-	"/lol-event-shop/v1/failure-loading-reward-track": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolEventShopEventShopError }
-	},
-	"/lol-event-shop/v1/failure-loading-token-shop": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolEventShopEventShopError }
-	},
-	"/lol-event-shop/v1/info": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolEventShopEventShopInfoUIData }
-	},
-	"/lol-event-shop/v1/is-grace-period": {
-		get: { path: never, params: never, body: never, response: boolean }
-	},
-	"/lol-event-shop/v1/navigation-button-data": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolEventShopNavigationButtonUIData }
-	},
-	"/lol-event-shop/v1/pass-background-data": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolEventShopEventBackgroundUIData }
-	},
-	"/lol-event-shop/v1/pass-bundles": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolEventShopBundleOfferUIData[] }
-	},
-	"/lol-event-shop/v1/progress-info-data": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolEventShopProgressInfoUIData }
-	},
-	"/lol-event-shop/v1/reward-track-bonus-items": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolEventShopRewardTrackItem[] }
-	},
-	"/lol-event-shop/v1/reward-track-bonus-progress": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolEventShopRewardTrackProgress }
-	},
-	"/lol-event-shop/v1/reward-track-items": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolEventShopRewardTrackItem[] }
-	},
-	"/lol-event-shop/v1/reward-track-progress": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolEventShopRewardTrackProgress }
-	},
-	"/lol-event-shop/v1/reward-track-xp": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolEventShopRewardTrackXP }
-	},
-	"/lol-event-shop/v1/token-balance": {
-		get: { path: never, params: never, body: never, response: number }
-	},
-	"/lol-event-shop/v1/token-shop-data": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolEventShopTokenShopUIData }
-	},
-	"/lol-event-shop/v1/token-upsell": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolEventShopTokenUpsell[] }
-	},
-	"/lol-event-shop/v1/unclaimed-rewards": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolEventShopUnclaimedRewardsUIData }
 	},
 	"/lol-game-client-chat/v1/buddies": {
 		get: { path: never, params: never, body: never, response: string[] }
@@ -1521,6 +1482,9 @@ export interface LCUEndpoints {
 	},
 	"/lol-loot/v1/loot-odds/{recipeName}": {
 		get: { path: [recipeName: string], params: never, body: never, response: LCUTypes.LolLootVerboseLootOddsResponse }
+	},
+	"/lol-loot/v1/loot-odds/{recipeName}/visibility": {
+		get: { path: [recipeName: string], params: never, body: never, response: boolean }
 	},
 	"/lol-loot/v1/mass-disenchant/configuration": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolLootMassDisenchantClientConfig }
@@ -2541,6 +2505,9 @@ export interface LCUEndpoints {
 	"/deep-links/v1/launch-lor-link": {
 		post: { path: never, params: never, body: never, response: string }
 	},
+	"/dx9-deprecation/legacy-mode-notification/ack": {
+		post: { path: never, params: never, body: never, response: void }
+	},
 	"/lol-account-verification/v1/confirmActivationPin": {
 		post: { path: never, params: never, body: LCUTypes.LolAccountVerificationConfirmActivationPinRequest, response: void }
 	},
@@ -2642,6 +2609,15 @@ export interface LCUEndpoints {
 	},
 	"/lol-champ-select/v1/toggle-player-muted": {
 		post: { path: never, params: never, body: LCUTypes.LolChampSelectMutedPlayerInfo, response: unknown }
+	},
+	"/lol-champion-mastery/v1/{puuid}/champion-mastery/top": {
+		post: { path: [puuid: string], params: never, body: number, response: LCUTypes.LolChampionMasteryTopChampionMasteries }
+	},
+	"/lol-champion-mastery/v1/notifications/ack": {
+		post: { path: never, params: never, body: never, response: void }
+	},
+	"/lol-champion-mastery/v1/scouting": {
+		post: { path: never, params: never, body: string[], response: LCUTypes.RankedScoutingDTO[] }
 	},
 	"/lol-chat/v1/conversations/eog-chat-toggle": {
 		post: { path: never, params: never, body: boolean, response: unknown }
@@ -2789,18 +2765,6 @@ export interface LCUEndpoints {
 	},
 	"/lol-event-hub/v1/purchase-item": {
 		post: { path: never, params: never, body: LCUTypes.LolEventHubItemOrderDTO, response: LCUTypes.LolEventHubPurchaseOrderResponseDTO }
-	},
-	"/lol-event-shop/v1/claim-select-all": {
-		post: { path: never, params: never, body: never, response: void }
-	},
-	"/lol-event-shop/v1/claim-select-bonus-iteration": {
-		post: { path: never, params: never, body: never, response: void }
-	},
-	"/lol-event-shop/v1/purchase-item": {
-		post: { path: never, params: never, body: LCUTypes.LolEventShopItemOrderDTO, response: LCUTypes.LolEventShopPurchaseOrderResponseDTO }
-	},
-	"/lol-event-shop/v1/purchase-offer": {
-		post: { path: never, params: never, body: LCUTypes.LolEventShopPurchaseOfferRequest, response: LCUTypes.LolEventShopPurchaseOfferResponseV3 }
 	},
 	"/lol-game-client-chat/v1/instant-messages": {
 		post: { path: never, params: { "summonerName": string, "message": string }, body: never, response: void }

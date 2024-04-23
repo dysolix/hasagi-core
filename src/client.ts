@@ -135,18 +135,6 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
             }
         }
 
-        this.lcuAxiosInstance!.interceptors.response.use(res => { return res; }, err => {
-            if (err instanceof AxiosError) {
-                if (err.code === "ECONNREFUSED") { // TODO: Check if code ECONNREFUSED is possible when the client is still running
-                    if (this.webSocket === null) {
-                        this.onDisconnected();
-                    }
-                }
-            }
-
-            throw err;
-        })
-
         // Waits for the client to be ready
         await this.request("get", "/lol-summoner/v1/current-summoner", { retryOptions: { maxRetries: 10, retryDelay: 1000 } }).catch(() => { throw new Error("Successfully retrieved credentials but could not connect to the League of Legends client.") })
 
@@ -270,8 +258,8 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
                 retryOptions = _config.retryOptions;
         }
 
-        const maxAttempts = (retryOptions?.maxRetries ?? 0) + 1;
-        const retryDelay = retryOptions?.retryDelay ?? 1000;
+        const maxAttempts = retryOptions.maxRetries + 1;
+        const retryDelay = retryOptions.retryDelay;
         const noRetryStatusCodes = retryOptions?.noRetryStatusCodes ?? [400];
 
         let errors: any[] = [];
@@ -292,10 +280,22 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
                 errors.push(err);
 
                 if (err instanceof LCUError && noRetryStatusCodes.includes(err.statusCode))
-                    throw new AggregateError(errors, `Request failed after ${errors.length} attempt(s).`);
+                    if (errors.length === 1)
+                        throw err;
+                    else
+                        throw new AggregateError(errors, `Request failed after ${errors.length} attempts.`);
 
-                if (errors.length >= maxAttempts)
-                    throw new AggregateError(errors, `Request failed after ${errors.length} attempt(s).`);
+                if (errors.length >= maxAttempts) {
+                    if (!this.webSocket && err instanceof RequestError && err.errorCode === "ECONNREFUSED") {
+                        this.onDisconnected();
+                        throw err;
+                    }
+
+                    if (errors.length === 1)
+                        throw err;
+                    else
+                        throw new AggregateError(errors, `Request failed after ${errors.length} attempts.`);
+                }
 
                 await delay(retryDelay);
             }
@@ -381,7 +381,7 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
      * Adds a LCU event listener. If only a path is provided then OnJsonApiEvent will automatically be subscribed.
      */
     public addLCUEventListener<EventName extends keyof LCUWebSocketEvents = "OnJsonApiEvent">(listener: {
-        /** If present, the callback will only be called if the event's path matches. OnJsonApiEvent needs to be subscribed if you only use the path. */
+        /** If present, the callback will only be called if the event's path matches. OnJsonApiEvent will be subscribed to if you only use the path. */
         path?: string | RegExp;
         /** If present, the callback will only be called if the event's type is in the array */
         types?: ("Create" | "Update" | "Delete")[];
@@ -392,8 +392,10 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
         if (listener.name)
             this.subscribeWebSocketEvent(listener.name);
 
-        if (!listener.name && listener.path)
+        if (!listener.name && listener.path) {
             this.subscribeWebSocketEvent("OnJsonApiEvent");
+            (listener.name as string) = "OnJsonApiEvent";
+        }
 
         this.lcuEventListeners.push(listener);
     }
@@ -523,7 +525,7 @@ type LCURequestOptions<Method extends string, Path extends string> = { headers?:
     (PathParameters<Path> extends never ? {} : string extends PathParameters<Path> ? {} : { path: { [K in PathParameters<Path>]: string } }) &
     (Path extends keyof LCUEndpoints ? Method extends keyof LCUEndpoints[Path] ? LCUEndpoints[Path][Method] extends { path: any, params: any, body: any, response: any } ? (
         (LCUEndpoints[Path][Method]["body"] extends never ? {} : { body: LCUEndpoints[Path][Method]["body"] }) &
-        (LCUEndpoints[Path][Method]["params"] extends never ? {} : { query: LCUEndpoints[Path][Method]["params"] })
+        (LCUEndpoints[Path][Method]["params"] extends never ? {} : {} extends LCUEndpoints[Path][Method]["params"] ? { query?: LCUEndpoints[Path][Method]["params"] } : { query: LCUEndpoints[Path][Method]["params"] })
     ) : {
         query?: Record<string, any>;
         body?: any;
