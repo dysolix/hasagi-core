@@ -891,6 +891,9 @@ export interface LCUEndpoints {
 	"/lol-drops/v1/ready": {
 		get: { path: never, params: never, body: never, response: boolean }
 	},
+	"/lol-dx9-deprecation/needs-hardware-upgrade": {
+		get: { path: never, params: never, body: never, response: boolean }
+	},
 	"/lol-email-verification/v1/email": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolEmailVerificationEmailVerificationSession }
 		put: { path: never, params: never, body: LCUTypes.LolEmailVerificationEmailUpdate, response: unknown }
@@ -1729,9 +1732,6 @@ export interface LCUEndpoints {
 	"/lol-player-behavior/v1/credibility-behavior-warnings": {
 		get: { path: never, params: never, body: never, response: void }
 	},
-	"/lol-player-behavior/v1/ranked-restriction": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolPlayerBehaviorRestrictionNotification }
-	},
 	"/lol-player-behavior/v1/reform-card": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolPlayerBehaviorReformCard }
 	},
@@ -2242,6 +2242,9 @@ export interface LCUEndpoints {
 	},
 	"/lol-tft-troves/v1/status-notifications": {
 		get: { path: never, params: never, body: never, response: void }
+	},
+	"/lol-tft/v1/tft/backgrounds": {
+		get: { path: never, params: never, body: never, response: LCUTypes.LolTftLolTftBackgrounds }
 	},
 	"/lol-tft/v1/tft/battlePassHub": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolTftLolTftBattlePassHub }

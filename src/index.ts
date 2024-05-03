@@ -1,4 +1,4 @@
-export { default as default, default as HasagiClient, type ConnectionOptions, type RequestRetryOptions, type PollOptions, type LCUEventListener, type HasagiCoreEvents } from "./client.js";
+export { default as HasagiClient, type ConnectionOptions, type RequestRetryOptions, type PollOptions, type LCUEventListener, type HasagiCoreEvents, type LCURequestOptionsParameter } from "./client.js";
 
 export { getLeagueClientUxProcesses, getCredentialsByProcessId, getPortAndBasicAuthToken, type LCUCredentials } from "./util.js";
 

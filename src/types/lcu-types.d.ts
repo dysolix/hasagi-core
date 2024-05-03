@@ -3062,9 +3062,9 @@ export interface LolChampSelectTeamBoost {
 export interface LolChampionMasteryAllChampionMasterySetReward {
 	championMasteries: LolChampionMasteryChampionMastery[]
 	championSet: LolChampionMasteryChampionSet
-	championSetRewards: Record<string, string>
+	championSetRewards: Record<string, LolChampionMasterySetRewardEntry>
 	seasonMilestoneRequireAndRewards: Record<string, LolChampionMasterySeasonMilestoneRequireAndRewards>
-	newPlayerNextLevel: LolChampionMasteryLevelMark
+	newChampionNextLevel: LolChampionMasteryLevelMark
 	/** @format int32 */
 	totalScore: number
 }
@@ -3192,6 +3192,11 @@ export interface LolChampionMasterySeasonMilestoneRequireAndRewards {
 	rewardConfig: LolChampionMasteryRewardConfigurationEntry
 }
 
+export interface LolChampionMasterySetRewardEntry {
+	id: string
+	type: string
+}
+
 export interface LolChampionMasteryTopChampionMasteries {
 	puuid: string
 	/** @format uint64 */
@@ -3204,12 +3209,13 @@ export interface LolChampionMasteryTopChampionMasteries {
 export interface LolChampionMasteryUIAllChampionMasteryWithSets {
 	championMasteries: LolChampionMasteryChampionMastery[]
 	championSet: LolChampionMasteryChampionSet
-	championSetRewards: Record<string, string>
+	championSetRewards: Record<string, LolChampionMasterySetRewardEntry>
 	seasonMilestoneRequireAndRewards: Record<string, LolChampionMasterySeasonMilestoneRequireAndRewards>
 	defaultChampionMastery: LolChampionMasteryChampionMastery
 	customRewards: LolChampionMasteryUIChampionMasteryCustomReward[]
 	/** @format int32 */
 	totalScore: number
+	championCountByMilestone: Record<string, number>
 }
 
 export interface LolChampionMasteryUIChampionMasteryCustomReward {
@@ -6375,6 +6381,12 @@ export interface LolDropsTotalRollsInfoDTO {
 
 export type LolDx9DeprecationDx9DeprecationNotificationType = "TURN_OFF_DX9_LEGACY_MODE" | "HARDWARE_UPGRADE" | "NONE"
 
+export interface LolDx9DeprecationLocalSettingsCategory {
+	data: unknown
+	/** @format int32 */
+	schemaVersion: number
+}
+
 export interface LolEmailVerificationAccessToken {
 	token: string
 	/** @format uint64 */
@@ -7341,6 +7353,7 @@ export interface LolEventHubEventBackgroundUIData {
 export interface LolEventHubEventDetailsUIData {
 	eventIconPath: string
 	eventName: string
+	headerTitleImagePath: string
 	progressEndDate: string
 	shopEndDate: string
 	eventStartDate: string
@@ -7516,6 +7529,7 @@ export interface LolEventHubHallOfLegends {
 	localizedName: string
 	navbarIconImage: string
 	headerIconImage: string
+	headerTitleImage: string
 	startDate: string
 	progressEndDate: string
 	endDate: string
@@ -9613,6 +9627,8 @@ export interface LolHovercardHovercardUserInfo {
 	note: string
 	/** @format uint64 */
 	masteryScore: number
+	/** @format uint64 */
+	legendaryMasteryScore: number
 	patchline: string
 	platformId: string
 	product: string
@@ -19788,6 +19804,10 @@ export interface LolTftEventLoginSession {
 	platformId: string
 }
 
+export interface LolTftEventLolTftBackgrounds {
+	backgrounds: Record<string, string>
+}
+
 export interface LolTftEventLolTftBattlePassHub {
 	battlePassXPBoosted: boolean
 }
@@ -20087,6 +20107,10 @@ export type LolTftGameflowPhase = "TerminatedInError" | "EndOfGame" | "PreEndOfG
 export interface LolTftGameflowSession {
 	phase: LolTftGameflowPhase
 	gameData: LolTftGameflowGameData
+}
+
+export interface LolTftLolTftBackgrounds {
+	backgrounds: Record<string, string>
 }
 
 export interface LolTftLolTftBattlePassHub {
@@ -20742,7 +20766,6 @@ export interface LolTftTeamPlannerTFTModeData {
 
 export interface LolTftTeamPlannerTFTTeamPlannerConfig {
 	enabled: boolean
-	remindersEnabled: boolean
 	traitTooltipChampsEnabled: boolean
 	multipleSetsEnabled: boolean
 }
@@ -20758,6 +20781,12 @@ export interface LolTftTeamPlannerTeamSettings {
 	/** @format uint64 */
 	registeredTeamIndex: number
 	hasViewedTeamPlanner: boolean
+}
+
+export interface LolTftTeamPlannerTeamsForSet {
+	teams: LolTftTeamPlannerTeamPlan[]
+	/** @format uint64 */
+	registeredTeamIndex: number
 }
 
 export interface LolTftTrovesCapCounterBalanceDto {
