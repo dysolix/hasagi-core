@@ -42,6 +42,19 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
 
     private subscribedEvents = new Set<keyof LCUWebSocketEvents>();
 
+    /*
+        LCU WEBSOCKET OPCODES
+        0: Welcome
+        1: Prefix
+        2: Call
+        3: CallResult
+        4: CallError
+        5: Subscribe
+        6: Unsubscribe
+        7: Publish
+        8: Event
+    */
+
     public subscribeWebSocketEvent = (eventName: keyof LCUWebSocketEvents) => {
         if (this.webSocket === null) {
             this.subscribedEvents.add(eventName);
@@ -537,7 +550,7 @@ type LCURequestOptions<Method extends string, Path extends string> = { headers?:
         body?: any;
     });
 
-type LCURequestOptionsParameter<Method extends string, Path extends string, AdditionalOptions = {}> = OptionsParameter<LCURequestOptions<Method, Path> & AdditionalOptions>;
+export type LCURequestOptionsParameter<Method extends string, Path extends string, AdditionalOptions = {}> = OptionsParameter<LCURequestOptions<Method, Path> & AdditionalOptions>;
 
 type OptionsParameter<T> = {} extends T ? [options?: T] : [options: T];
 

@@ -12,7 +12,6 @@
 
         "outDir": "./dist/",
         "declaration": true,
-        "allowJs": true,
         "removeComments": false,
 
         "forceConsistentCasingInFileNames": true,
