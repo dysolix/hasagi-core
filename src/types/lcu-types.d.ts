@@ -985,6 +985,7 @@ export interface LcdsBotParticipant {
 	summonerInternalName: string
 	/** @format int32 */
 	botSkillLevel: number
+	position: string
 	teamId: string
 }
 
@@ -1155,6 +1156,7 @@ export interface LcdsPlayerParticipant {
 	summonerInternalName: string
 	/** @format int32 */
 	botSkillLevel: number
+	position: string
 }
 
 export interface LcdsPracticeGameConfig {
@@ -3092,6 +3094,7 @@ export interface LolChampionMasteryChampionMastery {
 	championSeasonMilestone: number
 	milestoneGrades: string[]
 	nextSeasonMilestone: LolChampionMasterySeasonMilestoneRequireAndRewards
+	highestGrade: string
 }
 
 export interface LolChampionMasteryChampionMasteryChangeNotification {
@@ -3150,6 +3153,17 @@ export interface LolChampionMasteryChampionMasteryMini {
 	championId: number
 	/** @format int32 */
 	championLevel: number
+}
+
+export interface LolChampionMasteryChampionMasteryRewardGrantNotification {
+	id: string
+	/** @format int64 */
+	gameId: number
+	puuid: string
+	/** @format int32 */
+	championId: number
+	playerGrade: string
+	messageKey: string
 }
 
 export interface LolChampionMasteryChampionSet {
@@ -6315,6 +6329,7 @@ export interface LolDropsCapDropTableCounterDTO {
 
 export interface LolDropsCapDropsDropTableDisplayMetadata {
 	isCollectorsBounty: boolean
+	dataAssetId: string
 	nameTraKey: string
 	mythicOfferId: string
 	progressionId: string
@@ -10524,6 +10539,14 @@ export interface LolLobbyCollectionsRental {
 	[key: string | number]: any
 }
 
+export type LolLobbyConfigReadinessEnum = "Disabled" | "Ready" | "NotReady"
+
+export interface LolLobbyConfigStatus {
+	readiness: LolLobbyConfigReadinessEnum
+}
+
+export type LolLobbyConfigType = "player" | "public"
+
 export interface LolLobbyCustomEligibilityDto {
 	eligible: boolean
 	restrictions: LolLobbyGatekeeperRestrictionDto[]
@@ -10771,13 +10794,14 @@ export interface LolLobbyLobbyBotChampion {
 	botDifficulties: LolLobbyLobbyBotDifficulty[]
 }
 
-export type LolLobbyLobbyBotDifficulty = "RIOTSCRIPT" | "INTRO" | "TUTORIAL" | "UBER" | "HARD" | "MEDIUM" | "EASY" | "NONE"
+export type LolLobbyLobbyBotDifficulty = "RSINTERMEDIATE" | "RSBEGINNER" | "RSINTRO" | "INTRO" | "TUTORIAL" | "UBER" | "HARD" | "MEDIUM" | "EASY" | "NONE"
 
 export interface LolLobbyLobbyBotParams {
 	/** @format int32 */
 	championId: number
 	botDifficulty: LolLobbyLobbyBotDifficulty
 	teamId: string
+	position: string
 }
 
 export interface LolLobbyLobbyChangeGameDto {
@@ -10997,6 +11021,7 @@ export interface LolLobbyLobbyMember {
 	botDifficulty: LolLobbyLobbyBotDifficulty
 	/** @format int32 */
 	botChampionId: number
+	position: string
 }
 
 export interface LolLobbyLobbyNotification {
@@ -11047,6 +11072,7 @@ export interface LolLobbyLobbyParticipantDto {
 	botDifficulty: LolLobbyLobbyBotDifficulty
 	/** @format int32 */
 	botChampionId: number
+	botPosition: string
 }
 
 export type LolLobbyLobbyPartyRewardType = "None" | "Icon" | "Ip"
@@ -11507,6 +11533,7 @@ export interface LolLobbyRegistrationCredentials {
 	rankedOverviewToken?: string
 	gameClientVersion?: string
 	playerTokens?: Record<string, string>
+	experiments?: Record<string, string>
 }
 
 export interface LolLobbyRegistrationStatus {
@@ -13342,6 +13369,168 @@ export interface LolMapsTutorialCard {
 	footer?: string
 	description?: string
 	imagePath: string
+}
+
+export interface LolMarketplaceCatalogEntryDto {
+	id: string
+	productId: string
+	name: string
+	description: string
+	endTime: string
+	purchaseUnits: LolMarketplacePurchaseUnitDto[]
+	displayMetadata: unknown
+}
+
+export interface LolMarketplaceFinalPurchaseUnitDto {
+	payments: LolMarketplacePaymentDto[]
+	fulfillment: LolMarketplaceFulfillmentDto
+}
+
+export interface LolMarketplaceFulfillmentDto {
+	/** @format int64 */
+	delta: number
+	/** @format int64 */
+	finalDelta: number
+	name: string
+	/** @format int64 */
+	maxQuantity: number
+	/** @format uint64 */
+	ownedQuantity: number
+	itemTypeId: string
+	itemId: string
+	currencyId: string
+	subCurrencyDeltas: Record<string, number>
+}
+
+export interface LolMarketplacePagination {
+	/** @format uint32 */
+	offset: number
+	/** @format uint32 */
+	limit: number
+	/** @format uint32 */
+	maxLimit: number
+	/** @format uint32 */
+	total: number
+	previous: string
+	next: string
+}
+
+export interface LolMarketplacePaymentDto {
+	/** @format int64 */
+	delta: number
+	/** @format int64 */
+	finalDelta: number
+	name: string
+	/** @format int64 */
+	discountedDelta: number
+	/** @format double */
+	discountPercent: number
+	itemTypeId: string
+	itemId: string
+	currencyId: string
+}
+
+export interface LolMarketplacePaymentOptionDto {
+	key: string
+	payments: LolMarketplacePaymentDto[]
+}
+
+export interface LolMarketplacePurchaseDto {
+	id: string
+	productId: string
+	storeId: string
+	catalogEntryId: string
+	purchaserId: string
+	recipientId: string
+	purchaseUnits: LolMarketplaceFinalPurchaseUnitDto[]
+	createdTime: string
+	completedTime: string
+	isReverted: boolean
+	revertedTime: string
+	purchaseState: string
+}
+
+export interface LolMarketplacePurchaseRequest {
+	storeId: string
+	catalogEntryId: string
+	paymentOptionsKeys: string[]
+}
+
+export interface LolMarketplacePurchaseRequestDto {
+	storeId: string
+	catalogEntryId: string
+	paymentOptionsKeys: string[]
+	idempotencyId: string
+}
+
+export interface LolMarketplacePurchaseResponse {
+	data: LolMarketplacePurchaseDto
+	paging: LolMarketplacePagination
+	stats: LolMarketplaceResponseStats
+	notes: string[]
+	errors: LolMarketplaceResponseError[]
+}
+
+export interface LolMarketplacePurchaseTransaction {
+	purchaseId: string
+	productId: string
+	storeId: string
+	catalogEntryId: string
+	purchaseState: string
+}
+
+export interface LolMarketplacePurchaseUnitDto {
+	paymentOptions: LolMarketplacePaymentOptionDto[]
+	payment: LolMarketplacePaymentDto[]
+	fulfillment: LolMarketplaceFulfillmentDto
+}
+
+export interface LolMarketplaceRegionLocale {
+	region: string
+	locale: string
+	webRegion: string
+}
+
+export interface LolMarketplaceResponseError {
+	message: string
+	type: string
+	/** @format uint32 */
+	code: number
+}
+
+export interface LolMarketplaceResponseStats {
+	/** @format uint32 */
+	durationMs: number
+}
+
+export interface LolMarketplaceRiotMessagingServiceMessage {
+	resource: string
+	service: string
+	version: string
+	/** @format int64 */
+	timestamp: number
+	payload: string
+}
+
+export interface LolMarketplaceStoreDto {
+	id: string
+	productId: string
+	name: string
+	catalogEntries: LolMarketplaceCatalogEntryDto[]
+	displayMetadata: unknown
+}
+
+export interface LolMarketplaceStoresResponse {
+	data: LolMarketplaceStoreDto[]
+	paging: LolMarketplacePagination
+	stats: LolMarketplaceResponseStats
+	notes: string[]
+	errors: LolMarketplaceResponseError[]
+}
+
+export interface LolMarketplaceTraKeyName {
+	nameTraKey: string
+	translatedName: string
 }
 
 export interface LolMatchHistoryAcsEndPoint {
@@ -18240,6 +18429,7 @@ export interface LolRsoAuthAuthorizationRequest {
 export interface LolRsoAuthAuthorizationResponse {
 	type: string
 	authorization: LolRsoAuthImplicitAuthorization
+	country: string
 }
 
 export type LolRsoAuthConfigReadinessEnum = "Disabled" | "Ready" | "NotReady"
@@ -18665,6 +18855,10 @@ export interface LolSpectatorSummonerIdAvailability {
 }
 
 export interface LolSpectatorSummonerOrTeamAvailabilty {
+	availableForWatching: string[]
+}
+
+export interface LolSpectatorSummonerPuuidsSpectateResource {
 	availableForWatching: string[]
 }
 
@@ -20766,7 +20960,6 @@ export interface LolTftTeamPlannerTFTModeData {
 
 export interface LolTftTeamPlannerTFTTeamPlannerConfig {
 	enabled: boolean
-	traitTooltipChampsEnabled: boolean
 	multipleSetsEnabled: boolean
 }
 
@@ -20799,6 +20992,7 @@ export interface LolTftTrovesCapCounterBalanceDto {
 
 export interface LolTftTrovesCapDropsDropTableDisplayMetadata {
 	isCollectorsBounty: boolean
+	dataAssetId: string
 	nameTraKey: string
 	mythicOfferId: string
 	progressionId: string
@@ -20824,6 +21018,24 @@ export interface LolTftTrovesCapOrdersRequestMetaDTO {
 
 export interface LolTftTrovesCapOrdersResponseDTO {
 	data: unknown
+}
+
+export interface LolTftTrovesCounter {
+	id: string
+	name: string
+	groupId: string
+	direction: string
+	/** @format int64 */
+	startValue: number
+}
+
+export interface LolTftTrovesCounterInstance {
+	ownerId: string
+	productId: string
+	groupId: string
+	counterId: string
+	/** @format int64 */
+	counterValue: number
 }
 
 export interface LolTftTrovesCounterNotificationResource {
@@ -20860,6 +21072,7 @@ export interface LolTftTrovesDropsDropTableWithPityDTO {
 
 export interface LolTftTrovesDropsOddsListEntryDTO {
 	contentId: string
+	nodeId: string
 }
 
 export interface LolTftTrovesDropsOddsTreeNodeDTO {
@@ -20879,6 +21092,12 @@ export interface LolTftTrovesEntitlementNotificationResource {
 	itemTypeId: string
 	entitlementTypeId: string
 	resourceOperation: string
+}
+
+export interface LolTftTrovesEntityInstance {
+	groupId: string
+	counters: LolTftTrovesCounterInstance[]
+	milestones: LolTftTrovesMilestoneInstance[]
 }
 
 export interface LolTftTrovesGameDataTFTContent {
@@ -20935,6 +21154,15 @@ export interface LolTftTrovesGameDataTrovesBannerTableEntry {
 	bannerNode: LolTftTrovesGameDataTrovesBannerTable
 }
 
+export interface LolTftTrovesGroup {
+	id: string
+	productId: string
+	name: string
+	repeat: LolTftTrovesRepeat
+	counters: LolTftTrovesCounter[]
+	milestones: LolTftTrovesMilestone[]
+}
+
 export interface LolTftTrovesInventoryItem {
 	uuid: string
 	inventoryType: string
@@ -20977,6 +21205,32 @@ export interface LolTftTrovesLootOddsResponse {
 
 export type LolTftTrovesLootRarity = "Ultimate" | "Mythic" | "Legendary" | "Epic" | "Default"
 
+export interface LolTftTrovesMilestone {
+	id: string
+	name: string
+	groupId: string
+	counterId: string
+	/** @format int64 */
+	triggerValue: number
+	properties: Record<string, string>
+}
+
+export interface LolTftTrovesMilestoneInstance {
+	milestoneId: string
+	instanceId: string
+	ownerId: string
+	productId: string
+	groupId: string
+	counterId: string
+	/** @format int64 */
+	triggerValue: number
+	/** @format uint32 */
+	repeatSequence: number
+	triggered: boolean
+	triggeredTimestamp: string
+	triggers: LolTftTrovesTrigger[]
+}
+
 export interface LolTftTrovesOddsTableDisplayMetadata {
 	nameTraKey: string
 	/** @format uint8 */
@@ -21001,6 +21255,37 @@ export interface LolTftTrovesPlayerLoot {
 	itemDesc: string
 }
 
+export interface LolTftTrovesRepeat {
+	/** @format int32 */
+	count: number
+	/** @format uint32 */
+	scope: number
+	/** @format float */
+	multiplier: number
+	milestones: LolTftTrovesMilestone[]
+	repeatTriggers: LolTftTrovesRepeatGroupTrigger[]
+}
+
+export interface LolTftTrovesRepeatGroupTrigger {
+	type: string
+	counterId: string
+	/** @format uint16 */
+	startTriggerValue: number
+	/** @format uint16 */
+	increaseBy: number
+	/** @format float */
+	multiplier: number
+}
+
+export interface LolTftTrovesRewardsNotificationResource {
+	purchaserId: string
+	recipientId: string
+	transactionId: string
+	rewardId: string
+	rewardInstanceId: string
+	status: string
+}
+
 export interface LolTftTrovesRiotMessagingServiceMessage {
 	resource: string
 	service: string
@@ -21014,6 +21299,13 @@ export interface LolTftTrovesTotalRollsInfoDTO {
 	totalRollsCounterId: string
 	/** @format uint16 */
 	maxTotalRolls: number
+}
+
+export interface LolTftTrovesTrigger {
+	type: string
+	counterId: string
+	/** @format uint64 */
+	triggerValue: number
 }
 
 export interface LolTftTrovesTrovePurchaseResponse {
@@ -21141,6 +21433,45 @@ export interface LolTftTrovesTrovesCelebrationThemeData {
 	standardSegmentData: LolTftTrovesTrovesCelebrationStandardSegmentData
 }
 
+export interface LolTftTrovesTrovesMilestone {
+	milestoneId: string
+	currencyId: string
+	/** @format uint32 */
+	currencyAmount: number
+	instanceId: string
+	/** @format uint64 */
+	triggerValue: number
+	/** @format uint32 */
+	repeatSequence: number
+	triggeredTimestamp: string
+	triggered: boolean
+	name: string
+	iconURL: string
+	/** @format uint16 */
+	resetValue: number
+}
+
+export interface LolTftTrovesTrovesMilestoneCounter {
+	counterId: string
+	/** @format uint64 */
+	counterValue: number
+	/** @format uint16 */
+	startTriggerValue: number
+	/** @format uint16 */
+	increaseBy: number
+	/** @format float */
+	multiplier: number
+	/** @format uint16 */
+	resetValue: number
+}
+
+export interface LolTftTrovesTrovesMilestones {
+	groupId: string
+	name: string
+	milestones: LolTftTrovesTrovesMilestone[]
+	counter: LolTftTrovesTrovesMilestoneCounter
+}
+
 export interface LolTftTrovesTrovesPCSpriteAnimation {
 	spritesheetPath: string
 	/** @format float */
@@ -21188,6 +21519,7 @@ export interface LolTftTrovesTrovesRewards {
 }
 
 export interface LolTftTrovesTrovesRewardsResponse {
+	orderId: string
 	/** @format uint8 */
 	pullType: number
 	rewards: LolTftTrovesTrovesRewards
