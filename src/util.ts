@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { execSync } from "child_process";
+import { exec } from "child_process";
 
 export type LCUCredentials = {
     processId?: number;
@@ -16,11 +16,11 @@ export async function getPortAndBasicAuthToken(source: "process" | "lockfile" = 
         if (process.platform !== "win32")
             throw new Error(`Authentication strategy 'process' is not supported on this platform. (${process.platform})`);
 
-        const processId = getLeagueClientUxProcesses()[0];
+        const processId = (await getLeagueClientUxProcesses())[0];
         if (!processId)
             throw new Error("Could not find process 'LeagueClientUx.exe'.");
 
-        const credentials = getCredentialsByProcessId(processId);
+        const credentials = await getCredentialsByProcessId(processId);
         return credentials;
     } else {
         if (typeof lockfile !== "string")
@@ -55,11 +55,25 @@ function getPortAndBasicAuthTokenFromLockfile(lockfileContent: string) {
 
 /** Returns the process ids of all LeagueClientUx processes */
 export function getLeagueClientUxProcesses() {
-    return execSync(`(Get-CimInstance Win32_Process -Filter "Name='LeagueClientUx.exe'").ProcessId`, { shell: "powershell.exe" }).toString('utf-8').split('\r\n').map(x => parseInt(x)).filter(x => !isNaN(x));
+    return new Promise<number[]>((resolve, reject) => {
+        exec(`(Get-CimInstance Win32_Process -Filter "Name='LeagueClientUx.exe'").ProcessId`, { shell: "powershell.exe", windowsHide: true }, (err, stdout, stderr) => {
+            if (err || stderr)
+                reject(new Error(`Could not retrieve LeagueClientUx process ids. ${err || stderr}`));
+    
+            resolve(stdout.split('\r\n').map(x => parseInt(x)).filter(x => !isNaN(x)));
+        });
+    });
 }
 
-export function getCredentialsByProcessId(processId: number): LCUCredentials {
-    const commandLine = execSync(`(Get-CimInstance Win32_Process -Filter "ProcessId=${processId}").CommandLine`, { shell: "powershell.exe" }).toString('utf-8');
+export async function getCredentialsByProcessId(processId: number): Promise<LCUCredentials> {
+    const commandLine = await new Promise<string>((resolve, reject) => {
+        exec(`(Get-CimInstance Win32_Process -Filter "ProcessId=${processId}").CommandLine`, { shell: "powershell.exe", windowsHide: true }, (err, stdout, stderr) => {
+            if (err || stderr)
+                reject(new Error(`Could not retrieve command line of process with PID ${processId}. ${err || stderr}`));
+    
+            resolve(stdout);
+        });
+    });
     if (!commandLine)
         throw new Error(`Process with PID ${processId} not found.`);
 
