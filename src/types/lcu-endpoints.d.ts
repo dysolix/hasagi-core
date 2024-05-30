@@ -309,12 +309,6 @@ export interface LCUEndpoints {
 		get: { path: [plugin: string, path: string], params: { "if-none-match"?: string }, body: never, response: unknown }
 		head: { path: [plugin: string, path: string], params: { "if-none-match"?: string }, body: never, response: unknown }
 	},
-	"/client-config/v1/config": {
-		get: { path: never, params: { "type": LCUTypes.ClientConfigConfigType, "app"?: string, "version"?: string, "patchline"?: string, "region"?: string, "namespace"?: string }, body: never, response: Record<string, unknown> }
-	},
-	"/client-config/v1/config/{name}": {
-		get: { path: [name: string], params: { "type": LCUTypes.ClientConfigConfigType, "app"?: string, "version"?: string, "patchline"?: string, "region"?: string }, body: never, response: unknown }
-	},
 	"/client-config/v1/status/{type}": {
 		get: { path: [type: LCUTypes.ClientConfigConfigType], params: never, body: never, response: LCUTypes.ClientConfigConfigStatus }
 	},
@@ -832,9 +826,6 @@ export interface LCUEndpoints {
 	},
 	"/lol-collections/v1/inventories/{summonerId}/ward-skins/{wardSkinId}": {
 		get: { path: [summonerId: number, wardSkinId: number], params: never, body: never, response: LCUTypes.LolCollectionsCollectionsWardSkin }
-	},
-	"/lol-collections/v1/inventories/chest-eligibility": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolCollectionsCollectionsChestEligibility }
 	},
 	"/lol-collections/v1/inventories/local-player/champion-mastery-score": {
 		get: { path: never, params: never, body: never, response: number }
@@ -1694,6 +1685,9 @@ export interface LCUEndpoints {
 	"/lol-perks/v1/quick-play-selections/champion/{championId}/position/{position}": {
 		get: { path: [championId: number, position: string], params: never, body: never, response: string }
 	},
+	"/lol-perks/v1/recommended-champion-positions": {
+		get: { path: never, params: never, body: never, response: Record<string, LCUTypes.LolPerksRecommendedPositionsMapResource> }
+	},
 	"/lol-perks/v1/recommended-pages/champion/{championId}/position/{position}/map/{mapId}": {
 		get: { path: [championId: number, position: string, mapId: number], params: never, body: never, response: LCUTypes.LolPerksPerkUIRecommendedPage[] }
 	},
@@ -2213,16 +2207,16 @@ export interface LCUEndpoints {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolTastesDataModelResponse }
 	},
 	"/lol-tft-pass/v1/battle-pass": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolTftPassTftPaidBattlepass }
+		get: { path: never, params: never, body: never, response: LCUTypes.LolTftPassTftBattlepass }
 	},
 	"/lol-tft-pass/v1/daily-login-pass": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolTftPassTftPaidBattlepass }
+		get: { path: never, params: never, body: never, response: LCUTypes.LolTftPassTftBattlepass }
 	},
 	"/lol-tft-pass/v1/enabled": {
 		get: { path: never, params: never, body: never, response: boolean }
 	},
 	"/lol-tft-pass/v1/event-pass": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolTftPassTftPaidBattlepass }
+		get: { path: never, params: never, body: never, response: LCUTypes.LolTftPassTftBattlepass }
 	},
 	"/lol-tft-pass/v1/reward-notification": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolTftPassTFTPassRewardNotification }
@@ -2282,9 +2276,6 @@ export interface LCUEndpoints {
 	},
 	"/lol-tft/v1/tft/tencentEventhubConfigs": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolTftLolTftTencentEventHubConfigs }
-	},
-	"/lol-tft/v2/tft/battlepass": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolMissionsTftPaidBattlepass }
 	},
 	"/lol-trophies/v1/current-summoner/trophies/profile": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolTrophiesTrophyProfileData }
@@ -3472,6 +3463,9 @@ export interface LCUEndpoints {
 	"/lol-lobby/v2/lobby/partyType": {
 		put: { path: never, params: never, body: string, response: unknown }
 	},
+	"/lol-lobby/v2/lobby/strawberryMapId": {
+		put: { path: never, params: never, body: string, response: void }
+	},
 	"/lol-lobby/v2/lobby/subteamData": {
 		put: { path: never, params: never, body: LCUTypes.LolLobbySubteamDataDto, response: void }
 	},
@@ -3555,6 +3549,9 @@ export interface LCUEndpoints {
 	},
 	"/riotclient/ux-state/ack": {
 		put: { path: never, params: never, body: number, response: void }
+	},
+	"/services-api/game-session/v1/game-session-token": {
+		put: { path: never, params: never, body: string, response: void }
 	},
 	"/Subscribe": {
 		post: { path: never, params: { "eventName": string, "format"?: LCUTypes.RemotingSerializedFormat }, body: never, response: unknown }
