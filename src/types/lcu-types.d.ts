@@ -5441,15 +5441,6 @@ export interface LolCollectionsCollectionsChampionMastery {
 	formattedMasteryGoal: string
 }
 
-export interface LolCollectionsCollectionsChestEligibility {
-	/** @format uint32 */
-	earnableChests: number
-	/** @format uint32 */
-	maximumChests: number
-	/** @format uint64 */
-	nextChestRechargeTime: number
-}
-
 export interface LolCollectionsCollectionsOwnership {
 	loyaltyReward: boolean
 	xboxGPReward: boolean
@@ -5900,6 +5891,8 @@ export interface LolCosmeticsCompanionsGroupViewModel {
 	numOwned: number
 	/** @format uint32 */
 	numAvailable: number
+	/** @format int64 */
+	purchaseDate: number
 	items: LolCosmeticsCosmeticsCompanionViewModel[]
 }
 
@@ -6239,6 +6232,8 @@ export interface LolCosmeticsTFTDamageSkinGroupViewModel {
 	numOwned: number
 	/** @format uint32 */
 	numAvailable: number
+	/** @format int64 */
+	purchaseDate: number
 	items: LolCosmeticsCosmeticsTFTDamageSkinViewModel[]
 }
 
@@ -6261,6 +6256,8 @@ export interface LolCosmeticsTFTMapSkinGroupViewModel {
 	numOwned: number
 	/** @format uint32 */
 	numAvailable: number
+	/** @format int64 */
+	purchaseDate: number
 	items: LolCosmeticsCosmeticsTFTMapSkinViewModel[]
 }
 
@@ -7134,6 +7131,7 @@ export interface LolEventHubBundledItemUIData {
 	owned: boolean
 	/** @format uint32 */
 	quantity: number
+	decoratorBadgeURL: string
 }
 
 export interface LolEventHubCapOffer {
@@ -7382,7 +7380,7 @@ export interface LolEventHubEventHubError {
 	errorId: string
 }
 
-export type LolEventHubEventHubType = "HallOfLegends" | "EventShop"
+export type LolEventHubEventHubType = "SeasonPass" | "HallOfLegends" | "EventShop"
 
 export interface LolEventHubEventInfoUIData {
 	eventId: string
@@ -10599,7 +10597,7 @@ export interface LolLobbyEligibilityRestriction {
 	summonerIdsString: string
 }
 
-export type LolLobbyEligibilityRestrictionCode = "MmrStandardDeviationTooLarge" | "UserInfoNotAvailable" | "InventoryQueuesInfoNotAvailable" | "InventoryChampsInfoNotAvailable" | "LeaguesInfoNotAvailable" | "SummonerInfoNotAvailable" | "MinorInfoNotAvailable" | "BanInfoNotAvailable" | "TooManyIncompleteSubteamsRestriction" | "QPScarcePositionsNotAvailableRestriction" | "QPNonUniquePrimarySlotRestriction" | "QPInvalidChampionSelectionRestriction" | "QPInvalidPositionSelectionRestriction" | "QPInvalidNumberOfPlayerSlotsRestriction" | "QPPlayerChampionCoverageRestriction" | "QPPartyChampionCoverageRestriction" | "QPPlayerPositionCoverageRestriction" | "QPPartyPositionCoverageRestriction" | "QPPlayerScarcePositionCoverageRestriction" | "UnknownRestriction" | "SeasonVersionLockout" | "TFTNewPlayerRestriction" | "QueueEntryNotEntitledRestriction" | "GameVersionNotSupported" | "GameVersionMissing" | "GameVersionMismatch" | "PrerequisiteQueuesNotPlayedRestriction" | "TeamSizeRestriction" | "TeamHighMMRMaxSizeRestriction" | "PlayerRankedSuspensionRestriction" | "PlayerRankSoloOnlyRestriction" | "PlayerTimePlayedRestriction" | "PlayerMinorRestriction" | "PlayerMinLevelRestriction" | "PlayerMaxLevelRestriction" | "PlayerTimeBasedRankRestriction" | "PlayerGameBasedRankRestriction" | "PlayerLeaverTaintedWarningRestriction" | "PlayerLeaverQueueLockoutRestriction" | "PlayerLeaverBustedRestriction" | "PlayerInGameRestriction" | "PlayerDodgeRestriction" | "PlayerBingeRestriction" | "TeamMinSizeRestriction" | "TeamMaxSizeRestriction" | "TeamSkillRestriction" | "TeamDivisionRestriction" | "PlayerAvailableChampionRestriction" | "PlayerBannedRestriction" | "PlayerTimedRestriction" | "PlayerLevelRestriction" | "QueueUnsupported" | "QueueDisabled"
+export type LolLobbyEligibilityRestrictionCode = "MmrStandardDeviationTooLarge" | "UserInfoNotAvailable" | "InventoryQueuesInfoNotAvailable" | "InventoryChampsInfoNotAvailable" | "LeaguesInfoNotAvailable" | "SummonerInfoNotAvailable" | "MinorInfoNotAvailable" | "BanInfoNotAvailable" | "TooManyIncompleteSubteamsRestriction" | "QPScarcePositionsNotAvailableRestriction" | "QPNonUniquePrimarySlotRestriction" | "QPInvalidChampionSelectionRestriction" | "QPInvalidPositionSelectionRestriction" | "QPInvalidNumberOfPlayerSlotsRestriction" | "QPPlayerChampionCoverageRestriction" | "QPPartyChampionCoverageRestriction" | "QPPlayerPositionCoverageRestriction" | "QPPartyPositionCoverageRestriction" | "QPPlayerScarcePositionCoverageRestriction" | "LOLNewPlayerRestriction" | "UnknownRestriction" | "SeasonVersionLockout" | "TFTNewPlayerRestriction" | "QueueEntryNotEntitledRestriction" | "GameVersionNotSupported" | "GameVersionMissing" | "GameVersionMismatch" | "PrerequisiteQueuesNotPlayedRestriction" | "TeamSizeRestriction" | "TeamHighMMRMaxSizeRestriction" | "PlayerRankedSuspensionRestriction" | "PlayerRankSoloOnlyRestriction" | "PlayerTimePlayedRestriction" | "PlayerMinorRestriction" | "PlayerMinLevelRestriction" | "PlayerMaxLevelRestriction" | "PlayerTimeBasedRankRestriction" | "PlayerGameBasedRankRestriction" | "PlayerLeaverTaintedWarningRestriction" | "PlayerLeaverQueueLockoutRestriction" | "PlayerLeaverBustedRestriction" | "PlayerInGameRestriction" | "PlayerDodgeRestriction" | "PlayerBingeRestriction" | "TeamMinSizeRestriction" | "TeamMaxSizeRestriction" | "TeamSkillRestriction" | "TeamDivisionRestriction" | "PlayerAvailableChampionRestriction" | "PlayerBannedRestriction" | "PlayerTimedRestriction" | "PlayerLevelRestriction" | "QueueUnsupported" | "QueueDisabled"
 
 export interface LolLobbyFriendAvailabilityAnalytics {
 	puuid: string
@@ -13461,6 +13459,7 @@ export interface LolMarketplacePurchaseRequestDto {
 	catalogEntryId: string
 	paymentOptionsKeys: string[]
 	idempotencyId: string
+	source: string
 }
 
 export interface LolMarketplacePurchaseResponse {
@@ -13510,6 +13509,12 @@ export interface LolMarketplaceRiotMessagingServiceMessage {
 	/** @format int64 */
 	timestamp: number
 	payload: string
+}
+
+export interface LolMarketplaceRotationalShopItemData {
+	backgroundTextureLCU: string
+	descriptionTraKey: string
+	description: string
 }
 
 export interface LolMarketplaceStoreDto {
@@ -14378,68 +14383,6 @@ export interface LolMissionsTftOrb {
 	/** @format uint8 */
 	rewardLevel: number
 	rewards: PlayerMissionRewardDTO[]
-}
-
-export interface LolMissionsTftPaidBattlepass {
-	/** @format int32 */
-	totalPointsEarned: number
-	milestones: LolMissionsTftPaidBattlepassMilestone[]
-	bonuses: LolMissionsTftPaidBattlepassMilestone[]
-	activeMilestone: LolMissionsTftPaidBattlepassMilestone
-	info: LolMissionsTftPaidBattlepassInfo
-	/** @format int32 */
-	lastViewedProgress: number
-	lastViewedMilestone: LolMissionsTftPaidBattlepassMilestone
-	progressMissionId: string
-	/** @format int32 */
-	currentLevel: number
-}
-
-export interface LolMissionsTftPaidBattlepassInfo {
-	title: string
-	description: string
-	/** @format uint64 */
-	startDate: number
-	/** @format uint64 */
-	endDate: number
-	premium: boolean
-	premiumTitle: string
-	premiumEntitlementId: string
-	pcPurchaseRequirement: string
-	passId: string
-	media: Record<string, string>
-}
-
-export interface LolMissionsTftPaidBattlepassMilestone {
-	missionId: string
-	internalName: string
-	title: string
-	description: string
-	state: string
-	status: string
-	/** @format int32 */
-	pointsNeededForMilestone: number
-	/** @format int32 */
-	pointsEarnedForMilestone: number
-	/** @format int32 */
-	totalPointsForMilestone: number
-	/** @format int32 */
-	level: number
-	iconImageUrl: string
-	iconNeedsFrame: boolean
-	rewards: LolMissionsTftPaidBattlepassReward[]
-	isPaid: boolean
-	isLocked: boolean
-	isKeystone: boolean
-	isBonus: boolean
-	isClaimRequestPending: boolean
-}
-
-export interface LolMissionsTftPaidBattlepassReward {
-	rewardGroup: string
-	description: string
-	iconUrl: string
-	iconNeedsFrame: boolean
 }
 
 export interface LolMissionsTftWeeklyMissions {
@@ -15364,6 +15307,10 @@ export interface LolPerksQuickPlayPresetSlotDto {
 	perks: string
 }
 
+export interface LolPerksRecommendedPositionsMapResource {
+	recommendedPositions: string[]
+}
+
 export interface LolPerksRuneRecommendationGDSResource {
 	position: string
 	/** @format int32 */
@@ -15656,6 +15603,36 @@ export interface LolPftPFTSurveyV1 {
 	caption: string
 	type: string
 	url: string
+}
+
+export interface LolPftPftEntitlements {
+	authorization: LolPftPftEntitlementsAuthorization
+	entitlements: string[]
+	issuer: string
+	subject: string
+	token: string
+}
+
+export interface LolPftPftEntitlementsAccessToken {
+	clientId: string
+	/** @format uint64 */
+	expiry: number
+	scopes: string[]
+	token: string
+}
+
+export interface LolPftPftEntitlementsAuthorization {
+	accessToken: LolPftPftEntitlementsAccessToken
+	idToken: LolPftPftEntitlementsIdToken
+	puuid: string
+}
+
+export interface LolPftPftEntitlementsIdToken {
+	clientId: string
+	/** @format uint64 */
+	expiry: number
+	nonce: string
+	token: string
 }
 
 export interface LolPftSummoner {
@@ -20014,6 +19991,7 @@ export interface LolTftEventLolTftEvent {
 	startDate: string
 	endDate: string
 	seriesId: string
+	dailyLoginSeriesId: string
 	queueIds: number[]
 	defaultLandingPage: boolean
 	eventHubTemplateType: string
@@ -20220,68 +20198,6 @@ export interface LolTftEventTftOrb {
 	rewards: PlayerMissionRewardDTO[]
 }
 
-export interface LolTftEventTftPaidBattlepass {
-	/** @format int32 */
-	totalPointsEarned: number
-	milestones: LolTftEventTftPaidBattlepassMilestone[]
-	bonuses: LolTftEventTftPaidBattlepassMilestone[]
-	activeMilestone: LolTftEventTftPaidBattlepassMilestone
-	info: LolTftEventTftPaidBattlepassInfo
-	/** @format int32 */
-	lastViewedProgress: number
-	lastViewedMilestone: LolTftEventTftPaidBattlepassMilestone
-	progressMissionId: string
-	/** @format int32 */
-	currentLevel: number
-}
-
-export interface LolTftEventTftPaidBattlepassInfo {
-	title: string
-	description: string
-	/** @format uint64 */
-	startDate: number
-	/** @format uint64 */
-	endDate: number
-	premium: boolean
-	premiumTitle: string
-	premiumEntitlementId: string
-	pcPurchaseRequirement: string
-	passId: string
-	media: Record<string, string>
-}
-
-export interface LolTftEventTftPaidBattlepassMilestone {
-	missionId: string
-	internalName: string
-	title: string
-	description: string
-	state: string
-	status: string
-	/** @format int32 */
-	pointsNeededForMilestone: number
-	/** @format int32 */
-	pointsEarnedForMilestone: number
-	/** @format int32 */
-	totalPointsForMilestone: number
-	/** @format int32 */
-	level: number
-	iconImageUrl: string
-	iconNeedsFrame: boolean
-	rewards: LolTftEventTftPaidBattlepassReward[]
-	isPaid: boolean
-	isLocked: boolean
-	isKeystone: boolean
-	isBonus: boolean
-	isClaimRequestPending: boolean
-}
-
-export interface LolTftEventTftPaidBattlepassReward {
-	rewardGroup: string
-	description: string
-	iconUrl: string
-	iconNeedsFrame: boolean
-}
-
 export interface LolTftEventTftWeeklyMissions {
 	missions: PlayerMissionDTO[]
 }
@@ -20319,6 +20235,7 @@ export interface LolTftLolTftEvent {
 	startDate: string
 	endDate: string
 	seriesId: string
+	dailyLoginSeriesId: string
 	queueIds: number[]
 	defaultLandingPage: boolean
 	eventHubTemplateType: string
@@ -20797,22 +20714,21 @@ export interface LolTftPassTFTPassRewardNotification {
 	framedIcon: boolean
 }
 
-export interface LolTftPassTftPaidBattlepass {
+export interface LolTftPassTftBattlepass {
 	/** @format int32 */
 	totalPointsEarned: number
-	milestones: LolTftPassTftPaidBattlepassMilestone[]
-	bonuses: LolTftPassTftPaidBattlepassMilestone[]
-	activeMilestone: LolTftPassTftPaidBattlepassMilestone
-	info: LolTftPassTftPaidBattlepassInfo
+	milestones: LolTftPassTftBattlepassMilestone[]
+	bonuses: LolTftPassTftBattlepassMilestone[]
+	activeMilestone: LolTftPassTftBattlepassMilestone
+	info: LolTftPassTftBattlepassInfo
 	/** @format int32 */
 	lastViewedProgress: number
-	lastViewedMilestone: LolTftPassTftPaidBattlepassMilestone
-	progressMissionId: string
+	lastViewedMilestone: LolTftPassTftBattlepassMilestone
 	/** @format int32 */
 	currentLevel: number
 }
 
-export interface LolTftPassTftPaidBattlepassInfo {
+export interface LolTftPassTftBattlepassInfo {
 	title: string
 	description: string
 	/** @format uint64 */
@@ -20827,12 +20743,10 @@ export interface LolTftPassTftPaidBattlepassInfo {
 	media: Record<string, string>
 }
 
-export interface LolTftPassTftPaidBattlepassMilestone {
-	missionId: string
-	internalName: string
+export interface LolTftPassTftBattlepassMilestone {
+	milestoneId: string
 	title: string
 	description: string
-	state: string
 	status: string
 	/** @format int32 */
 	pointsNeededForMilestone: number
@@ -20844,7 +20758,7 @@ export interface LolTftPassTftPaidBattlepassMilestone {
 	level: number
 	iconImageUrl: string
 	iconNeedsFrame: boolean
-	rewards: LolTftPassTftPaidBattlepassReward[]
+	rewards: LolTftPassTftBattlepassReward[]
 	isPaid: boolean
 	isLocked: boolean
 	isKeystone: boolean
@@ -20852,8 +20766,7 @@ export interface LolTftPassTftPaidBattlepassMilestone {
 	isClaimRequestPending: boolean
 }
 
-export interface LolTftPassTftPaidBattlepassReward {
-	rewardGroup: string
+export interface LolTftPassTftBattlepassReward {
 	description: string
 	iconUrl: string
 	iconNeedsFrame: boolean
@@ -22362,8 +22275,6 @@ export interface MissionMetadata {
 	tutorial: TutorialMetadata
 	npeRewardPack: NpeRewardPackMetadata
 	missionType: string
-	/** @format int32 */
-	level: number
 	/** @format int32 */
 	weekNum: number
 	/** @format int32 */
