@@ -18,7 +18,7 @@ npm install @hasagi/core
 
 You can use Hasagi to send a request like this
 
-```
+```ts
 import { HasagiClient } from "@hasagi/core";
 
 const client = new HasagiClient();
