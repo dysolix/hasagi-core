@@ -23,10 +23,7 @@ import { HasagiClient } from "@hasagi/core";
 
 const client = new HasagiClient();
 await client.connect();
-const response = await client.request({
-    method: "get",
-    url: "/lol-summoner/v1/current-summoner"
-});
+const response = await client.request("get", "/lol-summoner/v1/current-summoner");
 
 console.log(response);
 
