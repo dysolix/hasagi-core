@@ -122,8 +122,8 @@ export interface LCUEndpoints {
 		post: { path: never, params: never, body: string, response: unknown }
 		delete: { path: never, params: never, body: never, response: unknown }
 	},
-	"/lol-lobby/v1/lobby/custom/bots/{summonerInternalName}": {
-		delete: { path: [summonerInternalName: string], params: never, body: never, response: unknown }
+	"/lol-lobby/v1/lobby/custom/bots/{summonerInternalName}/{botUuidToDelete}/{teamId}": {
+		delete: { path: [summonerInternalName: string, botUuidToDelete: string, teamId: string], params: never, body: never, response: unknown }
 	},
 	"/lol-lobby/v2/lobby": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolLobbyLobbyDto }
@@ -143,7 +143,6 @@ export interface LCUEndpoints {
 	},
 	"/lol-login/v1/session": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolLoginLoginSession }
-		post: { path: never, params: never, body: LCUTypes.LolLoginUsernameAndPassword, response: LCUTypes.LolLoginLoginSession }
 		delete: { path: never, params: never, body: never, response: void }
 	},
 	"/lol-login/v1/shutdown-locks/{lockName}": {
@@ -809,12 +808,6 @@ export interface LCUEndpoints {
 	"/lol-client-config/v3/client-config/operational/{name}": {
 		get: { path: [name: string], params: never, body: never, response: unknown }
 	},
-	"/lol-collections/v1/inventories/{puuid}/champion-mastery": {
-		get: { path: [puuid: string], params: never, body: never, response: LCUTypes.LolCollectionsCollectionsChampionMastery[] }
-	},
-	"/lol-collections/v1/inventories/{puuid}/champion-mastery/top": {
-		get: { path: [puuid: string], params: { "limit": number, "sortRule"?: string }, body: never, response: LCUTypes.LolCollectionsCollectionsTopChampionMasteries }
-	},
 	"/lol-collections/v1/inventories/{summonerId}/backdrop": {
 		get: { path: [summonerId: number], params: never, body: never, response: LCUTypes.LolCollectionsCollectionsSummonerBackdrop }
 	},
@@ -826,12 +819,6 @@ export interface LCUEndpoints {
 	},
 	"/lol-collections/v1/inventories/{summonerId}/ward-skins/{wardSkinId}": {
 		get: { path: [summonerId: number, wardSkinId: number], params: never, body: never, response: LCUTypes.LolCollectionsCollectionsWardSkin }
-	},
-	"/lol-collections/v1/inventories/local-player/champion-mastery-score": {
-		get: { path: never, params: never, body: never, response: number }
-	},
-	"/lol-collections/v1/inventories/scouting": {
-		get: { path: never, params: { "puuids": string[] }, body: never, response: LCUTypes.RankedScoutingDTO[] }
 	},
 	"/lol-content-targeting/v1/filters": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolContentTargetingContentTargetingFilterResponse }
@@ -2497,6 +2484,9 @@ export interface LCUEndpoints {
 	"/lol-rewards/v1/grants/view": {
 		patch: { path: never, params: never, body: string[], response: void }
 	},
+	"/lol-tft-team-planner/v1/set": {
+		patch: { path: never, params: never, body: string, response: unknown }
+	},
 	"/telemetry/v3/slis/add-bool-diagnostic": {
 		patch: { path: never, params: never, body: LCUTypes.SLIBoolDiagnostic, response: void }
 	},
@@ -2854,6 +2844,12 @@ export interface LCUEndpoints {
 	"/lol-honeyfruit/v1/account-claim/linking-redirect": {
 		post: { path: never, params: never, body: never, response: void }
 	},
+	"/lol-honor/v1/ballot": {
+		post: { path: never, params: never, body: never, response: string }
+	},
+	"/lol-honor/v1/honor": {
+		post: { path: never, params: never, body: LCUTypes.LolHonorV2ApiHonorPlayerServerRequestV3, response: void }
+	},
 	"/lol-honor-v2/v1/honor-player": {
 		post: { path: never, params: never, body: LCUTypes.LolHonorV2ApiHonorPlayerServerRequest, response: string }
 	},
@@ -2944,8 +2940,8 @@ export interface LCUEndpoints {
 	"/lol-lobby/v1/lobby/custom/bots": {
 		post: { path: never, params: never, body: LCUTypes.LolLobbyLobbyBotParams, response: unknown }
 	},
-	"/lol-lobby/v1/lobby/custom/bots/{summonerInternalName}/{botToDeletePosition}": {
-		post: { path: [summonerInternalName: string, botToDeletePosition: string], params: never, body: LCUTypes.LolLobbyLobbyBotParams, response: unknown }
+	"/lol-lobby/v1/lobby/custom/bots/{summonerInternalName}/{botUuidToDelete}": {
+		post: { path: [summonerInternalName: string, botUuidToDelete: string], params: never, body: LCUTypes.LolLobbyLobbyBotParams, response: unknown }
 	},
 	"/lol-lobby/v1/lobby/custom/cancel-champ-select": {
 		post: { path: never, params: never, body: never, response: unknown }
@@ -3373,6 +3369,9 @@ export interface LCUEndpoints {
 	"/sanitizer/v1/sanitize": {
 		post: { path: never, params: never, body: LCUTypes.SanitizerSanitizeRequest, response: LCUTypes.SanitizerSanitizeResponse }
 	},
+	"/services-api/config/v1/client-config": {
+		post: { path: never, params: never, body: unknown, response: void }
+	},
 	"/telemetry/v1/common-data/{key}": {
 		post: { path: [key: string], params: never, body: string, response: void }
 	},
@@ -3464,7 +3463,7 @@ export interface LCUEndpoints {
 		put: { path: never, params: never, body: string, response: unknown }
 	},
 	"/lol-lobby/v2/lobby/strawberryMapId": {
-		put: { path: never, params: never, body: string, response: void }
+		put: { path: never, params: never, body: LCUTypes.LolLobbyStrawberryMapUpdateDto, response: void }
 	},
 	"/lol-lobby/v2/lobby/subteamData": {
 		put: { path: never, params: never, body: LCUTypes.LolLobbySubteamDataDto, response: void }
