@@ -985,7 +985,9 @@ export interface LcdsBotParticipant {
 	summonerInternalName: string
 	/** @format int32 */
 	botSkillLevel: number
+	botDifficulty: string
 	position: string
+	botUuid: string
 	teamId: string
 }
 
@@ -1156,7 +1158,9 @@ export interface LcdsPlayerParticipant {
 	summonerInternalName: string
 	/** @format int32 */
 	botSkillLevel: number
+	botDifficulty: string
 	position: string
+	botUuid: string
 }
 
 export interface LcdsPracticeGameConfig {
@@ -1681,6 +1685,7 @@ export interface LolCatalogCatalogPluginItem {
 	subTitle: string
 	description: string
 	imagePath: string
+	tilePath: string
 	/** @format uint64 */
 	purchaseDate: number
 	/** @format uint64 */
@@ -1788,6 +1793,13 @@ export interface LolCatalogGameDataItemReference {
 	itemId: number
 	inventoryType: string
 	contentId: string
+}
+
+export interface LolCatalogGameDataRegaliaBanner {
+	id: string
+	idSecondary: string
+	assetPath: string
+	localizedName: string
 }
 
 export interface LolCatalogGameDataSkinAugment {
@@ -2325,7 +2337,6 @@ export interface LolChampSelectChampGridChampion {
 	masteryPoints: number
 	/** @format int32 */
 	masteryLevel: number
-	masteryChestGranted: boolean
 	selectionStatus: LolChampSelectChampionSelection
 	positionsFavorited: string[]
 }
@@ -2555,6 +2566,15 @@ export interface LolChampSelectChampSelectTradeNotification {
 
 export type LolChampSelectChampSelectTradeState = "ACCEPTED" | "CANCELLED" | "DECLINED" | "SENT" | "RECEIVED" | "INVALID" | "BUSY" | "AVAILABLE"
 
+export interface LolChampSelectChampionMastery {
+	/** @format int32 */
+	championId: number
+	/** @format int32 */
+	championLevel: number
+	/** @format int32 */
+	championPoints: number
+}
+
 export interface LolChampSelectChampionQuestSkinInfo {
 	splashPath: string
 	tilePath: string
@@ -2599,17 +2619,8 @@ export interface LolChampSelectCollectionsChampionChroma {
 	ownership: LolChampSelectCollectionsOwnership
 	disabled: boolean
 	stillObtainable: boolean
+	skinAugments: LolChampSelectChampionSkinAugments
 	colors: string[]
-}
-
-export interface LolChampSelectCollectionsChampionMastery {
-	/** @format int32 */
-	championId: number
-	/** @format int32 */
-	championLevel: number
-	/** @format int32 */
-	championPoints: number
-	chestGranted: boolean
 }
 
 export interface LolChampSelectCollectionsChampionMinimal {
@@ -2638,9 +2649,9 @@ export interface LolChampSelectCollectionsChampionQuestSkin {
 	isBase: boolean
 	disabled: boolean
 	stillObtainable: boolean
+	skinAugments: LolChampSelectChampionSkinAugments
 	splashPath: string
 	tilePath: string
-	skinAugments: LolChampSelectChampionSkinAugments
 	/** @format uint64 */
 	stage: number
 	shortName: string
@@ -2658,9 +2669,9 @@ export interface LolChampSelectCollectionsChampionSkin {
 	isBase: boolean
 	disabled: boolean
 	stillObtainable: boolean
+	skinAugments: LolChampSelectChampionSkinAugments
 	splashPath: string
 	tilePath: string
-	skinAugments: LolChampSelectChampionSkinAugments
 	chromas: LolChampSelectCollectionsChampionChroma[]
 	questSkinInfo: LolChampSelectChampionQuestSkinInfo
 	emblems: LolChampSelectCollectionsChampionSkinEmblem[]
@@ -2695,9 +2706,9 @@ export interface LolChampSelectCollectionsChampionSkinMinimal {
 	isBase: boolean
 	disabled: boolean
 	stillObtainable: boolean
+	skinAugments: LolChampSelectChampionSkinAugments
 	splashPath: string
 	tilePath: string
-	skinAugments: LolChampSelectChampionSkinAugments
 }
 
 export interface LolChampSelectCollectionsOwnership {
@@ -3087,7 +3098,6 @@ export interface LolChampionMasteryChampionMastery {
 	championPointsUntilNextLevel: number
 	/** @format int32 */
 	markRequiredForNextLevel: number
-	chestGranted: boolean
 	/** @format int32 */
 	tokensEarned: number
 	/** @format int32 */
@@ -3209,6 +3219,8 @@ export interface LolChampionMasterySeasonMilestoneRequireAndRewards {
 export interface LolChampionMasterySetRewardEntry {
 	id: string
 	type: string
+	/** @format int32 */
+	value: number
 }
 
 export interface LolChampionMasteryTopChampionMasteries {
@@ -3291,6 +3303,7 @@ export interface LolChampionsCollectionsChampionChroma {
 	disabled: boolean
 	stillObtainable: boolean
 	lastSelected: boolean
+	skinAugments: LolChampionsCollectionsChampionSkinAugments
 	colors: string[]
 }
 
@@ -3342,9 +3355,9 @@ export interface LolChampionsCollectionsChampionQuestSkin {
 	disabled: boolean
 	stillObtainable: boolean
 	lastSelected: boolean
+	skinAugments: LolChampionsCollectionsChampionSkinAugments
 	splashPath: string
 	tilePath: string
-	skinAugments: LolChampionsCollectionsChampionSkinAugments
 	/** @format uint64 */
 	stage: number
 	description: string
@@ -3367,9 +3380,9 @@ export interface LolChampionsCollectionsChampionSkin {
 	disabled: boolean
 	stillObtainable: boolean
 	lastSelected: boolean
+	skinAugments: LolChampionsCollectionsChampionSkinAugments
 	splashPath: string
 	tilePath: string
-	skinAugments: LolChampionsCollectionsChampionSkinAugments
 	chromas: LolChampionsCollectionsChampionChroma[]
 	questSkinInfo: LolChampionsChampionQuestSkinInfo
 	emblems: LolChampionsCollectionsChampionSkinEmblem[]
@@ -3426,9 +3439,9 @@ export interface LolChampionsCollectionsChampionSkinMinimal {
 	disabled: boolean
 	stillObtainable: boolean
 	lastSelected: boolean
+	skinAugments: LolChampionsCollectionsChampionSkinAugments
 	splashPath: string
 	tilePath: string
-	skinAugments: LolChampionsCollectionsChampionSkinAugments
 }
 
 export interface LolChampionsCollectionsChampionSpell {
@@ -3483,6 +3496,7 @@ export interface LolChampionsGameDataChampionChroma {
 	id: number
 	colors: string[]
 	chromaPath: string
+	skinAugments: LolChampionsCollectionsChampionSkinAugments
 }
 
 export interface LolChampionsGameDataChampionQuestSkin {
@@ -5417,17 +5431,14 @@ export interface LolCollectionsAccountIdAndSummonerId {
 	summonerId: number
 }
 
-export interface LolCollectionsCollectionsChampionMastery {
+export interface LolCollectionsChampionMastery {
 	puuid: string
-	/** @format uint64 */
-	playerId: number
 	/** @format int32 */
 	championId: number
 	/** @format int32 */
 	championLevel: number
 	/** @format int32 */
 	championPoints: number
-	formattedChampionPoints: string
 	/** @format uint64 */
 	lastPlayTime: number
 	/** @format int32 */
@@ -5435,10 +5446,14 @@ export interface LolCollectionsCollectionsChampionMastery {
 	/** @format int32 */
 	championPointsUntilNextLevel: number
 	/** @format int32 */
+	markRequiredForNextLevel: number
+	/** @format int32 */
 	tokensEarned: number
-	chestGranted: boolean
+	/** @format int32 */
+	championSeasonMilestone: number
+	milestoneGrades: string[]
+	nextSeasonMilestone: LolCollectionsSeasonMilestoneRequireAndRewards
 	highestGrade: string
-	formattedMasteryGoal: string
 }
 
 export interface LolCollectionsCollectionsOwnership {
@@ -5486,15 +5501,6 @@ export interface LolCollectionsCollectionsSummonerSpells {
 	/** @format uint64 */
 	summonerId: number
 	spells: number[]
-}
-
-export interface LolCollectionsCollectionsTopChampionMasteries {
-	puuid: string
-	/** @format uint64 */
-	summonerId: number
-	/** @format uint64 */
-	score: number
-	masteries: LolCollectionsCollectionsChampionMastery[]
 }
 
 export interface LolCollectionsCollectionsWardSkin {
@@ -5681,6 +5687,20 @@ export interface LolCollectionsPlayerNotification {
 	type: string
 }
 
+export interface LolCollectionsRewardConfigurationEntry {
+	rewardValue: string
+	/** @format int32 */
+	maximumReward: number
+}
+
+export interface LolCollectionsSeasonMilestoneRequireAndRewards {
+	requireGradeCounts: Record<string, number>
+	/** @format uint16 */
+	rewardMarks: number
+	bonus: boolean
+	rewardConfig: LolCollectionsRewardConfigurationEntry
+}
+
 export interface LolCollectionsSummoner {
 	/** @format uint64 */
 	summonerId: number
@@ -5704,22 +5724,18 @@ export interface LolCollectionsSummonerProfileUpdate {
 	value: unknown
 }
 
+export interface LolCollectionsTopChampionMasteries {
+	puuid: string
+	/** @format uint64 */
+	summonerId: number
+	/** @format uint64 */
+	score: number
+	masteries: LolCollectionsChampionMastery[]
+}
+
 export interface LolContentTargetingAccountIdAndSummonerId {
 	/** @format uint64 */
 	summonerId: number
-}
-
-export interface LolContentTargetingCollectionsChampionMastery {
-	/** @format uint64 */
-	playerId: number
-	/** @format int32 */
-	championId: number
-	/** @format int32 */
-	championLevel: number
-	/** @format int32 */
-	championPoints: number
-	/** @format uint64 */
-	lastPlayTime: number
 }
 
 export interface LolContentTargetingContentTargetingFilterResponse {
@@ -6479,6 +6495,7 @@ export interface LolEndOfGameChampionMasteryUpdate {
 	score: number
 	levelUpList: LolEndOfGameChampionMasteryMini[]
 	memberGrades: LolEndOfGameChampionMasteryGrade[]
+	mvpPuuid: string
 }
 
 export interface LolEndOfGameEndOfGamePlayer {
@@ -7380,7 +7397,7 @@ export interface LolEventHubEventHubError {
 	errorId: string
 }
 
-export type LolEventHubEventHubType = "SeasonPass" | "HallOfLegends" | "EventShop"
+export type LolEventHubEventHubType = "HallOfLegends" | "EventShop"
 
 export interface LolEventHubEventInfoUIData {
 	eventId: string
@@ -7461,6 +7478,7 @@ export interface LolEventHubExternalCatalogPluginItem {
 	subTitle: string
 	description: string
 	imagePath: string
+	tilePath: string
 	/** @format uint64 */
 	purchaseDate: number
 	/** @format uint64 */
@@ -9391,10 +9409,23 @@ export interface LolHonorV2ApiHonorPlayerServerRequest {
 	gameId: number
 }
 
+export interface LolHonorV2ApiHonorPlayerServerRequestV3 {
+	puuid: string
+	honorType: string
+}
+
+export interface LolHonorV2ApiSubmitBallotRequest {
+	honoredPlayers: LolHonorV2ApiHonorPlayerServerRequestV3[]
+}
+
 export interface LolHonorV2Ballot {
-	eligiblePlayers: LolHonorV2EligiblePlayer[]
+	eligibleAllies: LolHonorV2EligiblePlayer[]
+	eligibleOpponents: LolHonorV2EligiblePlayer[]
+	/** @format uint32 */
+	numVotes: number
 	/** @format uint64 */
 	gameId: number
+	honoredPlayers: LolHonorV2ApiHonorPlayerServerRequestV3[]
 }
 
 export interface LolHonorV2DynamicHonorMessage {
@@ -9470,6 +9501,7 @@ export interface LolHonorV2HonorConfig {
 	HonorVisibilityEnabled: boolean
 	HonorSuggestionsEnabled: boolean
 	"honorEndpointsV2Enabled": boolean
+	"ceremonyV3Enabled": boolean
 }
 
 export interface LolHonorV2HonorInteraction {
@@ -10597,7 +10629,7 @@ export interface LolLobbyEligibilityRestriction {
 	summonerIdsString: string
 }
 
-export type LolLobbyEligibilityRestrictionCode = "MmrStandardDeviationTooLarge" | "UserInfoNotAvailable" | "InventoryQueuesInfoNotAvailable" | "InventoryChampsInfoNotAvailable" | "LeaguesInfoNotAvailable" | "SummonerInfoNotAvailable" | "MinorInfoNotAvailable" | "BanInfoNotAvailable" | "TooManyIncompleteSubteamsRestriction" | "QPScarcePositionsNotAvailableRestriction" | "QPNonUniquePrimarySlotRestriction" | "QPInvalidChampionSelectionRestriction" | "QPInvalidPositionSelectionRestriction" | "QPInvalidNumberOfPlayerSlotsRestriction" | "QPPlayerChampionCoverageRestriction" | "QPPartyChampionCoverageRestriction" | "QPPlayerPositionCoverageRestriction" | "QPPartyPositionCoverageRestriction" | "QPPlayerScarcePositionCoverageRestriction" | "LOLNewPlayerRestriction" | "UnknownRestriction" | "SeasonVersionLockout" | "TFTNewPlayerRestriction" | "QueueEntryNotEntitledRestriction" | "GameVersionNotSupported" | "GameVersionMissing" | "GameVersionMismatch" | "PrerequisiteQueuesNotPlayedRestriction" | "TeamSizeRestriction" | "TeamHighMMRMaxSizeRestriction" | "PlayerRankedSuspensionRestriction" | "PlayerRankSoloOnlyRestriction" | "PlayerTimePlayedRestriction" | "PlayerMinorRestriction" | "PlayerMinLevelRestriction" | "PlayerMaxLevelRestriction" | "PlayerTimeBasedRankRestriction" | "PlayerGameBasedRankRestriction" | "PlayerLeaverTaintedWarningRestriction" | "PlayerLeaverQueueLockoutRestriction" | "PlayerLeaverBustedRestriction" | "PlayerInGameRestriction" | "PlayerDodgeRestriction" | "PlayerBingeRestriction" | "TeamMinSizeRestriction" | "TeamMaxSizeRestriction" | "TeamSkillRestriction" | "TeamDivisionRestriction" | "PlayerAvailableChampionRestriction" | "PlayerBannedRestriction" | "PlayerTimedRestriction" | "PlayerLevelRestriction" | "QueueUnsupported" | "QueueDisabled"
+export type LolLobbyEligibilityRestrictionCode = "MmrStandardDeviationTooLarge" | "UserInfoNotAvailable" | "InventoryQueuesInfoNotAvailable" | "InventoryChampsInfoNotAvailable" | "LeaguesInfoNotAvailable" | "SummonerInfoNotAvailable" | "MinorInfoNotAvailable" | "BanInfoNotAvailable" | "TooManyIncompleteSubteamsRestriction" | "QPScarcePositionsNotAvailableRestriction" | "QPNonUniquePrimarySlotRestriction" | "QPInvalidChampionSelectionRestriction" | "QPInvalidPositionSelectionRestriction" | "QPInvalidNumberOfPlayerSlotsRestriction" | "QPPlayerChampionCoverageRestriction" | "QPPartyChampionCoverageRestriction" | "QPPlayerPositionCoverageRestriction" | "QPPartyPositionCoverageRestriction" | "QPPlayerScarcePositionCoverageRestriction" | "MinNormalGamesForRankedRestriction" | "LOLNewPlayerRestriction" | "UnknownRestriction" | "SeasonVersionLockout" | "TFTNewPlayerRestriction" | "QueueEntryNotEntitledRestriction" | "GameVersionNotSupported" | "GameVersionMissing" | "GameVersionMismatch" | "PrerequisiteQueuesNotPlayedRestriction" | "TeamSizeRestriction" | "TeamHighMMRMaxSizeRestriction" | "PlayerRankedSuspensionRestriction" | "PlayerRankSoloOnlyRestriction" | "PlayerTimePlayedRestriction" | "PlayerMinorRestriction" | "PlayerMinLevelRestriction" | "PlayerMaxLevelRestriction" | "PlayerTimeBasedRankRestriction" | "PlayerGameBasedRankRestriction" | "PlayerLeaverTaintedWarningRestriction" | "PlayerLeaverQueueLockoutRestriction" | "PlayerLeaverBustedRestriction" | "PlayerInGameRestriction" | "PlayerDodgeRestriction" | "PlayerBingeRestriction" | "TeamMinSizeRestriction" | "TeamMaxSizeRestriction" | "TeamSkillRestriction" | "TeamDivisionRestriction" | "PlayerAvailableChampionRestriction" | "PlayerBannedRestriction" | "PlayerTimedRestriction" | "PlayerLevelRestriction" | "QueueUnsupported" | "QueueDisabled"
 
 export interface LolLobbyFriendAvailabilityAnalytics {
 	puuid: string
@@ -10800,6 +10832,7 @@ export interface LolLobbyLobbyBotParams {
 	botDifficulty: LolLobbyLobbyBotDifficulty
 	teamId: string
 	position: string
+	botUuid: string
 }
 
 export interface LolLobbyLobbyChangeGameDto {
@@ -11020,6 +11053,7 @@ export interface LolLobbyLobbyMember {
 	/** @format int32 */
 	botChampionId: number
 	position: string
+	botUuid: string
 }
 
 export interface LolLobbyLobbyNotification {
@@ -11057,6 +11091,7 @@ export interface LolLobbyLobbyParticipantDto {
 	intraSubteamPosition?: number
 	tftNPEQueueBypass?: boolean
 	quickplayPlayerState?: string
+	strawberryMapId?: string
 	playerSlots: LolLobbyQuickPlayPresetSlotDto[]
 	ready: boolean
 	showGhostedBanner: boolean
@@ -11071,6 +11106,7 @@ export interface LolLobbyLobbyParticipantDto {
 	/** @format int32 */
 	botChampionId: number
 	botPosition: string
+	botUuid: string
 }
 
 export type LolLobbyLobbyPartyRewardType = "None" | "Icon" | "Ip"
@@ -11552,6 +11588,12 @@ export interface LolLobbyServiceProxyPayload {
 	method: string
 	url: string
 	body: string
+}
+
+export interface LolLobbyStrawberryMapUpdateDto {
+	contentId: string
+	/** @format int32 */
+	itemId: number
 }
 
 export interface LolLobbySubteamDataDto {
@@ -13029,6 +13071,7 @@ export interface LolLootRecipeWithMilestones {
 	outputs: LolLootRecipeOutput[]
 	metadata: LolLootRecipeMetadata
 	singleOpen: boolean
+	hasVisibleLootOdds: boolean
 	lootMilestoneIds: string[]
 }
 
@@ -13935,6 +13978,10 @@ export interface LolMatchHistoryMatchHistoryParticipantStatistics {
 	"playerAugment3": number
 	/** @format int32 */
 	"playerAugment4": number
+	/** @format int32 */
+	"playerAugment5": number
+	/** @format int32 */
+	"playerAugment6": number
 	/** @format int32 */
 	playerSubteamId: number
 	/** @format int32 */
@@ -18069,6 +18116,10 @@ export interface LolReplaysGAMHSParticipantStatistics {
 	/** @format int32 */
 	"playerAugment4": number
 	/** @format int32 */
+	"playerAugment5": number
+	/** @format int32 */
+	"playerAugment6": number
+	/** @format int32 */
 	playerSubteamId: number
 	/** @format int32 */
 	subteamPlacement: number
@@ -18186,13 +18237,13 @@ export interface LolReplaysReplaysConfiguration {
 	isLoggedIn: boolean
 	gameVersion: string
 	minServerVersion: string
-	/** @format double */
+	/** @format int32 */
 	minutesUntilReplayConsideredLost: number
 }
 
 export interface LolReplaysReplaysDynamicConfig {
 	MinSupportedGameServerVersion: string
-	/** @format double */
+	/** @format int32 */
 	MinutesUntilReplayConsideredLost: number
 }
 
