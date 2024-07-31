@@ -323,9 +323,6 @@ export interface LCUEndpoints {
 	"/client-config/v2/namespace/{namespace}/public": {
 		get: { path: [namespace: string], params: never, body: never, response: Record<string, unknown> }
 	},
-	"/config/v1/config": {
-		get: { path: never, params: never, body: never, response: unknown }
-	},
 	"/cookie-jar/v1/cookies": {
 		get: { path: never, params: never, body: never, response: LCUTypes.cookie[] }
 		post: { path: never, params: never, body: LCUTypes.cookie[], response: unknown }
@@ -958,7 +955,7 @@ export interface LCUEndpoints {
 		get: { path: [eventId: string], params: never, body: never, response: number }
 	},
 	"/lol-event-hub/v1/navigation-button-data": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolEventHubNavigationButtonUIData }
+		get: { path: never, params: never, body: never, response: LCUTypes.LolEventHubNavigationButtonUIData[] }
 	},
 	"/lol-event-hub/v1/skins": {
 		get: { path: never, params: never, body: never, response: Record<string, LCUTypes.LolEventHubEventPassInfo> }
@@ -1429,6 +1426,9 @@ export interface LCUEndpoints {
 	"/lol-lobby/v2/registration-status": {
 		get: { path: never, params: never, body: never, response: unknown }
 	},
+	"/lol-lock-and-load/v1/should-wait-for-home-hubs": {
+		get: { path: never, params: never, body: never, response: boolean }
+	},
 	"/lol-login/v1/account-state": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolLoginAccountStateResource }
 		post: { path: never, params: never, body: never, response: void }
@@ -1575,7 +1575,7 @@ export interface LCUEndpoints {
 		get: { path: never, params: { "begIndex"?: number, "endIndex"?: number }, body: never, response: LCUTypes.LolMatchHistoryMatchHistoryList }
 	},
 	"/lol-match-history/v1/products/tft/{puuid}/matches": {
-		get: { path: [puuid: string], params: { "begin"?: number, "count"?: number, "tag"?: string }, body: never, response: LCUTypes.LolMatchHistoryGAMHSMatchHistoryList }
+		get: { path: [puuid: string], params: { "begin"?: number, "count"?: number, "tags"?: string[] }, body: never, response: LCUTypes.LolMatchHistoryGAMHSMatchHistoryList }
 	},
 	"/lol-match-history/v1/recently-played-summoners": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolMatchHistoryRecentlyPlayedSummoner[] }
@@ -1600,6 +1600,9 @@ export interface LCUEndpoints {
 	},
 	"/lol-missions/v1/missions": {
 		get: { path: never, params: never, body: never, response: LCUTypes.PlayerMissionDTO[] }
+	},
+	"/lol-missions/v1/missions/series/{seriesName}": {
+		get: { path: [seriesName: string], params: never, body: never, response: LCUTypes.PlayerMissionDTO[] }
 	},
 	"/lol-missions/v1/series": {
 		get: { path: never, params: never, body: never, response: LCUTypes.SeriesDTO[] }
@@ -1774,6 +1777,9 @@ export interface LCUEndpoints {
 	"/lol-premade-voice/v1/capturedevices": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolPremadeVoiceDeviceResource[] }
 		put: { path: never, params: never, body: string, response: void }
+	},
+	"/lol-premade-voice/v1/devices/capture/permission": {
+		get: { path: never, params: never, body: never, response: boolean }
 	},
 	"/lol-premade-voice/v1/first-experience": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolPremadeVoiceFirstExperience }
@@ -2245,9 +2251,6 @@ export interface LCUEndpoints {
 	},
 	"/lol-tft/v1/tft/battlePassHub": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolTftLolTftBattlePassHub }
-	},
-	"/lol-tft/v1/tft/directToHub": {
-		get: { path: never, params: never, body: never, response: boolean }
 	},
 	"/lol-tft/v1/tft/events": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolTftLolTftEvents }
@@ -3369,9 +3372,6 @@ export interface LCUEndpoints {
 	"/sanitizer/v1/sanitize": {
 		post: { path: never, params: never, body: LCUTypes.SanitizerSanitizeRequest, response: LCUTypes.SanitizerSanitizeResponse }
 	},
-	"/services-api/config/v1/client-config": {
-		post: { path: never, params: never, body: unknown, response: void }
-	},
 	"/telemetry/v1/common-data/{key}": {
 		post: { path: [key: string], params: never, body: string, response: void }
 	},
@@ -3548,9 +3548,6 @@ export interface LCUEndpoints {
 	},
 	"/riotclient/ux-state/ack": {
 		put: { path: never, params: never, body: number, response: void }
-	},
-	"/services-api/game-session/v1/game-session-token": {
-		put: { path: never, params: never, body: string, response: void }
 	},
 	"/Subscribe": {
 		post: { path: never, params: { "eventName": string, "format"?: LCUTypes.RemotingSerializedFormat }, body: never, response: unknown }
