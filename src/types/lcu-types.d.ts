@@ -7404,6 +7404,7 @@ export interface LolEventHubEventInfoUIData {
 	eventName: string
 	eventType: string
 	eventIcon: string
+	navBarIcon: string
 	eventTokenImage: string
 	/** @format int32 */
 	currentTokenBalance: number
@@ -7416,6 +7417,13 @@ export interface LolEventHubEventInfoUIData {
 	isPassPurchased: boolean
 	eventPassBundles: LolEventHubCatalogEntry[]
 	tokenBundles: LolEventHubCatalogEntry[]
+}
+
+export interface LolEventHubEventOverrideData {
+	eventActive: boolean
+	eventStartDate: string
+	eventProgressEndDate: string
+	eventEndDate: string
 }
 
 export interface LolEventHubEventPassInfo {
@@ -7897,6 +7905,7 @@ export interface LolEventHubNavigationButtonUIData {
 	showPip: boolean
 	showGlow: boolean
 	iconPath: string
+	eventName: string
 }
 
 export interface LolEventHubOffer {
@@ -8786,6 +8795,10 @@ export interface LolGameQueuesQueue {
 	removalFromGameAllowed: boolean
 	/** @format int32 */
 	removalFromGameDelayMinutes: number
+	gameSelectModeGroup: string
+	gameSelectCategory: string
+	/** @format uint8 */
+	gameSelectPriority: number
 }
 
 export type LolGameQueuesQueueAvailability = "DoesntMeetRequirements" | "PlatformDisabled" | "Available"
@@ -8861,10 +8874,16 @@ export interface LolGameQueuesQueueReward {
 }
 
 export interface LolGameQueuesQueueTranslation {
+	/** @format int32 */
+	id: number
 	name: string
 	shortName: string
 	description: string
 	detailedDescription: string
+	gameSelectModeGroup: string
+	gameSelectCategory: string
+	/** @format uint8 */
+	gameSelectPriority: number
 }
 
 export interface LolGameSettingsLoginSession {
@@ -9460,6 +9479,7 @@ export interface LolHonorV2EndOfGameStats {
 	/** @format uint64 */
 	gameId: number
 	gameType: string
+	gameMutators: string[]
 	invalid: boolean
 	queueType: string
 	ranked: boolean
@@ -10211,10 +10231,11 @@ export interface LolLeaverBusterLeaverBusterNotificationResource {
 	punishedGamesRemaining: number
 	/** @format uint64 */
 	queueLockoutTimerExpiryUtcMillisDiff: number
+	isWinRequired: boolean
 	fromRms: boolean
 }
 
-export type LolLeaverBusterLeaverBusterNotificationType = "RankedRestrictedGames" | "OnLockoutWarning" | "PreLockoutWarning" | "Reforming" | "PunishedGamesRemaining" | "PunishmentIncurred" | "TaintedWarning" | "Invalid"
+export type LolLeaverBusterLeaverBusterNotificationType = "WinBasedRankedRestrictionsEnabled" | "RankedRestrictedGames" | "OnLockoutWarning" | "PreLockoutWarning" | "Reforming" | "PunishedGamesRemaining" | "PunishmentIncurred" | "TaintedWarning" | "Invalid"
 
 export interface LolLeaverBusterLeaverBusterPenaltyResponse {
 	puuid: string
@@ -10267,6 +10288,7 @@ export interface LolLeaverBusterPlayerNotificationResource {
 export interface LolLeaverBusterRankedRestriction {
 	/** @format int32 */
 	punishedGamesRemaining: number
+	isWinRequired: boolean
 }
 
 export interface LolLeaverBusterRankedRestrictionEntryDto {
@@ -10276,6 +10298,7 @@ export interface LolLeaverBusterRankedRestrictionEntryDto {
 	/** @format int32 */
 	restrictedGamesOriginal: number
 	rankedRestrictionAckNeeded: boolean
+	winRequired: boolean
 }
 
 export interface LolLeaverBusterRankedRestrictionGamesUpdate {
@@ -10286,6 +10309,7 @@ export interface LolLeaverBusterRankedRestrictionGamesUpdate {
 export interface LolLeaverBusterRankedRestrictionInfo {
 	/** @format int32 */
 	punishedGamesRemaining: number
+	isWinRequired: boolean
 	needsAck: boolean
 }
 
@@ -10630,6 +10654,14 @@ export interface LolLobbyEligibilityRestriction {
 }
 
 export type LolLobbyEligibilityRestrictionCode = "MmrStandardDeviationTooLarge" | "UserInfoNotAvailable" | "InventoryQueuesInfoNotAvailable" | "InventoryChampsInfoNotAvailable" | "LeaguesInfoNotAvailable" | "SummonerInfoNotAvailable" | "MinorInfoNotAvailable" | "BanInfoNotAvailable" | "TooManyIncompleteSubteamsRestriction" | "QPScarcePositionsNotAvailableRestriction" | "QPNonUniquePrimarySlotRestriction" | "QPInvalidChampionSelectionRestriction" | "QPInvalidPositionSelectionRestriction" | "QPInvalidNumberOfPlayerSlotsRestriction" | "QPPlayerChampionCoverageRestriction" | "QPPartyChampionCoverageRestriction" | "QPPlayerPositionCoverageRestriction" | "QPPartyPositionCoverageRestriction" | "QPPlayerScarcePositionCoverageRestriction" | "MinNormalGamesForRankedRestriction" | "LOLNewPlayerRestriction" | "UnknownRestriction" | "SeasonVersionLockout" | "TFTNewPlayerRestriction" | "QueueEntryNotEntitledRestriction" | "GameVersionNotSupported" | "GameVersionMissing" | "GameVersionMismatch" | "PrerequisiteQueuesNotPlayedRestriction" | "TeamSizeRestriction" | "TeamHighMMRMaxSizeRestriction" | "PlayerRankedSuspensionRestriction" | "PlayerRankSoloOnlyRestriction" | "PlayerTimePlayedRestriction" | "PlayerMinorRestriction" | "PlayerMinLevelRestriction" | "PlayerMaxLevelRestriction" | "PlayerTimeBasedRankRestriction" | "PlayerGameBasedRankRestriction" | "PlayerLeaverTaintedWarningRestriction" | "PlayerLeaverQueueLockoutRestriction" | "PlayerLeaverBustedRestriction" | "PlayerInGameRestriction" | "PlayerDodgeRestriction" | "PlayerBingeRestriction" | "TeamMinSizeRestriction" | "TeamMaxSizeRestriction" | "TeamSkillRestriction" | "TeamDivisionRestriction" | "PlayerAvailableChampionRestriction" | "PlayerBannedRestriction" | "PlayerTimedRestriction" | "PlayerLevelRestriction" | "QueueUnsupported" | "QueueDisabled"
+
+export interface LolLobbyEntitlementsTokenResource {
+	accessToken: string
+	token: string
+	subject: string
+	issuer: string
+	entitlements: string[]
+}
 
 export interface LolLobbyFriendAvailabilityAnalytics {
 	puuid: string
@@ -11403,6 +11435,10 @@ export interface LolLobbyPremadeRelationshipAnalytics {
 	eventTimestamp: number
 	premadePlayers: string[]
 	friendPlayers: string[]
+}
+
+export interface LolLobbyProductStateDto {
+	isUpToDate: boolean
 }
 
 export interface LolLobbyQueue {
@@ -13403,6 +13439,7 @@ export interface LolMapsMaps {
 	properties: unknown
 	perPositionRequiredSummonerSpells: Record<string, LolMapsGameModeSpellList>
 	perPositionDisallowedSummonerSpells: Record<string, LolMapsGameModeSpellList>
+	tftSetOverride: string
 }
 
 export interface LolMapsTutorialCard {
@@ -17686,6 +17723,7 @@ export interface LolRegaliaRegaliaFrontendConfig {
 export interface LolRegaliaRegaliaInventoryItem {
 	items: LolRegaliaGameDataRegalia[]
 	isOwned: boolean
+	purchaseDate: string
 }
 
 export interface LolRegaliaRegaliaLoadout {
@@ -20703,7 +20741,6 @@ export interface LolTftPassTFTPassAsset {
 }
 
 export interface LolTftPassTFTPassClientConfig {
-	enabled: boolean
 	battlePassId: string
 	eventPassId: string
 	dailyLoginPassId: string
@@ -20920,11 +20957,13 @@ export interface LolTftTeamPlannerTFTMapSetData {
 
 export interface LolTftTeamPlannerTFTModeData {
 	mDefaultSet: LolTftTeamPlannerTFTMapSetData
+	mEventSet: LolTftTeamPlannerTFTMapSetData
 }
 
 export interface LolTftTeamPlannerTFTTeamPlannerConfig {
 	enabled: boolean
 	multipleSetsEnabled: boolean
+	multipleTeamsEnabled: boolean
 }
 
 export interface LolTftTeamPlannerTeamPlan {
@@ -22023,6 +22062,10 @@ export interface LolYourshopXboxSubscriptionStatus {
 
 export interface LolYourshopYourshopConfig {
 	Active: boolean
+	/** @format double */
+	activationSpreadSeconds: number
+	/** @format double */
+	firstActivationThresholdSeconds: number
 	ThemedBackground: boolean
 	PromotionName: string
 	PromotionStartDate: string
