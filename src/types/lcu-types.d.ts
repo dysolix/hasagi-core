@@ -1149,6 +1149,7 @@ export interface LcdsPlayerGcoTokens {
 	idToken: string
 	summonerToken: string
 	userInfoJwt: string
+	entitlementsToken: string
 }
 
 export interface LcdsPlayerParticipant {
@@ -1549,85 +1550,6 @@ export interface LolBannersTournamentFrameInventoryItem {
 	payload: LolBannersCapClashFrameEntitlementPayload
 	purchaseDate: string
 }
-
-export type LolCareerStatsCareerStatsQueueType = "other" | "quickplay5" | "rank3flex" | "blind3" | "aram" | "blind5" | "rank5solo" | "rank5flex" | "draft5"
-
-export interface LolCareerStatsChampionQueueStatsResponse {
-	/** @format int32 */
-	championId: number
-	queueType: LolCareerStatsCareerStatsQueueType
-	position: LolCareerStatsSummonersRiftPosition
-	rankTier: string
-	stats: unknown
-}
-
-export interface LolCareerStatsChampionStatistics {
-	/** @format int32 */
-	championId: number
-	experts: LolCareerStatsExpertPlayer[]
-	queueStats: LolCareerStatsStatisticsByQueue[]
-}
-
-export interface LolCareerStatsEntitlementsToken {
-	entitlements: string[]
-}
-
-export interface LolCareerStatsExpertPlayer {
-	/** @format int32 */
-	championId: number
-	position: LolCareerStatsSummonersRiftPosition
-	/** @format uint64 */
-	summonerId: number
-	summonerName: string
-	/** @format int32 */
-	numOfGames: number
-	/** @format float */
-	winRate: number
-	/** @format int32 */
-	expertRank: number
-}
-
-export interface LolCareerStatsPositionStatistics {
-	position: LolCareerStatsSummonersRiftPosition
-	experts: LolCareerStatsExpertPlayer[]
-	queueStats: LolCareerStatsStatisticsByQueue[]
-}
-
-export interface LolCareerStatsPositionStatsQueryRequest {
-	queueType: LolCareerStatsCareerStatsQueueType
-	position: LolCareerStatsSummonersRiftPosition
-	rankTier: string
-	/** @format uint32 */
-	season: number
-}
-
-export interface LolCareerStatsStatisticsByQueue {
-	queueType: LolCareerStatsCareerStatsQueueType
-	stats: unknown
-}
-
-export interface LolCareerStatsStatisticsPercentilesResponse {
-	/** @format int32 */
-	championId: number
-	queueType: LolCareerStatsCareerStatsQueueType
-	position: LolCareerStatsSummonersRiftPosition
-	rankTier: string
-	/** @format uint32 */
-	season: number
-	stats: unknown
-}
-
-export interface LolCareerStatsStatsQueryRequest {
-	/** @format int32 */
-	championId: number
-	queueType: LolCareerStatsCareerStatsQueueType
-	position: LolCareerStatsSummonersRiftPosition
-	rankTier: string
-	/** @format uint32 */
-	season: number
-}
-
-export type LolCareerStatsSummonersRiftPosition = "SUPPORT" | "BOTTOM" | "MID" | "JUNGLE" | "TOP" | "UNKNOWN" | "ALL"
 
 export interface LolCatalogBundled {
 	flexible: boolean
@@ -6495,7 +6417,6 @@ export interface LolEndOfGameChampionMasteryUpdate {
 	score: number
 	levelUpList: LolEndOfGameChampionMasteryMini[]
 	memberGrades: LolEndOfGameChampionMasteryGrade[]
-	mvpPuuid: string
 }
 
 export interface LolEndOfGameEndOfGamePlayer {
@@ -7908,6 +7829,14 @@ export interface LolEventHubNavigationButtonUIData {
 	eventName: string
 }
 
+export interface LolEventHubNextRewardUIData {
+	thumbIconPath: string
+	state: LolEventHubRewardTrackItemHeaderType
+	name: string
+	description: string
+	level: string
+}
+
 export interface LolEventHubOffer {
 	id: string
 	localizedTitle: string
@@ -8440,6 +8369,16 @@ export interface LolEventHubTokenUpsell {
 }
 
 export type LolEventHubTokenUpsellLockedType = "UNLOCKED" | "LOCKED" | "UNASSIGNED"
+
+export interface LolEventHubTrackProgressNextReward {
+	/** @format int64 */
+	currentXP: number
+	/** @format int64 */
+	nextLevelXP: number
+	/** @format int64 */
+	currentLevel: number
+	nextReward: LolEventHubNextRewardUIData
+}
 
 export interface LolEventHubTransaction {
 	transactionId: string
@@ -9429,19 +9368,18 @@ export interface LolHonorV2ApiHonorPlayerServerRequest {
 }
 
 export interface LolHonorV2ApiHonorPlayerServerRequestV3 {
-	puuid: string
+	recipientPuuid: string
 	honorType: string
 }
 
 export interface LolHonorV2ApiSubmitBallotRequest {
-	honoredPlayers: LolHonorV2ApiHonorPlayerServerRequestV3[]
+	honorRequests: LolHonorV2ApiHonorPlayerServerRequestV3[]
 }
 
 export interface LolHonorV2Ballot {
 	eligibleAllies: LolHonorV2EligiblePlayer[]
 	eligibleOpponents: LolHonorV2EligiblePlayer[]
-	/** @format uint32 */
-	numVotes: number
+	votePool: LolHonorV2VotePool
 	/** @format uint64 */
 	gameId: number
 	honoredPlayers: LolHonorV2ApiHonorPlayerServerRequestV3[]
@@ -9460,6 +9398,7 @@ export interface LolHonorV2EligiblePlayer {
 	summonerName: string
 	championName: string
 	skinSplashPath: string
+	role: string
 }
 
 export interface LolHonorV2EndOfGamePlayer {
@@ -9473,6 +9412,7 @@ export interface LolHonorV2EndOfGamePlayer {
 	summonerId: number
 	skinSplashPath: string
 	championName: string
+	detectedTeamPosition: string
 }
 
 export interface LolHonorV2EndOfGameStats {
@@ -9635,6 +9575,19 @@ export interface LolHonorV2VoteCompletion {
 	/** @format uint64 */
 	gameId: number
 	fullTeamVote: boolean
+}
+
+export interface LolHonorV2VotePool {
+	/** @format int32 */
+	votes: number
+	/** @format int32 */
+	fromGamePlayed: number
+	/** @format int32 */
+	fromHighHonor: number
+	/** @format int32 */
+	fromRecentHonors: number
+	/** @format int32 */
+	fromRollover: number
 }
 
 export interface LolHovercardAlias {
@@ -10653,7 +10606,7 @@ export interface LolLobbyEligibilityRestriction {
 	summonerIdsString: string
 }
 
-export type LolLobbyEligibilityRestrictionCode = "MmrStandardDeviationTooLarge" | "UserInfoNotAvailable" | "InventoryQueuesInfoNotAvailable" | "InventoryChampsInfoNotAvailable" | "LeaguesInfoNotAvailable" | "SummonerInfoNotAvailable" | "MinorInfoNotAvailable" | "BanInfoNotAvailable" | "TooManyIncompleteSubteamsRestriction" | "QPScarcePositionsNotAvailableRestriction" | "QPNonUniquePrimarySlotRestriction" | "QPInvalidChampionSelectionRestriction" | "QPInvalidPositionSelectionRestriction" | "QPInvalidNumberOfPlayerSlotsRestriction" | "QPPlayerChampionCoverageRestriction" | "QPPartyChampionCoverageRestriction" | "QPPlayerPositionCoverageRestriction" | "QPPartyPositionCoverageRestriction" | "QPPlayerScarcePositionCoverageRestriction" | "MinNormalGamesForRankedRestriction" | "LOLNewPlayerRestriction" | "UnknownRestriction" | "SeasonVersionLockout" | "TFTNewPlayerRestriction" | "QueueEntryNotEntitledRestriction" | "GameVersionNotSupported" | "GameVersionMissing" | "GameVersionMismatch" | "PrerequisiteQueuesNotPlayedRestriction" | "TeamSizeRestriction" | "TeamHighMMRMaxSizeRestriction" | "PlayerRankedSuspensionRestriction" | "PlayerRankSoloOnlyRestriction" | "PlayerTimePlayedRestriction" | "PlayerMinorRestriction" | "PlayerMinLevelRestriction" | "PlayerMaxLevelRestriction" | "PlayerTimeBasedRankRestriction" | "PlayerGameBasedRankRestriction" | "PlayerLeaverTaintedWarningRestriction" | "PlayerLeaverQueueLockoutRestriction" | "PlayerLeaverBustedRestriction" | "PlayerInGameRestriction" | "PlayerDodgeRestriction" | "PlayerBingeRestriction" | "TeamMinSizeRestriction" | "TeamMaxSizeRestriction" | "TeamSkillRestriction" | "TeamDivisionRestriction" | "PlayerAvailableChampionRestriction" | "PlayerBannedRestriction" | "PlayerTimedRestriction" | "PlayerLevelRestriction" | "QueueUnsupported" | "QueueDisabled"
+export type LolLobbyEligibilityRestrictionCode = "MmrStandardDeviationTooLarge" | "UserInfoNotAvailable" | "InventoryQueuesInfoNotAvailable" | "InventoryChampsInfoNotAvailable" | "LeaguesInfoNotAvailable" | "SummonerInfoNotAvailable" | "MinorInfoNotAvailable" | "BanInfoNotAvailable" | "TooManyIncompleteSubteamsRestriction" | "QPScarcePositionsNotAvailableRestriction" | "QPNonUniquePrimarySlotRestriction" | "QPInvalidChampionSelectionRestriction" | "QPInvalidPositionSelectionRestriction" | "QPInvalidNumberOfPlayerSlotsRestriction" | "QPPlayerChampionCoverageRestriction" | "QPPartyChampionCoverageRestriction" | "QPPlayerPositionCoverageRestriction" | "QPPartyPositionCoverageRestriction" | "QPPlayerScarcePositionCoverageRestriction" | "MinNormalGamesForRankedRestriction" | "LOLNewPlayerRestriction" | "UnknownRestriction" | "SeasonVersionLockout" | "TFTNewPlayerRestriction" | "QueueEntryNotEntitledRestriction" | "GameVersionNotSupported" | "GameVersionMissing" | "GameVersionMismatch" | "PrerequisiteQueuesNotPlayedRestriction" | "TeamSizeRestriction" | "TeamHighMMRMaxSizeRestriction" | "PlayerRankedSuspensionRestriction" | "PlayerRankSoloOnlyRestriction" | "PlayerTimePlayedRestriction" | "PlayerMinorRestriction" | "PlayerMinLevelRestriction" | "PlayerMaxLevelRestriction" | "PlayerTimeBasedRankRestriction" | "PlayerGameBasedRankRestriction" | "PlayerLeaverTaintedWarningRestriction" | "PlayerLeaverQueueLockoutRestriction" | "PlayerLeaverBustedRestriction" | "PlayerInGameRestriction" | "PlayerReadyCheckFailRestriction" | "PlayerDodgeRestriction" | "PlayerBingeRestriction" | "TeamMinSizeRestriction" | "TeamMaxSizeRestriction" | "TeamSkillRestriction" | "TeamDivisionRestriction" | "PlayerAvailableChampionRestriction" | "PlayerBannedRestriction" | "PlayerTimedRestriction" | "PlayerLevelRestriction" | "QueueUnsupported" | "QueueDisabled"
 
 export interface LolLobbyEntitlementsTokenResource {
 	accessToken: string
@@ -11946,12 +11899,22 @@ export interface LolLobbyTeamBuilderGameflowGameClient {
 	running: boolean
 }
 
+export interface LolLobbyTeamBuilderGameflowGameData {
+	queue: LolLobbyTeamBuilderGameflowQueue
+}
+
 export interface LolLobbyTeamBuilderGameflowGameMap {
 	perPositionRequiredSummonerSpells: Record<string, LolLobbyTeamBuilderGameModeSpellList>
 	perPositionDisallowedSummonerSpells: Record<string, LolLobbyTeamBuilderGameModeSpellList>
 }
 
+export interface LolLobbyTeamBuilderGameflowQueue {
+	/** @format int32 */
+	id: number
+}
+
 export interface LolLobbyTeamBuilderGameflowSession {
+	gameData: LolLobbyTeamBuilderGameflowGameData
 	gameClient: LolLobbyTeamBuilderGameflowGameClient
 	map: LolLobbyTeamBuilderGameflowGameMap
 }
@@ -18908,12 +18871,19 @@ export interface LolSpectatorSpectatorConfig {
 	isEnabled: boolean
 	isSpectatorDelayConfigurable: boolean
 	isBracketSpectatingEnabled: boolean
+	isUsingClientConfigForSpectator: boolean
 	spectatableQueues: number[]
 }
 
 export interface LolSpectatorSpectatorDynamicConfiguration {
 	isEnabled: boolean
 	isSpectatorDelayConfigurable: boolean
+	isUsingOperationalConfig: boolean
+}
+
+export interface LolSpectatorSpectatorOperationalConfiguration {
+	enabled: boolean
+	enforceGridSpectating: boolean
 }
 
 export interface LolSpectatorSummonerIdAvailability {
@@ -20744,6 +20714,7 @@ export interface LolTftPassTFTPassClientConfig {
 	battlePassId: string
 	eventPassId: string
 	dailyLoginPassId: string
+	skillTreePassId: string
 }
 
 export interface LolTftPassTFTPassDTO {
@@ -20968,6 +20939,12 @@ export interface LolTftTeamPlannerTFTTeamPlannerConfig {
 
 export interface LolTftTeamPlannerTeamPlan {
 	champions: LolTftTeamPlannerChampion[]
+	id: string
+	title: string
+	/** @format uint64 */
+	timeOfCreationInMs: number
+	/** @format uint64 */
+	timeOfLastViewInMs: number
 	setName: string
 }
 

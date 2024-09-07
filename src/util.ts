@@ -9,9 +9,10 @@ export type LCUCredentials = {
 }
 
 /**
+ * Easiest way to retrieve credentials
  * @param lockfile Required if source="lockfile". Can either be the absolute path to the lockfile or it's content.
  */
-export async function getPortAndBasicAuthToken(source: "process" | "lockfile" = "process", lockfile?: string): Promise<LCUCredentials> {
+export async function getCredentials(source: "process" | "lockfile" = "process", lockfile?: string): Promise<LCUCredentials> {
     if (source === "process") {
         if (process.platform !== "win32")
             throw new Error(`Authentication strategy 'process' is not supported on this platform. (${process.platform})`);
@@ -34,11 +35,11 @@ export async function getPortAndBasicAuthToken(source: "process" | "lockfile" = 
             });
         }
 
-        return getPortAndBasicAuthTokenFromLockfile(lockfileContent);
+        return getCredentialsFromLockfileContent(lockfileContent);
     }
 }
 
-function getPortAndBasicAuthTokenFromLockfile(lockfileContent: string) {
+function getCredentialsFromLockfileContent(lockfileContent: string): LCUCredentials {
     if (!/^LeagueClient:\d+:\d+:.+:https$/.test(lockfileContent))
         throw new Error(`Lockfile does not have the expected schema. (/^LeagueClient:\\d+:\\d+:.+:https$/)`);
 
@@ -54,7 +55,7 @@ function getPortAndBasicAuthTokenFromLockfile(lockfileContent: string) {
 }
 
 /** Returns the process ids of all LeagueClientUx processes */
-export function getLeagueClientUxProcesses() {
+export function getLeagueClientUxProcesses(): Promise<number[]> {
     return new Promise<number[]>((resolve, reject) => {
         exec(`(Get-CimInstance Win32_Process -Filter "Name='LeagueClientUx.exe'").ProcessId`, { shell: "powershell.exe", windowsHide: true }, (err, stdout, stderr) => {
             if (err || stderr)
