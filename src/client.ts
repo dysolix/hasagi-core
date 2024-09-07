@@ -1,12 +1,120 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import { Agent } from "https";
 import { WebSocket } from "ws";
-import { LCUCredentials, MaybePromise, delay, getPortAndBasicAuthToken } from "./util.js";
+import { LCUCredentials, MaybePromise, delay, getCredentials } from "./util.js";
 import { TypedEmitter } from "tiny-typed-emitter";
 import RIOT_GAMES_CERTIFICATE from "./riot-games-certificate.js";
 import { EndpointsWithMethod, HttpMethod, LCUEndpoint, LCUEndpointResponseType, LCUEndpoints } from "./types/lcu-endpoints.js";
 import { LCUError, NotConnectedError, RequestError } from "./errors.js";
 import { LCUWebSocketEvents } from "./types/lcu-events.js";
+
+/**
+ * Authorization and port will automatically be set using the provided credentials. Certificate validation is disabled.
+ * @param credentials Port and password. You can use the `getCredentials` function to get them.
+ */
+async function request<ReturnAxiosResponse extends boolean = false>(credentials: LCUCredentials, config: AxiosRequestConfig & { returnAxiosResponse?: ReturnAxiosResponse, retryOptions?: RequestRetryOptions }): Promise<ReturnAxiosResponse extends true ? AxiosResponse<unknown> : unknown>;
+async function request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(credentials: LCUCredentials, method: Method, path: Path, ...options: LCURequestOptionsParameter<Method, Path>): Promise<LCUEndpointResponseType<Method, Path>>;
+async function request() {
+    const credentials: LCUCredentials = arguments[0];
+    let axiosConfig: AxiosRequestConfig;
+    let returnAxiosResponse = false;
+
+    let retryOptions: RequestRetryOptions = {
+        maxRetries: 0,
+        retryDelay: 1000,
+        noRetryStatusCodes: [400]
+    };
+
+    if (arguments.length === 2) {
+        axiosConfig = arguments[1] as AxiosRequestConfig;
+        if (axiosConfig.data !== undefined)
+            axiosConfig.headers = { "Content-Type": "application/json", ...axiosConfig.headers };
+
+        if (arguments[1].returnAxiosResponse)
+            returnAxiosResponse = true;
+
+        if (arguments[1].retryOptions)
+            retryOptions = arguments[1].retryOptions;
+    } else {
+        const method = arguments[1] as string;
+        let path = arguments[2] as string;
+        const _config = arguments[3] as LCURequestOptions<string, string> | undefined;
+
+        // Replace path parameters
+        if (_config && "path" in _config) {
+            Object.entries(_config.path as Record<string, string>).forEach(([key, value]) => {
+                path = path.replace(`{${key}}`, value);
+            });
+        }
+
+        axiosConfig = {
+            method,
+            url: path,
+            data: _config?.body,
+            params: _config?.query,
+            headers: {
+                "Content-Type": _config?.body !== undefined ? "application/json" : undefined,
+                ..._config?.headers
+            }
+        }
+
+        returnAxiosResponse = false;
+
+        if (_config?.retryOptions)
+            retryOptions = _config.retryOptions;
+    }
+
+    const maxAttempts = retryOptions.maxRetries + 1;
+    const retryDelay = retryOptions.retryDelay;
+    const noRetryStatusCodes = retryOptions?.noRetryStatusCodes ?? [400];
+
+    let errors: any[] = [];
+    const finalAxiosConfig: AxiosRequestConfig = {
+        ...axiosConfig,
+        baseURL: `https://127.0.0.1:${credentials.port}`,
+        auth: {
+            username: "riot",
+            password: credentials.password
+        },
+        httpsAgent: new Agent({ rejectUnauthorized: false })
+    }
+    while (errors.length < maxAttempts) {
+        try {
+            const axiosResponse = await axios.request(finalAxiosConfig).catch(err => {
+                if (err instanceof AxiosError && err.response)
+                    throw new LCUError(err);
+
+                throw new RequestError(err);
+            });
+
+            if (returnAxiosResponse)
+                return axiosResponse;
+
+            return axiosResponse.data;
+        } catch (err) {
+            errors.push(err);
+
+            if (err instanceof LCUError && noRetryStatusCodes.includes(err.statusCode))
+                if (errors.length === 1)
+                    throw err;
+                else
+                    throw new AggregateError(errors, `Request failed after ${errors.length} attempts.`);
+
+            if (errors.length >= maxAttempts) {
+                if (errors.length === 1)
+                    throw err;
+                else
+                    throw new AggregateError(errors, `Request failed after ${errors.length} attempts.`);
+            }
+
+            await delay(retryDelay);
+        }
+    }
+
+    throw new Error("An unknown error occurred. Please report this issue to the developer."); // Should never be reached
+}
+
+export { request }
 
 export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
     public isConnected: boolean = false;
@@ -120,7 +228,7 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
                 this.emit("connecting");
 
                 try {
-                    const authData = authenticationStrategy === "process" ? await getPortAndBasicAuthToken("process") : await getPortAndBasicAuthToken("lockfile", lockfile!);
+                    const authData = authenticationStrategy === "process" ? await getCredentials("process") : await getCredentials("lockfile", lockfile!);
 
                     this.processId = authData.processId ?? null;
                     this.port = authData.port;
@@ -155,7 +263,7 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
             let resolve: any;
             const webSocketConnectionPromise = new Promise(res => resolve = res);
 
-            this.webSocket = new WebSocket(("wss://127.0.0.1:" + this.port), undefined, { headers: { Authorization: "Basic " + this.basicAuthToken }, ...agent });
+            this.webSocket = new WebSocket("wss://127.0.0.1:" + this.port, undefined, { headers: { Authorization: "Basic " + this.basicAuthToken }, ...agent });
             this.webSocket.onopen = async (ev) => {
                 while (this.webSocket?.readyState !== WebSocket.OPEN) // TODO Check if this is still needed
                     await delay(250);
