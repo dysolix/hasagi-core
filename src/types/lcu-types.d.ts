@@ -6274,6 +6274,9 @@ export interface LolDropsCapDropsDropTableDisplayMetadata {
 	/** @format uint8 */
 	version: number
 	chaseContentId: string
+	chaseContentIds: string[]
+	prestigeContentIds: string[]
+	bountyType: string
 	oddsTree: LolDropsCapDropsOddsTreeNodeDTO
 }
 
@@ -6301,12 +6304,14 @@ export interface LolDropsCapDropsDropTableWithPityDTO {
 export interface LolDropsCapDropsOddsListEntryDTO {
 	contentId: string
 	nodeId: string
+	sourceId: string
 	/** @format float */
 	odds: number
 }
 
 export interface LolDropsCapDropsOddsTreeNodeDTO {
 	nodeId: string
+	sourceId: string
 	/** @format float */
 	odds: number
 	children: LolDropsCapDropsOddsTreeNodeDTO[]
@@ -6804,6 +6809,7 @@ export interface LolEndOfGameTFTEndOfGameItemViewModel {
 }
 
 export interface LolEndOfGameTFTEndOfGamePieceViewModel {
+	championId: string
 	name: string
 	icon: string
 	/** @format uint32 */
@@ -6848,6 +6854,19 @@ export interface LolEndOfGameTFTEndOfGamePlayerViewModel {
 	setCoreName: string
 }
 
+export interface LolEndOfGameTFTEndOfGameSkillScoreTreeViewModel {
+	/** @format uint16 */
+	skillId: number
+	/** @format int16 */
+	score: number
+}
+
+export interface LolEndOfGameTFTEndOfGameSkillTreeViewModel {
+	eventSkillToScore: LolEndOfGameTFTEndOfGameSkillScoreTreeViewModel[]
+	/** @format int16 */
+	delta: number
+}
+
 export interface LolEndOfGameTFTEndOfGameTraitViewModel {
 	id: string
 	name: string
@@ -6856,6 +6875,7 @@ export interface LolEndOfGameTFTEndOfGameTraitViewModel {
 export interface LolEndOfGameTFTEndOfGameViewModel {
 	players: LolEndOfGameTFTEndOfGamePlayerViewModel[]
 	localPlayer?: LolEndOfGameTFTEndOfGamePlayerViewModel
+	playerSkillTreeEoG?: LolEndOfGameTFTEndOfGameSkillTreeViewModel
 	/** @format uint32 */
 	gameLength: number
 	/** @format uint64 */
@@ -8738,6 +8758,7 @@ export interface LolGameQueuesQueue {
 	gameSelectCategory: string
 	/** @format uint8 */
 	gameSelectPriority: number
+	isSkillTreeQueue: boolean
 }
 
 export type LolGameQueuesQueueAvailability = "DoesntMeetRequirements" | "PlatformDisabled" | "Available"
@@ -8823,6 +8844,7 @@ export interface LolGameQueuesQueueTranslation {
 	gameSelectCategory: string
 	/** @format uint8 */
 	gameSelectPriority: number
+	isSkillTreeQueue: boolean
 }
 
 export interface LolGameSettingsLoginSession {
@@ -9169,188 +9191,6 @@ export interface LolHighlightsHighlightsSettingsResource {
 	data: LolHighlightsHighlightsSettingsData
 }
 
-export interface LolHoneyfruitAccountClaimStatus {
-	linking_status?: LolHoneyfruitHoneyfruitLinkingServiceResponse
-	migration_status?: string
-}
-
-export interface LolHoneyfruitAccountDetails {
-	puuid: string
-	platformId: string
-	summonerName: string
-	/** @format int32 */
-	summonerIconId: number
-	/** @format uint32 */
-	summonerLevel: number
-}
-
-export interface LolHoneyfruitGAMHSMatchHistoryData {
-	[key: string | number]: any
-}
-
-export interface LolHoneyfruitGAMHSMatchHistoryList {
-	games: LolHoneyfruitGAMHSMatchHistoryData[]
-	active_puuid: string
-}
-
-export type LolHoneyfruitGameflowPhase = "TerminatedInError" | "EndOfGame" | "PreEndOfGame" | "WaitingForStats" | "Reconnect" | "InProgress" | "FailedToLaunch" | "GameStart" | "ChampSelect" | "ReadyCheck" | "CheckedIntoTournament" | "Matchmaking" | "Lobby" | "None"
-
-export interface LolHoneyfruitGarenaRegionLeagueAccount {
-	garena_puuid: string
-	platform_id: string
-	summoner_name: string
-	/** @format uint32 */
-	summoner_level: number
-	/** @format int32 */
-	summoner_icon_id: number
-	/** @format uint64 */
-	garena_id: number
-	is_reserved_summoner_name: boolean
-	has_played_a_game: boolean
-}
-
-export type LolHoneyfruitHoneyfruitActionType = "link" | "dismiss_permanently" | "dismiss_temporarily" | "dismiss"
-
-export interface LolHoneyfruitHoneyfruitAuthRedirectMock {
-	/** @format uint32 */
-	redirectLatency: number
-	/** @format uint32 */
-	redirectStatusCode: number
-	redirectURL: string
-}
-
-export interface LolHoneyfruitHoneyfruitLinkingAction {
-	action: LolHoneyfruitHoneyfruitActionType
-	target: string
-}
-
-export type LolHoneyfruitHoneyfruitLinkingFailureReason = "UNHANDLED_SERVER_SIDE_ERROR" | "REQUEST_FAILURE" | "NOT_LINKED" | "DISABLED" | "DEGRADED" | "BAD_AUTHORIZATION_PARAM" | "ACCESS_TOKEN_EXPIRED" | "ALREADY_LINKED"
-
-export interface LolHoneyfruitHoneyfruitLinkingNotification {
-	linkedAccount: string
-}
-
-export interface LolHoneyfruitHoneyfruitLinkingServiceResponse {
-	eligible: boolean
-	reason_code: LolHoneyfruitHoneyfruitLinkingFailureReason
-	email: string
-	account_details?: LolHoneyfruitGarenaRegionLeagueAccount
-}
-
-export type LolHoneyfruitHoneyfruitLinkingState = "linked" | "linking_complete" | "in_progress" | "error" | "confirm_snooze" | "prompt" | "snoozed" | "hidden"
-
-export interface LolHoneyfruitHoneyfruitLinkingStatus {
-	state: LolHoneyfruitHoneyfruitLinkingState
-	linkedAccount: string
-	error: LolHoneyfruitHoneyfruitLinkingStatusError
-}
-
-export type LolHoneyfruitHoneyfruitLinkingStatusError = "unknown_error" | "service_unavailable" | "not_signed_in" | "no_error"
-
-export type LolHoneyfruitHoneyfruitPublisher = "vng" | "twm" | "tencent" | "riot" | "garena"
-
-export interface LolHoneyfruitHoneyfruitRegionLocale {
-	region: string
-	locale: string
-}
-
-export interface LolHoneyfruitHoneyfruitSettingCategoryResource {
-	/** @format uint32 */
-	schemaVersion: number
-	data: LolHoneyfruitHoneyfruitSettings
-}
-
-export interface LolHoneyfruitHoneyfruitSettingCategoryResourceAccountClaim {
-	/** @format uint32 */
-	schemaVersion: number
-	data: LolHoneyfruitHoneyfruitSettingsAccountClaim
-}
-
-export interface LolHoneyfruitHoneyfruitSettings {
-	/** @format uint64 */
-	snoozeUntilMS: number
-	isSnoozedPermanently: boolean
-}
-
-export interface LolHoneyfruitHoneyfruitSettingsAccountClaim {
-	isAccountClaimAutoDismiss: boolean
-}
-
-export interface LolHoneyfruitHoneyfruitVNGPublisherSettings {
-	visible: boolean
-}
-
-export interface LolHoneyfruitMatchHistoryGame {
-	[key: string | number]: any
-}
-
-export interface LolHoneyfruitMatchHistoryGameList {
-	/** @format uint64 */
-	gameIndexBegin: number
-	/** @format uint64 */
-	gameIndexEnd: number
-	gameBeginDate: string
-	gameEndDate: string
-	/** @format uint64 */
-	gameCount: number
-	games: LolHoneyfruitMatchHistoryGame[]
-}
-
-export interface LolHoneyfruitMatchHistoryList {
-	platformId: string
-	/** @format uint64 */
-	accountId: number
-	games: LolHoneyfruitMatchHistoryGameList
-}
-
-export interface LolHoneyfruitSummoner {
-	/** @format uint64 */
-	summonerId: number
-	/** @format uint64 */
-	accountId: number
-	displayName: string
-	internalName: string
-	/** @format int32 */
-	profileIconId: number
-	/** @format uint32 */
-	summonerLevel: number
-	/** @format uint64 */
-	xpSinceLastLevel: number
-	/** @format uint64 */
-	xpUntilNextLevel: number
-	/** @format uint32 */
-	percentCompleteForNextLevel: number
-	puuid: string
-	nameChangeFlag: boolean
-	unnamed: boolean
-}
-
-export interface LolHoneyfruitV1AuthenticationRedirectInput {
-	redirect_uri: string
-	language: string
-}
-
-export interface LolHoneyfruitV1AuthenticationResponse {
-	type: LolHoneyfruitV1ResponseType
-	success: LolHoneyfruitV1SuccessResponseDetails
-	country: string
-	error: string
-}
-
-export type LolHoneyfruitV1ResponseType = "error" | "success" | "multifactor" | "signup" | "healup" | "auth"
-
-export interface LolHoneyfruitV1SuccessResponseDetails {
-	login_token: string
-	redirect_url: string
-	linked: string
-}
-
-export interface LolHoneyfruitVNGStatusResponse {
-	action_required: boolean
-	action_url: string
-	action_url_raw: string
-}
-
 export interface LolHonorV2AccountIdAndSummonerId {
 	/** @format uint64 */
 	accountId: number
@@ -9399,6 +9239,7 @@ export interface LolHonorV2EligiblePlayer {
 	championName: string
 	skinSplashPath: string
 	role: string
+	botPlayer: boolean
 }
 
 export interface LolHonorV2EndOfGamePlayer {
@@ -9492,6 +9333,14 @@ export interface LolHonorV2LoginSession {
 }
 
 export type LolHonorV2LoginSessionStates = "ERROR" | "LOGGING_OUT" | "SUCCEEDED" | "IN_PROGRESS"
+
+export interface LolHonorV2Mail {
+	mailId: string
+	message: string
+	state: string
+	/** @format uint64 */
+	createdAt: number
+}
 
 export interface LolHonorV2MutualHonor {
 	/** @format uint64 */
@@ -10184,7 +10033,6 @@ export interface LolLeaverBusterLeaverBusterNotificationResource {
 	punishedGamesRemaining: number
 	/** @format uint64 */
 	queueLockoutTimerExpiryUtcMillisDiff: number
-	isWinRequired: boolean
 	fromRms: boolean
 }
 
@@ -10241,7 +10089,6 @@ export interface LolLeaverBusterPlayerNotificationResource {
 export interface LolLeaverBusterRankedRestriction {
 	/** @format int32 */
 	punishedGamesRemaining: number
-	isWinRequired: boolean
 }
 
 export interface LolLeaverBusterRankedRestrictionEntryDto {
@@ -10251,7 +10098,6 @@ export interface LolLeaverBusterRankedRestrictionEntryDto {
 	/** @format int32 */
 	restrictedGamesOriginal: number
 	rankedRestrictionAckNeeded: boolean
-	winRequired: boolean
 }
 
 export interface LolLeaverBusterRankedRestrictionGamesUpdate {
@@ -10262,7 +10108,6 @@ export interface LolLeaverBusterRankedRestrictionGamesUpdate {
 export interface LolLeaverBusterRankedRestrictionInfo {
 	/** @format int32 */
 	punishedGamesRemaining: number
-	isWinRequired: boolean
 	needsAck: boolean
 }
 
@@ -11608,6 +11453,12 @@ export interface LolLobbySummoner {
 	tagLine: string
 }
 
+export interface LolLobbyTFTNPEConfig {
+	enabled: boolean
+	queueBypass: boolean
+	shouldShowNPEQueue: boolean
+}
+
 export interface LolLobbyTFTNPESettings {
 	data?: LolLobbyTFTNPESettingsResource
 	/** @format uint32 */
@@ -11650,6 +11501,7 @@ export interface LolLobbyTeamBuilderAfkCheckStateV1 {
 	inventoryDraft: LolLobbyTeamBuilderTbdInventory
 	additionalInventoryTypes: string[]
 	compressAfkCheckPayload: boolean
+	autoAccept: boolean
 	mucJwtDto: LolLobbyTeamBuilderMucJwtDto
 }
 
@@ -11912,6 +11764,8 @@ export interface LolLobbyTeamBuilderGameflowQueue {
 	/** @format int32 */
 	id: number
 }
+
+export type LolLobbyTeamBuilderGameflowServiceErrorType = "PLAYER_LACKS_VANGUARD_SESSION"
 
 export interface LolLobbyTeamBuilderGameflowSession {
 	gameData: LolLobbyTeamBuilderGameflowGameData
@@ -12280,6 +12134,13 @@ export interface LolLobbyUserResource {
 	lol: Record<string, string>
 }
 
+export interface LolLockAndLoadHomeHubsWaits {
+	/** @format uint8 */
+	initialWait: number
+	/** @format uint8 */
+	additionalWait: number
+}
+
 export interface LolLoginAccessToken {
 	token: string
 	scopes: string[]
@@ -12350,7 +12211,7 @@ export interface LolLoginLoginConnectionState {
 }
 
 export interface LolLoginLoginError {
-	id: string
+	errorCode: string
 	messageId: string
 	description: string
 }
@@ -12578,6 +12439,16 @@ export interface LolLootEntityInstance {
 	groupId: string
 	counters: LolLootCounterInstance[]
 	milestones: LolLootMilestoneInstance[]
+}
+
+export interface LolLootGameDataNexusFinisher {
+	/** @format int32 */
+	itemId: number
+	name: string
+	translatedName: string
+	iconPath: string
+	splashPath: string
+	videoPath: string
 }
 
 export interface LolLootGameDataSummonerEmote {
@@ -12849,7 +12720,7 @@ export interface LolLootLootTableGdsResource {
 	dropChance: LolLootLootDropTableEntryGdsResource[]
 }
 
-export type LolLootLootType = "TFT_Damage_Skin" | "TFT_Map_Skin" | "SkinBorder" | "Boost" | "Statstone_Shard" | "Statstone" | "Egg_Color" | "Egg" | "Companion" | "SummonerIcon" | "Skin_Rental" | "Skin" | "WardSkin" | "Material" | "Currency" | "Chest"
+export type LolLootLootType = "Nexus_Finisher" | "TFT_Damage_Skin" | "TFT_Map_Skin" | "SkinBorder" | "Boost" | "Statstone_Shard" | "Statstone" | "Egg_Color" | "Egg" | "Companion" | "SummonerIcon" | "Skin_Rental" | "Skin" | "WardSkin" | "Material" | "Currency" | "Chest"
 
 export interface LolLootMassDisenchantClientConfig {
 	/** @format int16 */
@@ -13556,8 +13427,13 @@ export interface LolMarketplaceRiotMessagingServiceMessage {
 
 export interface LolMarketplaceRotationalShopItemData {
 	backgroundTextureLCU: string
+	contentID: string
 	descriptionTraKey: string
 	description: string
+	name: string
+	standaloneLoadoutsLargeIcon: string
+	videoID: string
+	redeemIconTexture: string
 }
 
 export interface LolMarketplaceStoreDto {
@@ -14289,7 +14165,7 @@ export interface LolMissionsGameflowSession {
 	phase: LolMissionsGameflowPhase
 }
 
-export type LolMissionsGrantStatus = "FULFILLED" | "PENDING_SELECTION" | "PENDING_FULFILLMENT"
+export type LolMissionsGrantStatus = "FAILED" | "FULFILLED" | "PENDING_SELECTION" | "PENDING_FULFILLMENT"
 
 export interface LolMissionsInventoryItemWithPayload {
 	/** @format int32 */
@@ -14486,6 +14362,11 @@ export interface LolNpeRewardsChallengesSettings {
 	totalCount: number
 }
 
+export interface LolNpeRewardsCoopAiRoutingExperiment {
+	enabled: boolean
+	routingData: LolNpeRewardsRoutingData[]
+}
+
 export interface LolNpeRewardsLoginSeriesSettings {
 	allRewardsClaimed: boolean
 	lastCompletedMissionInternalName: string
@@ -14525,6 +14406,16 @@ export interface LolNpeRewardsMissionsRewardPackMetaData {
 
 export interface LolNpeRewardsObjective {
 	progress: LolNpeRewardsProgress
+}
+
+export interface LolNpeRewardsPoroExperimentData {
+	coopAiRoutingExperiment: LolNpeRewardsCoopAiRoutingExperiment
+	/** @format int32 */
+	summonerLevel: number
+}
+
+export interface LolNpeRewardsPoroExperimentPlayerSettingsData {
+	coopAiRoutingEnabled: string
 }
 
 export interface LolNpeRewardsProgress {
@@ -14573,9 +14464,25 @@ export interface LolNpeRewardsRewardSeriesState {
 	allRewardsClaimed: boolean
 }
 
+export interface LolNpeRewardsRoutingData {
+	/** @format uint32 */
+	queueId: number
+	/** @format uint32 */
+	minLevel: number
+	/** @format uint32 */
+	maxLevel: number
+}
+
+export interface LolNpeRewardsSettingsPoroExperimentResource {
+	/** @format int32 */
+	schemaVersion: number
+	data: LolNpeRewardsPoroExperimentPlayerSettingsData
+}
+
 export interface LolNpeRewardsSummoner {
 	/** @format uint32 */
 	summonerLevel: number
+	puuid: string
 }
 
 export interface LolNpeTutorialPathAccountSettingsCategoryResource {
@@ -17137,7 +17044,7 @@ export interface LolRankedLeagueNotification {
 	ratedRating: number
 	/** @format int32 */
 	ratedRatingDelta: number
-	eligibleForPromoHelper?: boolean
+	eligibleForPromoHelper: boolean
 	promoSeriesForRanksEnabled: boolean
 	/** @format int32 */
 	consolationLpUsed: number
@@ -18664,6 +18571,10 @@ export interface LolServiceStatusTickerMessage {
 	message: string
 }
 
+export interface LolSettingsHoneyfruitVNGPublisherSettings {
+	visible: boolean
+}
+
 export interface LolSettingsLCUGameSettingsConfig {
 	HotkeysEnabled: boolean
 	SoundEnabled: boolean
@@ -18709,6 +18620,12 @@ export interface LolSettingsSettingsConfig {
 	isTermsEnabled: boolean
 	isLegalStatementsEnabled: boolean
 	localizedLicensesURL: string
+}
+
+export interface LolSettingsVNGStatusResponse {
+	action_required: boolean
+	action_url: string
+	action_url_raw: string
 }
 
 export interface LolShutdownShutdownNotification {
@@ -20018,7 +19935,7 @@ export interface LolTftEventGameflowSession {
 	phase: LolTftEventGameflowPhase
 }
 
-export type LolTftEventGrantStatus = "FULFILLED" | "PENDING_SELECTION" | "PENDING_FULFILLMENT"
+export type LolTftEventGrantStatus = "FAILED" | "FULFILLED" | "PENDING_SELECTION" | "PENDING_FULFILLMENT"
 
 export interface LolTftEventInventoryItemWithPayload {
 	/** @format int32 */
@@ -20054,6 +19971,7 @@ export interface LolTftEventLolTftEvent {
 	queueIds: number[]
 	defaultLandingPage: boolean
 	eventHubTemplateType: string
+	eventFuture: boolean
 }
 
 export interface LolTftEventLolTftEvents {
@@ -20298,6 +20216,7 @@ export interface LolTftLolTftEvent {
 	queueIds: number[]
 	defaultLandingPage: boolean
 	eventHubTemplateType: string
+	eventFuture: boolean
 }
 
 export interface LolTftLolTftEvents {
@@ -20763,6 +20682,8 @@ export interface LolTftPassTFTPassRewardDTO {
 	title: string
 	description: string
 	assetInternalName: string
+	itemId: string
+	itemTypeId: string
 	premium: boolean
 }
 
@@ -20826,7 +20747,10 @@ export interface LolTftPassTftBattlepassMilestone {
 }
 
 export interface LolTftPassTftBattlepassReward {
+	name: string
 	description: string
+	itemId: string
+	itemTypeId: string
 	iconUrl: string
 	iconNeedsFrame: boolean
 }
@@ -20893,6 +20817,290 @@ export interface LolTftSettingsResource {
 	data: unknown
 }
 
+export interface LolTftSkillTreeAccessTokenResource {
+	token: string
+	scopes: string[]
+	/** @format uint64 */
+	expiry: number
+}
+
+export interface LolTftSkillTreeCreateLoadoutDTO {
+	scope: string
+	/** @format uint32 */
+	itemId?: number
+	name: string
+	loadout: Record<string, LolTftSkillTreeItemKey>
+	refreshTime: string
+}
+
+export interface LolTftSkillTreeCreateLoadoutRequestDTO {
+	serviceToJwtsMap: Record<string, unknown>
+	loadout: LolTftSkillTreeCreateLoadoutDTO
+}
+
+export interface LolTftSkillTreeCreateOrUpdateItemsRequest {
+	/** @format uint32 */
+	id: number
+	items: Record<string, unknown>
+	inventoryJWTs: string[]
+}
+
+export interface LolTftSkillTreeEventSkill {
+	id: string
+	/** @format uint8 */
+	itemId: number
+	name: string
+	description: string
+	texture: string
+	owned: boolean
+	equipped: boolean
+}
+
+export interface LolTftSkillTreeEventSkillPlayerProgression {
+	/** @format uint8 */
+	rank: number
+	/** @format uint8 */
+	currDivision: number
+	/** @format uint32 */
+	divisionEventPoints: number
+	/** @format uint32 */
+	totalEventPoints: number
+	/** @format uint32 */
+	lastViewedTotalEventPoints: number
+}
+
+export interface LolTftSkillTreeEventSkillRankReward {
+	id: string
+	name: string
+	description: string
+	texture: string
+}
+
+export type LolTftSkillTreeEventSkillRankState = "kError" | "kClaimed" | "kClaiming" | "kClaimable" | "kUnclaimable"
+
+export interface LolTftSkillTreeEventSkillTree {
+	name: string
+	ranks: LolTftSkillTreeEventSkillTreeRank[]
+}
+
+export interface LolTftSkillTreeEventSkillTreeData {
+	eventSkillTree: LolTftSkillTreeEventSkillTree
+	playerProgression: LolTftSkillTreeEventSkillPlayerProgression
+}
+
+export interface LolTftSkillTreeEventSkillTreeRank {
+	state: LolTftSkillTreeEventSkillRankState
+	/** @format uint8 */
+	numDivisions: number
+	/** @format uint32 */
+	totalEventPointsForRank: number
+	rankId: string
+	name: string
+	texture: string
+	skills: LolTftSkillTreeEventSkill[]
+	rewards: LolTftSkillTreeEventSkillRankReward[]
+}
+
+export interface LolTftSkillTreeFrontendInventoryResponse {
+	entitlements: LolTftSkillTreeItemKey[]
+}
+
+export interface LolTftSkillTreeGameflowGameData {
+	queue: LolTftSkillTreeQueue
+}
+
+export type LolTftSkillTreeGameflowPhase = "TerminatedInError" | "EndOfGame" | "PreEndOfGame" | "WaitingForStats" | "Reconnect" | "InProgress" | "FailedToLaunch" | "GameStart" | "ChampSelect" | "ReadyCheck" | "CheckedIntoTournament" | "Matchmaking" | "Lobby" | "None"
+
+export interface LolTftSkillTreeGameflowSession {
+	phase: LolTftSkillTreeGameflowPhase
+	gameData: LolTftSkillTreeGameflowGameData
+}
+
+export interface LolTftSkillTreeGetItemsRequest {
+	/** @format uint32 */
+	id: number
+	inventoryTypes: string[]
+	inventoryJWTs: string[]
+}
+
+export interface LolTftSkillTreeInventoryDTO {
+	puuid: string
+	/** @format uint64 */
+	accountId: number
+	/** @format uint64 */
+	summonerId: number
+	items: Record<string, unknown>
+	expires: string
+	itemsJwt?: string
+}
+
+export interface LolTftSkillTreeInventoryItemDTO {
+	/** @format int32 */
+	itemId: number
+	inventoryType: string
+	expirationDate: string
+	purchaseDate: string
+	/** @format uint64 */
+	quantity: number
+	usedInGameDate: string
+	entitlementId: string
+	entitlementTypeId: string
+	instanceId: string
+	instanceTypeId: string
+	"f2p": boolean
+	rental: boolean
+	lsb: boolean
+	/** @format uint64 */
+	wins: number
+}
+
+export interface LolTftSkillTreeInventoryResponseDTO {
+	data: LolTftSkillTreeInventoryDTO
+}
+
+export interface LolTftSkillTreeItemKey {
+	inventoryType: string
+	contentId: string
+	/** @format int32 */
+	itemId: number
+}
+
+export interface LolTftSkillTreeLoadout {
+	/** @format uint32 */
+	id: number
+	name: string
+	items: Record<string, unknown>
+}
+
+export interface LolTftSkillTreeLoadoutRequestDTOBase {
+	serviceToJwtsMap: Record<string, unknown>
+}
+
+export interface LolTftSkillTreeLoginSession {
+	state: LolTftSkillTreeLoginSessionStates
+	/** @format uint64 */
+	summonerId: number
+	/** @format uint64 */
+	accountId: number
+	idToken: string
+	puuid: string
+}
+
+export type LolTftSkillTreeLoginSessionStates = "ERROR" | "LOGGING_OUT" | "SUCCEEDED" | "IN_PROGRESS"
+
+export interface LolTftSkillTreeQueue {
+	isTeamBuilderManaged: boolean
+}
+
+export interface LolTftSkillTreeScopedLoadout {
+	scope: string
+	/** @format uint32 */
+	itemId?: number
+	name: string
+	loadout: Record<string, LolTftSkillTreeItemKey>
+	refreshTime: string
+	id: string
+}
+
+export interface LolTftSkillTreeSignGCORequestDTO {
+	serviceToJwtsMap: Record<string, unknown>
+	loadout: Record<string, LolTftSkillTreeItemKey>
+}
+
+export interface LolTftSkillTreeTFTEventSkillData {
+	ContentId: string
+	/** @format uint8 */
+	ItemId: number
+	Name: string
+	Description: string
+	IconTexturePath: string
+}
+
+export interface LolTftSkillTreeTFTEventSkillTreeData {
+	Name: string
+	Ranks: LolTftSkillTreeTFTEventSkillTreeRankData[]
+}
+
+export interface LolTftSkillTreeTFTEventSkillTreeRankData {
+	Name: string
+	IconTexturePath: string
+	/** @format uint8 */
+	NumDivisions: number
+	Skills: LolTftSkillTreeTFTEventSkillData[]
+}
+
+export interface LolTftSkillTreeTftBattlepass {
+	/** @format int32 */
+	totalPointsEarned: number
+	milestones: LolTftSkillTreeTftBattlepassMilestone[]
+	bonuses: LolTftSkillTreeTftBattlepassMilestone[]
+	activeMilestone: LolTftSkillTreeTftBattlepassMilestone
+	info: LolTftSkillTreeTftBattlepassInfo
+	/** @format int32 */
+	lastViewedProgress: number
+	lastViewedMilestone: LolTftSkillTreeTftBattlepassMilestone
+	/** @format int32 */
+	currentLevel: number
+}
+
+export interface LolTftSkillTreeTftBattlepassInfo {
+	title: string
+	description: string
+	/** @format uint64 */
+	startDate: number
+	/** @format uint64 */
+	endDate: number
+	premium: boolean
+	premiumTitle: string
+	premiumEntitlementId: string
+	pcPurchaseRequirement: string
+	passId: string
+	media: Record<string, string>
+}
+
+export interface LolTftSkillTreeTftBattlepassMilestone {
+	milestoneId: string
+	title: string
+	description: string
+	status: string
+	/** @format int32 */
+	pointsNeededForMilestone: number
+	/** @format int32 */
+	pointsEarnedForMilestone: number
+	/** @format int32 */
+	totalPointsForMilestone: number
+	/** @format int32 */
+	level: number
+	iconImageUrl: string
+	iconNeedsFrame: boolean
+	rewards: LolTftSkillTreeTftBattlepassReward[]
+	isPaid: boolean
+	isLocked: boolean
+	isKeystone: boolean
+	isBonus: boolean
+	isClaimRequestPending: boolean
+}
+
+export interface LolTftSkillTreeTftBattlepassReward {
+	name: string
+	description: string
+	itemId: string
+	itemTypeId: string
+	iconUrl: string
+	iconNeedsFrame: boolean
+}
+
+export interface LolTftSkillTreeUpdateLoadoutDTO {
+	id: string
+	name: string
+	loadout: Record<string, LolTftSkillTreeItemKey>
+}
+
+export interface LolTftSkillTreeUpdateLoadoutRequestDTO {
+	serviceToJwtsMap: Record<string, unknown>
+	loadout: LolTftSkillTreeUpdateLoadoutDTO
+}
+
 export interface LolTftTeamPlannerChampion {
 	championId: string
 }
@@ -20912,6 +21120,42 @@ export interface LolTftTeamPlannerGameflowSession {
 	gameData: LolTftTeamPlannerGameflowGameData
 }
 
+export interface LolTftTeamPlannerImportedTeamCodeChampionData {
+	championId: string
+	icon: string
+	/** @format uint32 */
+	price: number
+}
+
+export interface LolTftTeamPlannerImportedTeamCodeData {
+	teamCode: string
+	teamPlan: LolTftTeamPlannerImportedTeamCodeChampionData[]
+}
+
+export interface LolTftTeamPlannerNamecheckAuthorization {
+	subject: string
+}
+
+export interface LolTftTeamPlannerNamecheckLoginDataPacket {
+	platformId: string
+}
+
+export interface LolTftTeamPlannerNamecheckPayload {
+	name: string
+	nameValidationContext: string
+	puuid: string
+	shard: string
+}
+
+export interface LolTftTeamPlannerNamecheckResponse {
+	errors: string[]
+}
+
+export interface LolTftTeamPlannerPreviouslyUsedContext {
+	/** @format uint8 */
+	sortOption: number
+}
+
 export interface LolTftTeamPlannerQueue {
 	gameMode: string
 }
@@ -20922,6 +21166,13 @@ export interface LolTftTeamPlannerSettingsStorageContainer {
 	schemaVersion: number
 }
 
+export interface LolTftTeamPlannerTFTChampionData {
+	character_id: string
+	squareIconPath: string
+	/** @format uint32 */
+	tier: number
+}
+
 export interface LolTftTeamPlannerTFTMapSetData {
 	SetCoreName: string
 }
@@ -20929,12 +21180,15 @@ export interface LolTftTeamPlannerTFTMapSetData {
 export interface LolTftTeamPlannerTFTModeData {
 	mDefaultSet: LolTftTeamPlannerTFTMapSetData
 	mEventSet: LolTftTeamPlannerTFTMapSetData
+	mDefaultTeamName: string
+	mDefaultTeamNameNumbered: string
 }
 
 export interface LolTftTeamPlannerTFTTeamPlannerConfig {
 	enabled: boolean
 	multipleSetsEnabled: boolean
 	multipleTeamsEnabled: boolean
+	tencentNameCheckEnabled: boolean
 }
 
 export interface LolTftTeamPlannerTeamPlan {
@@ -20945,21 +21199,34 @@ export interface LolTftTeamPlannerTeamPlan {
 	timeOfCreationInMs: number
 	/** @format uint64 */
 	timeOfLastViewInMs: number
+	/** @format uint64 */
+	timeOfLastReminderToggleInMs: number
 	setName: string
+	teamIsImported: boolean
+	editedByPlayer: boolean
 }
 
 export interface LolTftTeamPlannerTeamSettings {
 	teams: LolTftTeamPlannerTeamPlan[]
+	teamMap: Record<string, LolTftTeamPlannerTeamsForSet>
 	remindersEnabled: boolean
 	/** @format uint64 */
 	registeredTeamIndex: number
 	hasViewedTeamPlanner: boolean
+	eventSetLastViewed: boolean
+	previouslyUsedContext: LolTftTeamPlannerPreviouslyUsedContext
 }
 
 export interface LolTftTeamPlannerTeamsForSet {
 	teams: LolTftTeamPlannerTeamPlan[]
 	/** @format uint64 */
 	registeredTeamIndex: number
+	remindedTeamId: string
+}
+
+export interface LolTftTeamPlannerValidateItemSetNameResponse {
+	success: boolean
+	nameCheckResponse: LolTftTeamPlannerNamecheckResponse
 }
 
 export interface LolTftTrovesCapCounterBalanceDto {
@@ -20982,6 +21249,9 @@ export interface LolTftTrovesCapDropsDropTableDisplayMetadata {
 	/** @format uint8 */
 	version: number
 	chaseContentId: string
+	chaseContentIds: string[]
+	prestigeContentIds: string[]
+	bountyType: string
 	oddsTree: LolTftTrovesDropsOddsTreeNodeDTO
 }
 
@@ -21053,10 +21323,12 @@ export interface LolTftTrovesDropsDropTableWithPityDTO {
 export interface LolTftTrovesDropsOddsListEntryDTO {
 	contentId: string
 	nodeId: string
+	sourceId: string
 }
 
 export interface LolTftTrovesDropsOddsTreeNodeDTO {
 	nodeId: string
+	sourceId: string
 	/** @format float */
 	odds: number
 	children: LolTftTrovesDropsOddsTreeNodeDTO[]
@@ -21307,6 +21579,7 @@ export interface LolTftTrovesTrovesActiveBanner {
 	id: string
 	/** @format uint8 */
 	version: number
+	videoId: string
 }
 
 export interface LolTftTrovesTrovesBanner {
@@ -21333,9 +21606,12 @@ export interface LolTftTrovesTrovesBanner {
 	maxTotalRolls: number
 	/** @format uint32 */
 	pullCost: number
-	chaseContentId: string
+	chaseContentIds: string[]
+	prestigeContentIds: string[]
 	celebrationTheme: LolTftTrovesTrovesCelebrationThemeData
 	status: LolTftTrovesTrovesStatus
+	bountyType: string
+	videoId: string
 }
 
 export interface LolTftTrovesTrovesCelebrationCurrencySegmentData {
@@ -21452,6 +21728,11 @@ export interface LolTftTrovesTrovesMilestones {
 	counter: LolTftTrovesTrovesMilestoneCounter
 }
 
+export interface LolTftTrovesTrovesOwnedStatus {
+	chaseContentId: string
+	owned: boolean
+}
+
 export interface LolTftTrovesTrovesPCSpriteAnimation {
 	spritesheetPath: string
 	/** @format float */
@@ -21514,9 +21795,7 @@ export interface LolTftTrovesTrovesRollRequest {
 }
 
 export interface LolTftTrovesTrovesStatus {
-	owned: boolean
-	/** @format uint32 */
-	availableContents: number
+	ownedStatus: LolTftTrovesTrovesOwnedStatus[]
 	/** @format uint8 */
 	pityCount: number
 	dropTableId: string
@@ -21610,7 +21889,15 @@ export interface LolUserExperienceGameflowSession {
 	phase: LolUserExperienceGameflowPhase
 }
 
+export interface LolVanguardEntitlementsTokenResource {
+	accessToken: string
+	token: string
+	entitlements: string[]
+}
+
 export type LolVanguardGameflowPhase = "TerminatedInError" | "EndOfGame" | "PreEndOfGame" | "WaitingForStats" | "Reconnect" | "InProgress" | "FailedToLaunch" | "GameStart" | "ChampSelect" | "ReadyCheck" | "CheckedIntoTournament" | "Matchmaking" | "Lobby" | "None"
+
+export type LolVanguardGameflowServiceErrorType = "PLAYER_LACKS_VANGUARD_SESSION"
 
 export interface LolVanguardGameflowSession {
 	phase: LolVanguardGameflowPhase
@@ -22556,6 +22843,9 @@ export interface PaymentsFrontEndRequest {
 	usePmcSessions: boolean
 	game: string
 	openedFrom: string
+	/** @format int16 */
+	minVirtualAmount: number
+	orderDetailsJSON: string
 }
 
 export interface PaymentsFrontEndResult {
@@ -22570,6 +22860,10 @@ export interface PaymentsPMCStartUrlRequest {
 	gifteeAccountId: string
 	gifteeMessage: string
 	game: string
+	openedFrom: string
+	/** @format int16 */
+	minVirtualAmount: number
+	orderDetailsJSON: string
 }
 
 export interface PaymentsPMCStartUrlResult {
@@ -23126,11 +23420,6 @@ export interface RiotMessagingServiceEntitlementsToken {
 	subject: string
 	issuer: string
 	entitlements: string[]
-}
-
-export interface RiotMessagingServicePluginRegionLocaleChangedEvent {
-	region: string
-	locale: string
 }
 
 export interface RiotMessagingServiceSession {
