@@ -117,6 +117,10 @@ async function request() {
 export { request }
 
 export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
+    private static Instance?: HasagiClient;
+    /** Returns the last created instance of the HasagiClient */
+    public static getInstance = () => HasagiClient.Instance
+
     public isConnected: boolean = false;
     /** Will always be null if lockfile authentication is used */
     private processId: number | null = null;
@@ -132,6 +136,7 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
         super();
 
         this.defaultRetryOptions = options?.defaultRetryOptions ?? null;
+        HasagiClient.Instance = this;
     }
 
     /** Will always be null if lockfile authentication is used */
