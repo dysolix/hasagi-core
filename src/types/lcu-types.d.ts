@@ -1153,7 +1153,6 @@ export interface LcdsPlayer {
 }
 
 export interface LcdsPlayerGcoTokens {
-	idToken: string
 	summonerToken: string
 	userInfoJwt: string
 	entitlementsToken: string
@@ -1633,6 +1632,15 @@ export interface LolCapMissionsLoginSession {
 }
 
 export type LolCapMissionsLoginSessionStates = "ERROR" | "LOGGING_OUT" | "SUCCEEDED" | "IN_PROGRESS"
+
+export interface LolCapMissionsRiotMessagingServiceMessage {
+	resource: string
+	service: string
+	version: string
+	/** @format int64 */
+	timestamp: number
+	payload: string
+}
 
 export interface LolCatalogBundled {
 	flexible: boolean
@@ -4706,7 +4714,7 @@ export interface LolClashMatchmakingDodgeData {
 
 export type LolClashMatchmakingDodgeState = "TournamentDodged" | "StrangerDodged" | "PartyDodged" | "Invalid"
 
-export type LolClashMatchmakingDodgeWarning = "Penalty" | "Warning" | "None"
+export type LolClashMatchmakingDodgeWarning = "ConnectionWarning" | "Penalty" | "Warning" | "None"
 
 export interface LolClashMatchmakingReadyCheckResource {
 	state: LolClashMatchmakingReadyCheckState
@@ -7431,6 +7439,7 @@ export interface LolEventHubChapter {
 	backgroundImage: string
 	backgroundVideo: string
 	foregroundImage: string
+	objectiveBannerImage: string
 	/** @format uint16 */
 	chapterStart: number
 	/** @format uint16 */
@@ -7712,12 +7721,11 @@ export interface LolEventHubFSCMedia {
 }
 
 export interface LolEventHubFSCRewards {
-	image: string
+	/** @format int32 */
+	itemId: number
 	imageOverlay: string
 	title: string
 	subtitle: string
-	rarity: string
-	questSkinInfo: LolEventHubRewardsSkinLineInfo
 }
 
 export type LolEventHubGrantStatus = "FAILED" | "FULFILLED" | "PENDING_SELECTION" | "PENDING_FULFILLMENT"
@@ -8475,6 +8483,7 @@ export interface LolEventHubRiotMessagingServiceMessage {
 export interface LolEventHubRmsEntitlementPayload {
 	itemId: string
 	itemTypeId: string
+	tiers: string
 	entitlementTypeId: string
 	resourceOperation: string
 }
@@ -9464,6 +9473,10 @@ export interface LolGeoinfoWhereAmIResponse {
 	region: string
 }
 
+export interface LolHeartbeatLcdsConnection {
+	stableConnection: boolean
+}
+
 export interface LolHeartbeatLoginSession {
 	state: LolHeartbeatLoginSessionStates
 	/** @format uint64 */
@@ -10110,6 +10123,7 @@ export interface LolInventoryRiotMessagingServiceMessage {
 export interface LolInventoryRmsEntitlementPayload {
 	itemId: string
 	itemTypeId: string
+	tiers: string
 	entitlementTypeId: string
 	resourceOperation: string
 }
@@ -10316,7 +10330,7 @@ export interface LolLeaderboardLeaderboardConfiguration {
 	/** @format uint8 */
 	pageSize: number
 	/** @format uint32 */
-	refreshTimeMS: number
+	refreshTimeMs: number
 	season: string
 }
 
@@ -10802,13 +10816,6 @@ export interface LolLobbyCustomGameDto {
 	privateGame: boolean
 }
 
-export interface LolLobbyCustomGameSettingsDto {
-	lobbyName: string
-	lobbyPassword: string
-	/** @format uint64 */
-	gameId: number
-}
-
 export interface LolLobbyCustomJoinOptionsDto {
 	lobbyPassword: string
 	team?: string
@@ -10830,7 +10837,7 @@ export interface LolLobbyEligibilityRestriction {
 	summonerIdsString: string
 }
 
-export type LolLobbyEligibilityRestrictionCode = "MmrStandardDeviationTooLarge" | "UserInfoNotAvailable" | "InventoryQueuesInfoNotAvailable" | "InventoryChampsInfoNotAvailable" | "LeaguesInfoNotAvailable" | "SummonerInfoNotAvailable" | "MinorInfoNotAvailable" | "BanInfoNotAvailable" | "TooManyIncompleteSubteamsRestriction" | "QPInsufficientPlayerChampionCoveragePopularChampion" | "QPScarcePositionsNotAvailableRestriction" | "QPNonUniquePrimarySlotRestriction" | "QPInvalidChampionSelectionRestriction" | "QPInvalidPositionSelectionRestriction" | "QPInvalidNumberOfPlayerSlotsRestriction" | "QPPlayerChampionCoverageRestriction" | "QPPartyChampionCoverageRestriction" | "QPPlayerPositionCoverageRestriction" | "QPPartyPositionCoverageRestriction" | "QPPlayerScarcePositionCoverageRestriction" | "MinNormalGamesForRankedRestriction" | "LOLNewPlayerRestriction" | "UnknownRestriction" | "SeasonVersionLockout" | "TFTNewPlayerRestriction" | "QueueEntryNotEntitledRestriction" | "GameVersionNotSupported" | "GameVersionMissing" | "GameVersionMismatch" | "PrerequisiteQueuesNotPlayedRestriction" | "TeamSizeRestriction" | "TeamHighMMRMaxSizeRestriction" | "PlayerRankedSuspensionRestriction" | "PlayerRankSoloOnlyRestriction" | "PlayerTimePlayedRestriction" | "PlayerMinorRestriction" | "PlayerMinLevelRestriction" | "PlayerMaxLevelRestriction" | "PlayerTimeBasedRankRestriction" | "PlayerGameBasedRankRestriction" | "PlayerLeaverTaintedWarningRestriction" | "PlayerLeaverQueueLockoutRestriction" | "PlayerLeaverBustedRestriction" | "PlayerInGameRestriction" | "PlayerReadyCheckFailRestriction" | "PlayerDodgeRestriction" | "PlayerBingeRestriction" | "TeamMinSizeRestriction" | "TeamMaxSizeRestriction" | "TeamSkillRestriction" | "TeamDivisionRestriction" | "PlayerAvailableChampionRestriction" | "PlayerBannedRestriction" | "PlayerTimedRestriction" | "PlayerLevelRestriction" | "QueueUnsupported" | "QueueDisabled"
+export type LolLobbyEligibilityRestrictionCode = "FullPartyUnranked" | "PlayerNoRankedUpdatesDueToRankDisparity" | "MmrStandardDeviationTooLarge" | "UserInfoNotAvailable" | "InventoryQueuesInfoNotAvailable" | "InventoryChampsInfoNotAvailable" | "LeaguesInfoNotAvailable" | "SummonerInfoNotAvailable" | "MinorInfoNotAvailable" | "BanInfoNotAvailable" | "TooManyIncompleteSubteamsRestriction" | "QPInsufficientPlayerChampionCoveragePopularChampion" | "QPScarcePositionsNotAvailableRestriction" | "QPNonUniquePrimarySlotRestriction" | "QPInvalidChampionSelectionRestriction" | "QPInvalidPositionSelectionRestriction" | "QPInvalidNumberOfPlayerSlotsRestriction" | "QPPlayerChampionCoverageRestriction" | "QPPartyChampionCoverageRestriction" | "QPPlayerPositionCoverageRestriction" | "QPPartyPositionCoverageRestriction" | "QPPlayerScarcePositionCoverageRestriction" | "MinNormalGamesForRankedRestriction" | "LOLNewPlayerRestriction" | "UnknownRestriction" | "SeasonVersionLockout" | "TFTNewPlayerRestriction" | "QueueEntryNotEntitledRestriction" | "GameVersionNotSupported" | "GameVersionMissing" | "GameVersionMismatch" | "PrerequisiteQueuesNotPlayedRestriction" | "TeamSizeRestriction" | "TeamHighMMRMaxSizeRestriction" | "PlayerRankedSuspensionRestriction" | "PlayerRankSoloOnlyRestriction" | "PlayerTimePlayedRestriction" | "PlayerMinorRestriction" | "PlayerMinLevelRestriction" | "PlayerMaxLevelRestriction" | "PlayerTimeBasedRankRestriction" | "PlayerGameBasedRankRestriction" | "PlayerLeaverTaintedWarningRestriction" | "PlayerLeaverQueueLockoutRestriction" | "PlayerLeaverBustedRestriction" | "PlayerInGameRestriction" | "PlayerReadyCheckFailRestriction" | "PlayerDodgeRestriction" | "PlayerBingeRestriction" | "TeamMinSizeRestriction" | "TeamMaxSizeRestriction" | "TeamSkillRestriction" | "TeamDivisionRestriction" | "PlayerAvailableChampionRestriction" | "PlayerBannedRestriction" | "PlayerTimedRestriction" | "PlayerLevelRestriction" | "QueueUnsupported" | "QueueDisabled"
 
 export interface LolLobbyEntitlementsTokenResource {
 	accessToken: string
@@ -10877,19 +10884,20 @@ export interface LolLobbyGameDataChampionSummary {
 export interface LolLobbyGameModeDto {
 	gameType: string
 	/** @format int32 */
-	maxTeamSize: number
+	queueId?: number
 	/** @format int32 */
 	maxPartySize: number
-	botDifficulty?: string
 	/** @format int32 */
-	queueId?: number
-	gameCustomization?: Record<string, string>
-	customsSettings?: LolLobbyCustomGameSettingsDto
-	/** @format int64 */
-	gameTypeConfigId?: number
+	maxTeamSize: number
+	allowSpectators?: string
 	/** @format int32 */
 	mapId?: number
-	allowSpectators?: string
+	/** @format int64 */
+	gameTypeConfigId?: number
+	gameCustomization?: Record<string, string>
+	lobbyName?: string
+	lobbyPassword?: string
+	customGameMode?: string
 }
 
 export interface LolLobbyGameflowGameClient {
@@ -11109,6 +11117,7 @@ export interface LolLobbyLobbyCustomGameConfiguration {
 	tournamentPassbackDataPacket: string
 	gameServerRegion: string
 	spectatorDelayEnabled: boolean
+	hidePublicly: boolean
 }
 
 export interface LolLobbyLobbyCustomGameLobby {
@@ -11300,7 +11309,6 @@ export interface LolLobbyLobbyParticipantDto {
 	subteamIndex?: number
 	/** @format int8 */
 	intraSubteamPosition?: number
-	quickplayPlayerState?: string
 	strawberryMapId?: string
 	playerSlots: LolLobbyQuickPlayPresetSlotDto[]
 	ready: boolean
@@ -11494,7 +11502,6 @@ export interface LolLobbyPartyMemberMetadataDto {
 	memberData?: unknown
 	playerSlots: LolLobbyQuickPlayPresetSlotDto[]
 	subteamData?: LolLobbySubteamDataDto
-	quickplayPlayerState?: string
 }
 
 export type LolLobbyPartyMemberRoleEnum = "NONE" | "DECLINED" | "KICKED" | "HOLD" | "INVITED" | "MEMBER" | "LEADER"
@@ -11627,6 +11634,7 @@ export interface LolLobbyQueue {
 	areFreeChampionsAllowed: boolean
 	isTeamBuilderManaged: boolean
 	queueAvailability: LolLobbyQueueAvailability
+	isVisible: boolean
 	queueRewards: LolLobbyQueueReward
 	spectatorEnabled: boolean
 	/** @format uint32 */
@@ -11641,6 +11649,16 @@ export interface LolLobbyQueue {
 	removalFromGameAllowed: boolean
 	/** @format int32 */
 	removalFromGameDelayMinutes: number
+	gameSelectModeGroup: string
+	gameSelectCategory: string
+	/** @format uint8 */
+	gameSelectPriority: number
+	isSkillTreeQueue: boolean
+	isCustom: boolean
+	/** @format uint32 */
+	numberOfTeamsInLobby: number
+	/** @format uint32 */
+	maxLobbySpectatorCount: number
 }
 
 export type LolLobbyQueueAvailability = "DoesntMeetRequirements" | "PlatformDisabled" | "Available"
@@ -11782,6 +11800,18 @@ export interface LolLobbyServiceProxyPayload {
 	method: string
 	url: string
 	body: string
+}
+
+export interface LolLobbySetGameModeRequestDto {
+	/** @format int32 */
+	queueId?: number
+	gameCustomization?: Record<string, string>
+	lobbyName?: string
+	lobbyPassword?: string
+	/** @format int32 */
+	maxTeamSize?: number
+	allowSpectators?: string
+	displayLobbyInCustomGameBrowser?: boolean
 }
 
 export interface LolLobbyStrawberryMapUpdateDto {
@@ -12804,12 +12834,11 @@ export interface LolLootFSCMedia {
 }
 
 export interface LolLootFSCRewards {
-	image: string
+	/** @format int32 */
+	itemId: number
 	imageOverlay: string
 	title: string
 	subtitle: string
-	rarity: string
-	questSkinInfo: LolLootRewardsSkinLineInfo
 }
 
 export interface LolLootGameDataNexusFinisher {
@@ -13772,15 +13801,27 @@ export interface LolMarketplacePurchaseDto {
 	purchaseUnits: LolMarketplaceFinalPurchaseUnitDto[]
 	createdTime: string
 	completedTime: string
-	isReverted: boolean
-	revertedTime: string
 	purchaseState: string
+	purchaseVisibility: string
+	refund: LolMarketplaceRefundDto
+	refundRule: string
+	source: string
+}
+
+export interface LolMarketplacePurchaseHistoryResponse {
+	data: LolMarketplacePurchaseDto[]
+	paging: LolMarketplacePagination
+	stats: LolMarketplaceResponseStats
+	notes: string[]
+	errors: LolMarketplaceResponseError[]
 }
 
 export interface LolMarketplacePurchaseRequest {
 	storeId: string
 	catalogEntryId: string
 	paymentOptionsKeys: string[]
+	/** @format uint32 */
+	quantity: number
 }
 
 export interface LolMarketplacePurchaseRequestDto {
@@ -13789,6 +13830,8 @@ export interface LolMarketplacePurchaseRequestDto {
 	paymentOptionsKeys: string[]
 	idempotencyId: string
 	source: string
+	/** @format uint32 */
+	quantity: number
 }
 
 export interface LolMarketplacePurchaseResponse {
@@ -13805,12 +13848,40 @@ export interface LolMarketplacePurchaseTransaction {
 	storeId: string
 	catalogEntryId: string
 	purchaseState: string
+	refundId: string
+	refundState: string
 }
 
 export interface LolMarketplacePurchaseUnitDto {
 	paymentOptions: LolMarketplacePaymentOptionDto[]
 	payment: LolMarketplacePaymentDto[]
 	fulfillment: LolMarketplaceFulfillmentDto
+}
+
+export interface LolMarketplaceRefundDto {
+	id: string
+	purchaseId: string
+	createdTime: string
+	completedTime: string
+	state: string
+	source: string
+}
+
+export interface LolMarketplaceRefundRequest {
+	purchaseId: string
+}
+
+export interface LolMarketplaceRefundRequestDto {
+	purchaseId: string
+	source: string
+}
+
+export interface LolMarketplaceRefundResponse {
+	data: LolMarketplaceRefundDto
+	paging: LolMarketplacePagination
+	stats: LolMarketplaceResponseStats
+	notes: string[]
+	errors: LolMarketplaceResponseError[]
 }
 
 export interface LolMarketplaceRegionLocale {
@@ -14433,6 +14504,10 @@ export interface LolMatchmakingGameflowSession {
 	gameDodge: LolMatchmakingGameflowGameDodge
 }
 
+export interface LolMatchmakingLcdsConnection {
+	stableConnection: boolean
+}
+
 export interface LolMatchmakingLobbyStatus {
 	/** @format int32 */
 	queueId: number
@@ -14464,7 +14539,7 @@ export interface LolMatchmakingMatchmakingDodgeData {
 
 export type LolMatchmakingMatchmakingDodgeState = "TournamentDodged" | "StrangerDodged" | "PartyDodged" | "Invalid"
 
-export type LolMatchmakingMatchmakingDodgeWarning = "Penalty" | "Warning" | "None"
+export type LolMatchmakingMatchmakingDodgeWarning = "ConnectionWarning" | "Penalty" | "Warning" | "None"
 
 export interface LolMatchmakingMatchmakingLowPriorityData {
 	penalizedSummonerIds: number[]
@@ -14780,6 +14855,14 @@ export interface LolNachoCapDropsDropTableDisplayMetadata {
 	endDateMilis: string
 }
 
+export interface LolNachoCatalogItemPurchaseRequest {
+	storeId: string
+	catalogEntryId: string
+	/** @format uint32 */
+	quantity: number
+	paymentOptions: string[]
+}
+
 export interface LolNachoClientConfigNachoBanners {
 	enabled: boolean
 	bannerList: LolNachoNachoActiveBanner[]
@@ -14794,8 +14877,11 @@ export interface LolNachoDropsOddsTreeNodeDTO {
 	itemInstanceId: string
 	type: string
 	parentItemInstanceId: string
+	capWalletCurrencyId: string
 	/** @format uint32 */
 	priority: number
+	/** @format uint32 */
+	quantity: number
 }
 
 export interface LolNachoFinalPurchaseUnitDto {
@@ -14806,6 +14892,8 @@ export interface LolNachoFulfillmentDto {
 	name: string
 	itemTypeId: string
 	itemId: string
+	itemInstanceId: string
+	tierTypeId: string
 	/** @format int64 */
 	finalDelta: number
 	/** @format int64 */
@@ -14813,11 +14901,15 @@ export interface LolNachoFulfillmentDto {
 	results: unknown
 }
 
+export interface LolNachoGameDataBannerSkin {
+	/** @format uint32 */
+	id: number
+	name: string
+	rarity: string
+}
+
 export interface LolNachoGameDataNachoBanner {
 	id: string
-	bannerCurrencyId: string
-	activationTime: string
-	deactivationTime: string
 	chasePityCounter: LolNachoGameDataPityCounter
 	/** @format uint32 */
 	chasePityThreshold: number
@@ -14835,7 +14927,8 @@ export interface LolNachoGameDataNachoBanner {
 	chaseCelebrationVo: LolNachoGameDataNachoBannerVo
 	hubIntroVo: LolNachoGameDataNachoBannerVo
 	rollVignette: LolNachoNachoVignette
-	capCatalogStoreId: string
+	bannerSkin: LolNachoGameDataBannerSkin
+	bannerCurrency: LolNachoGameDataNachoCurrency
 }
 
 export interface LolNachoGameDataNachoBannerTable {
@@ -14864,6 +14957,13 @@ export interface LolNachoGameDataNachoBannerVoOverrideOptions {
 	delayMillis: number
 }
 
+export interface LolNachoGameDataNachoCurrency {
+	id: string
+	name: string
+	currencyId: string
+	capCatalogEntryId: string
+}
+
 export interface LolNachoGameDataNachoReward {
 	itemInstanceId: string
 	translatedName: string
@@ -14890,6 +14990,7 @@ export interface LolNachoLoginSession {
 export type LolNachoLoginSessionStates = "ERROR" | "LOGGING_OUT" | "SUCCEEDED" | "IN_PROGRESS"
 
 export interface LolNachoNachoActiveBanner {
+	bannerId: string
 	storeId: string
 	catalogEntryId: string
 	tokenCatalogEntryId: string
@@ -14906,7 +15007,6 @@ export interface LolNachoNachoBannersResponse {
 	bannerChaseAnimationWebmPath: string
 	bannerChaseAnimationParallax: string
 	chasePityCounter: LolNachoGameDataPityCounter
-	bannerDeactivationDateTime: string
 	/** @format uint32 */
 	chasePityThreshold: number
 	/** @format uint32 */
@@ -14917,6 +15017,15 @@ export interface LolNachoNachoBannersResponse {
 	chaseCelebrationVo: LolNachoGameDataNachoBannerVo
 	hubIntroVo: LolNachoGameDataNachoBannerVo
 	rollVignette: LolNachoNachoVignette
+	bannerSkin: LolNachoGameDataBannerSkin
+	bannerCurrency: LolNachoGameDataNachoCurrency
+	capCatalogStoreId: string
+	capCatalogEntryId: string
+	pityCounter: LolNachoCapCounterData
+	/** @format int64 */
+	startDate: number
+	/** @format int64 */
+	endDate: number
 }
 
 export interface LolNachoNachoPurchaseResponse {
@@ -14985,6 +15094,10 @@ export interface LolNachoPurchaseUnitDto {
 	fulfillment: LolNachoFulfillmentDto
 }
 
+export interface LolNachoSanctumDisplayMetaData {
+	bannerId: string
+}
+
 export interface LolNachoSetActiveStoresRequest {
 	storeIds: string[]
 }
@@ -15015,6 +15128,12 @@ export interface LolNachoStoreDigest {
 
 export interface LolNachoStoreDigests {
 	digests: LolNachoStoreDigest[]
+}
+
+export interface LolNachoStoreSanctumDisplayMetaData {
+	startDate: string
+	endDate: string
+	sanctum: LolNachoSanctumDisplayMetaData
 }
 
 export interface LolNachoStoresResponse {
@@ -19219,12 +19338,11 @@ export interface LolRewardTrackFSCMedia {
 }
 
 export interface LolRewardTrackFSCRewards {
-	image: string
+	/** @format int32 */
+	itemId: number
 	imageOverlay: string
 	title: string
 	subtitle: string
-	rarity: string
-	questSkinInfo: LolRewardTrackRewardsSkinLineInfo
 }
 
 export type LolRewardTrackGrantStatus = "FAILED" | "FULFILLED" | "PENDING_SELECTION" | "PENDING_FULFILLMENT"
@@ -19587,12 +19705,11 @@ export interface LolRewardsFSCMedia {
 }
 
 export interface LolRewardsFSCRewards {
-	image: string
+	/** @format int32 */
+	itemId: number
 	imageOverlay: string
 	title: string
 	subtitle: string
-	rarity: string
-	questSkinInfo: LolRewardsRewardsSkinLineInfo
 }
 
 export type LolRewardsGrantStatus = "FAILED" | "FULFILLED" | "PENDING_SELECTION" | "PENDING_FULFILLMENT"
@@ -22054,6 +22171,7 @@ export interface LolTftPassRiotMessagingServiceMessage {
 export interface LolTftPassRmsEntitlementPayload {
 	itemId: string
 	itemTypeId: string
+	tiers: string
 	entitlementTypeId: string
 	resourceOperation: string
 }
@@ -22665,6 +22783,7 @@ export interface LolTftTeamPlannerTFTMapSetData {
 
 export interface LolTftTeamPlannerTFTModeData {
 	mDefaultSet: LolTftTeamPlannerTFTMapSetData
+	mDefaultTeamPlannerSet: LolTftTeamPlannerTFTMapSetData
 	mEventSet: LolTftTeamPlannerTFTMapSetData
 	mDefaultTeamName: string
 	mDefaultTeamNameNumbered: string
@@ -22673,7 +22792,6 @@ export interface LolTftTeamPlannerTFTModeData {
 export interface LolTftTeamPlannerTFTTeamPlannerConfig {
 	enabled: boolean
 	multipleSetsEnabled: boolean
-	multipleTeamsEnabled: boolean
 	tencentNameCheckEnabled: boolean
 	globalNameSanitizationEnabled: boolean
 }
@@ -23059,7 +23177,6 @@ export interface LolTftTrovesTrovePurchaseResponse {
 export interface LolTftTrovesTroves {
 	enabled: boolean
 	useDisplayMetadata: boolean
-	"v2Enabled": boolean
 	bannerList?: LolTftTrovesTrovesActiveBanner[]
 }
 
@@ -23402,6 +23519,14 @@ export interface LolVanguardLoginSession {
 
 export type LolVanguardLoginSessionState = "ERROR" | "LOGGING_OUT" | "SUCCEEDED" | "IN_PROGRESS"
 
+export interface LolVanguardMail {
+	mailId: string
+	message: string
+	state: string
+	/** @format uint64 */
+	createdAt: number
+}
+
 export interface LolVanguardVanguardMachineSpecs {
 	"tpm2Enabled": boolean
 	secureBootEnabled: boolean
@@ -23713,6 +23838,7 @@ export interface LolYourshopRiotMessagingServiceMessage {
 export interface LolYourshopRmsEntitlementPayload {
 	itemId: string
 	itemTypeId: string
+	tiers: string
 	entitlementTypeId: string
 	resourceOperation: string
 }
