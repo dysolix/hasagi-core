@@ -818,15 +818,6 @@ export interface LCUEndpoints {
 	"/lol-collections/v1/inventories/{summonerId}/ward-skins/{wardSkinId}": {
 		get: { path: [summonerId: number, wardSkinId: number], params: never, body: never, response: LCUTypes.LolCollectionsCollectionsWardSkin }
 	},
-	"/lol-content-targeting/v1/filters": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolContentTargetingContentTargetingFilterResponse }
-	},
-	"/lol-content-targeting/v1/locale": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolContentTargetingContentTargetingLocaleResponse }
-	},
-	"/lol-content-targeting/v1/protected_filters": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolContentTargetingContentTargetingFilterResponse }
-	},
 	"/lol-cosmetics/v1/favorites/tft/companions": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolCosmeticsCompanionsFavoritesViewModel }
 	},
@@ -1100,12 +1091,6 @@ export interface LCUEndpoints {
 	},
 	"/lol-gameflow/v1/watch": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolGameflowGameflowWatchPhase }
-	},
-	"/lol-geoinfo/v1/getlocation": {
-		get: { path: never, params: { "ip_address": string }, body: never, response: LCUTypes.LolGeoinfoGeoInfo }
-	},
-	"/lol-geoinfo/v1/whereami": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolGeoinfoGeoInfoResponse }
 	},
 	"/lol-highlights/v1/config": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolHighlightsHighlightsConfig }
@@ -1667,20 +1652,16 @@ export interface LCUEndpoints {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolNachoNachoBannersResponse[] }
 	},
 	"/lol-nacho/v1/get-active-store-catalog": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolNachoShoppeCatalogEntry[] }
+		get: { path: never, params: never, body: never, response: LCUTypes.ChemtechShoppe_CatalogEntryDto[] }
 	},
 	"/lol-nacho/v1/get-active-stores": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolNachoStoresResponse }
+		get: { path: never, params: never, body: never, response: LCUTypes.ChemtechShoppe_StoresResponseDto }
 	},
 	"/lol-nacho/v1/get-current-catalog-item": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolNachoShoppeCatalogEntry }
+		get: { path: never, params: never, body: never, response: LCUTypes.ChemtechShoppe_CatalogEntryDto }
 	},
 	"/lol-nacho/v1/get-store-digests": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolNachoStoreDigests }
-	},
-	"/lol-nacho/v1/mock-roll-rewards": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolNachoNachoPurchaseResponse }
-		post: { path: never, params: never, body: LCUTypes.LolNachoFinalPurchaseUnitDto[], response: unknown }
+		get: { path: never, params: never, body: never, response: LCUTypes.ChemtechShoppe_StoreDigestsDto }
 	},
 	"/lol-nacho/v1/purchases/{purchaseId}": {
 		get: { path: [purchaseId: string], params: never, body: never, response: LCUTypes.LolNachoNachoPurchaseResponse }
@@ -1834,13 +1815,6 @@ export interface LCUEndpoints {
 	},
 	"/lol-player-behavior/v3/reform-cards": {
 		get: { path: never, params: never, body: never, response: unknown }
-	},
-	"/lol-player-level-up/v1/level-up": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolPlayerLevelUpPlayerLevelUpEvent }
-	},
-	"/lol-player-level-up/v1/level-up-notifications/{pluginName}": {
-		get: { path: [pluginName: string], params: never, body: never, response: LCUTypes.LolPlayerLevelUpPlayerLevelUpEventAck }
-		post: { path: [pluginName: string], params: never, body: LCUTypes.LolPlayerLevelUpPlayerLevelUpEventAck, response: unknown }
 	},
 	"/lol-player-messaging/v1/celebration/notification": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolPlayerMessagingDynamicCelebrationMessagingNotificationResource }
@@ -3072,6 +3046,9 @@ export interface LCUEndpoints {
 	"/lol-lobby-team-builder/champ-select/v1/session/my-selection/reroll": {
 		post: { path: never, params: never, body: never, response: unknown }
 	},
+	"/lol-lobby-team-builder/champ-select/v1/session/quit": {
+		post: { path: never, params: never, body: never, response: unknown }
+	},
 	"/lol-lobby-team-builder/champ-select/v1/session/swaps/{id}/accept": {
 		post: { path: [id: number], params: never, body: never, response: unknown }
 	},
@@ -3225,7 +3202,7 @@ export interface LCUEndpoints {
 	"/lol-mac-graphics-upgrade/hardware-upgrade-notification/ack": {
 		post: { path: never, params: never, body: never, response: unknown }
 	},
-	"/lol-mac-graphics-upgrade/legacy-mode-notification/ack": {
+	"/lol-mac-graphics-upgrade/supported-hardware-notification/ack": {
 		post: { path: never, params: never, body: never, response: unknown }
 	},
 	"/lol-maps/v1/map": {
