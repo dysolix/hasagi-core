@@ -2,6 +2,8 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { exec } from "child_process";
 
+const shell = process.platform === "darwin" ? "/bin/bash" : "powershell.exe";
+
 export type LCUCredentials = {
     processId?: number;
     port: number;
@@ -14,7 +16,7 @@ export type LCUCredentials = {
  */
 export async function getCredentials(source: "process" | "lockfile" = "process", lockfile?: string): Promise<LCUCredentials> {
     if (source === "process") {
-        if (process.platform !== "win32")
+        if (process.platform !== "win32" && process.platform !== "darwin")
             throw new Error(`Authentication strategy 'process' is not supported on this platform. (${process.platform})`);
 
         const processId = (await getLeagueClientUxProcesses())[0];
@@ -56,8 +58,9 @@ function getCredentialsFromLockfileContent(lockfileContent: string): LCUCredenti
 
 /** Returns the process ids of all LeagueClientUx processes */
 export function getLeagueClientUxProcesses(): Promise<number[]> {
+    const command = process.platform !== "darwin" ? `(Get-CimInstance Win32_Process -Filter "Name='LeagueClientUx.exe'").ProcessId` : `ps -A | grep LeagueClientUx | awk '{print $1}'`
     return new Promise<number[]>((resolve, reject) => {
-        exec(`(Get-CimInstance Win32_Process -Filter "Name='LeagueClientUx.exe'").ProcessId`, { shell: "powershell.exe", windowsHide: true }, (err, stdout, stderr) => {
+        exec(command, { shell: shell, windowsHide: true }, (err, stdout, stderr) => {
             if (err || stderr)
                 reject(new Error(`Could not retrieve LeagueClientUx process ids. ${err || stderr}`));
     
@@ -67,8 +70,9 @@ export function getLeagueClientUxProcesses(): Promise<number[]> {
 }
 
 export async function getCredentialsByProcessId(processId: number): Promise<LCUCredentials> {
+    const command = process.platform !== "darwin" ? `(Get-CimInstance Win32_Process -Filter "ProcessId=${processId}").CommandLine` : `ps -p ${processId} -o command=`
     const commandLine = await new Promise<string>((resolve, reject) => {
-        exec(`(Get-CimInstance Win32_Process -Filter "ProcessId=${processId}").CommandLine`, { shell: "powershell.exe", windowsHide: true }, (err, stdout, stderr) => {
+        exec(command, { shell: shell, windowsHide: true }, (err, stdout, stderr) => {
             if (err || stderr)
                 reject(new Error(`Could not retrieve command line of process with PID ${processId}. ${err || stderr}`));
     
