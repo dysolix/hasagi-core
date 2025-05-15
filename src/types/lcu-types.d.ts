@@ -21,6 +21,12 @@ export interface BasePlayerDTO {
 	data: MatchedPlayerDTO
 }
 
+export interface BenchChampion {
+	/** @format int32 */
+	championId: number
+	isPriority: boolean
+}
+
 /** Represents a cancelled asynchronous operation. */
 export interface BindingAsyncCancelEvent {
 	/** @format uint32 */
@@ -215,6 +221,19 @@ export interface BuildInfo {
 
 export type CapacityEnum = "FULL" | "HIGH" | "MEDIUM" | "LOW"
 
+export interface ChampSelectBannedChampions {
+	myTeamBans: number[]
+	theirTeamBans: number[]
+	/** @format int32 */
+	numBans: number
+}
+
+export interface ChampSelectChatRoomDetails {
+	multiUserChatId: string
+	multiUserChatPassword: string
+	mucJwtDto: MucJwtDto
+}
+
 export interface ChampSelectLcdsGameDTO {
 	/** @format uint64 */
 	id: number
@@ -315,6 +334,103 @@ export interface ChampSelectLcdsTradeContractDTO {
 	state: string
 }
 
+export interface ChampSelectMySelection {
+	/** @format int32 */
+	selectedSkinId?: number
+	/** @format uint64 */
+	"spell1Id"?: number
+	/** @format uint64 */
+	"spell2Id"?: number
+}
+
+export interface ChampSelectPlayerSelection {
+	/** @format int64 */
+	cellId: number
+	/** @format int32 */
+	championId: number
+	/** @format int32 */
+	selectedSkinId: number
+	/** @format uint64 */
+	"spell1Id": number
+	/** @format uint64 */
+	"spell2Id": number
+	/** @format int32 */
+	team: number
+	assignedPosition: string
+	/** @format int32 */
+	championPickIntent: number
+	/** @format uint64 */
+	summonerId: number
+	gameName: string
+	tagLine: string
+	puuid: string
+	isHumanoid: boolean
+	nameVisibilityType: string
+	/** @format uint64 */
+	obfuscatedSummonerId: number
+	obfuscatedPuuid: string
+}
+
+export interface ChampSelectSession {
+	/** @format uint64 */
+	gameId: number
+	timer: ChampSelectTimer
+	chatDetails: ChampSelectChatRoomDetails
+	myTeam: ChampSelectPlayerSelection[]
+	theirTeam: ChampSelectPlayerSelection[]
+	trades: ChampSelectSwapContract[]
+	pickOrderSwaps: ChampSelectSwapContract[]
+	positionSwaps: ChampSelectSwapContract[]
+	actions: unknown[]
+	bans: ChampSelectBannedChampions
+	/** @format int64 */
+	localPlayerCellId: number
+	isSpectating: boolean
+	allowSkinSelection: boolean
+	allowSubsetChampionPicks: boolean
+	allowDuplicatePicks: boolean
+	allowBattleBoost: boolean
+	/** @format int32 */
+	boostableSkinCount: number
+	allowRerolling: boolean
+	/** @format uint64 */
+	rerollsRemaining: number
+	allowLockedEvents: boolean
+	/** @format int32 */
+	lockedEventIndex: number
+	benchEnabled: boolean
+	benchChampions: BenchChampion[]
+	/** @format int64 */
+	counter: number
+	skipChampionSelect: boolean
+	hasSimultaneousBans: boolean
+	hasSimultaneousPicks: boolean
+	showQuitButton: boolean
+	isLegacyChampSelect: boolean
+	isCustomGame: boolean
+}
+
+export interface ChampSelectSwapContract {
+	/** @format int64 */
+	id: number
+	/** @format int64 */
+	cellId: number
+	state: ChampSelectSwapState
+}
+
+export type ChampSelectSwapState = "ACCEPTED" | "CANCELLED" | "DECLINED" | "SENT" | "RECEIVED" | "INVALID" | "BUSY" | "AVAILABLE"
+
+export interface ChampSelectTimer {
+	/** @format int64 */
+	adjustedTimeLeftInPhase: number
+	/** @format int64 */
+	totalTimeInPhase: number
+	phase: string
+	isInfinite: boolean
+	/** @format uint64 */
+	internalNowInEpochMs: number
+}
+
 export interface ChampionMasteryPublicDTO {
 	/** @format int32 */
 	championId: number
@@ -393,6 +509,9 @@ export interface ChemtechShoppe_FulfillmentDto {
 	progressionCounterId: string
 	currencyId: string
 	subCurrencyDeltas: Record<string, number>
+	location: string
+	payload: unknown
+	target: string
 }
 
 export interface ChemtechShoppe_PagingDto {
@@ -456,6 +575,8 @@ export interface ChemtechShoppe_PurchaseDto {
 	refundRule: string
 	completedTime: string
 	refund: ChemtechShoppe_RefundDto
+	/** @format int32 */
+	quantity: number
 }
 
 export interface ChemtechShoppe_PurchaseRequestDto {
@@ -466,6 +587,7 @@ export interface ChemtechShoppe_PurchaseRequestDto {
 	/** @format int64 */
 	quantity: number
 	source: string
+	customInventoryLocation: string
 }
 
 export interface ChemtechShoppe_PurchaseResponseDto {
@@ -503,6 +625,60 @@ export interface ChemtechShoppe_RefundRequestDto {
 
 export interface ChemtechShoppe_RefundResponseDto {
 	data: ChemtechShoppe_RefundDto
+	paging: ChemtechShoppe_PagingDto
+	stats: ChemtechShoppe_StatsDto
+	notes: string[]
+}
+
+export interface ChemtechShoppe_RotatingStoreDigestDto {
+	id: string
+	productId: string
+	name: string
+	type: string
+	rotationCadence: string
+	displayMetadata: unknown
+	currRotationStartTime: string
+	nextRotationStartTime: string
+}
+
+export interface ChemtechShoppe_RotatingStoreDigestResponseDto {
+	data: ChemtechShoppe_RotatingStoreDigestsDto
+	paging: ChemtechShoppe_PagingDto
+	stats: ChemtechShoppe_StatsDto
+	notes: string[]
+}
+
+export interface ChemtechShoppe_RotatingStoreDigestsDto {
+	digests: ChemtechShoppe_RotatingStoreDigestDto[]
+}
+
+export interface ChemtechShoppe_RotatingStoreDto {
+	id: string
+	productId: string
+	name: string
+	type: string
+	slots: ChemtechShoppe_RotatingStoreSlotDto[]
+	rotationCadence: string
+	displayMetadata: unknown
+	currRotationStartTime: string
+	nextRotationStartTime: string
+}
+
+export interface ChemtechShoppe_RotatingStoreResponseDto {
+	data: ChemtechShoppe_RotatingStoreDto
+	paging: ChemtechShoppe_PagingDto
+	stats: ChemtechShoppe_StatsDto
+	notes: string[]
+}
+
+export interface ChemtechShoppe_RotatingStoreSlotDto {
+	/** @format int32 */
+	selectionCount: number
+	catalogEntries: ChemtechShoppe_CatalogEntryDto[]
+}
+
+export interface ChemtechShoppe_RotatingStoresResponseDto {
+	data: ChemtechShoppe_RotatingStoreDto[]
 	paging: ChemtechShoppe_PagingDto
 	stats: ChemtechShoppe_StatsDto
 	notes: string[]
@@ -1055,6 +1231,13 @@ export interface EogLcdsGameDTO {
 	bannedChampions: BannedChampion[]
 }
 
+export interface ErrorMonitorLogBatch {
+	logType: ErrorMonitorLogType
+	logEntries: LogEntry[]
+}
+
+export type ErrorMonitorLogType = "UX" | "FOUNDATION"
+
 export type ExternalPluginsAvailability = "Error" | "Recovering" | "Connected" | "Preparing" | "NotAvailable"
 
 export interface ExternalPluginsResource {
@@ -1496,6 +1679,11 @@ export interface LobbyClientDynamicConfigurationNotification {
 	delta: boolean
 }
 
+export interface LogEntry {
+	severity: LogSeverityLevels
+	message: string
+}
+
 /** Describes a log entry. */
 export interface LogEvent {
 	severity: LogSeverityLevels
@@ -1833,17 +2021,64 @@ export interface LolCapMissionsCapMissionSeries {
 export interface LolCapMissionsCapMissionSeriesMission {
 	name: string
 	missionId: string
+	expression: string
 	missionCollectionId: string
 	status: string
+	completedTimeUtc: string
+	missionInstanceId: string
 	objectives: LolCapMissionsCapMissionSeriesMissionObjective[]
+	eligibility: LolCapMissionsCapMissionSeriesMissionEligibility[]
+	rewardsStatus: LolCapMissionsCapMissionSeriesMissionRewardsStatus
+	/** @format uint32 */
+	repeatSequence: number
+	properties: Record<string, string>
+	metadata: Record<string, string>
+}
+
+export interface LolCapMissionsCapMissionSeriesMissionEligibility {
+	type: string
+	missionCollectionId: string
+	missionId: string
+	startTime: string
 }
 
 export interface LolCapMissionsCapMissionSeriesMissionObjective {
 	statId: string
+	objectiveId: string
 	/** @format uint32 */
 	goal: number
 	/** @format uint32 */
 	currentValue: number
+}
+
+export interface LolCapMissionsCapMissionSeriesMissionReward {
+	type: string
+	counterId: string
+	itemId: string
+	itemTypeId: string
+	typeId: string
+	/** @format uint32 */
+	amount: number
+}
+
+export interface LolCapMissionsCapMissionSeriesMissionRewardsStatus {
+	requiresClaim: boolean
+	status: string
+	rewards: LolCapMissionsCapMissionSeriesMissionReward[]
+}
+
+export interface LolCapMissionsCapMissionsMarkAsViewedPostBody {
+	events: LolCapMissionsCapMissionsMarkAsViewedPostBodyEvent[]
+}
+
+export interface LolCapMissionsCapMissionsMarkAsViewedPostBodyEvent {
+	configurationId: string
+	missions: LolCapMissionsCapMissionsMarkAsViewedPostBodyMission[]
+}
+
+export interface LolCapMissionsCapMissionsMarkAsViewedPostBodyMission {
+	missionInstanceId: string
+	metadata: Record<string, string>
 }
 
 export interface LolCapMissionsCapMissionsMeResponse {
@@ -1870,6 +2105,12 @@ export interface LolCapMissionsRiotMessagingServiceMessage {
 	/** @format int64 */
 	timestamp: number
 	payload: string
+}
+
+export interface LolCapMissionsRiotMessagingServicePayload {
+	deltaEventId: string
+	ownerId: string
+	updatedMissions: string[]
 }
 
 export interface LolCatalogBundled {
@@ -1965,6 +2206,8 @@ export interface LolCatalogCatalogPluginItemWithDetails {
 	bundledDiscountPrices?: LolCatalogCatalogPluginPrice[]
 	assets: LolCatalogCatalogPluginItemAssets
 	metadata: LolCatalogItemMetadataEntry[]
+	/** @format int64 */
+	bundleFinalPrice: number
 }
 
 export interface LolCatalogCatalogPluginPrice {
@@ -2569,423 +2812,6 @@ export interface LolChallengesUserResource {
 	lol: Record<string, string>
 }
 
-export interface LolChampSelectBenchChampion {
-	/** @format int32 */
-	championId: number
-	isPriority: boolean
-}
-
-export interface LolChampSelectChampGridChampion {
-	/** @format int32 */
-	id: number
-	name: string
-	squarePortraitPath: string
-	freeToPlay: boolean
-	loyaltyReward: boolean
-	xboxGPReward: boolean
-	freeToPlayForQueue: boolean
-	owned: boolean
-	rented: boolean
-	disabled: boolean
-	roles: string[]
-	/** @format int32 */
-	masteryPoints: number
-	/** @format int32 */
-	masteryLevel: number
-	selectionStatus: LolChampSelectChampionSelection
-	positionsFavorited: string[]
-}
-
-export interface LolChampSelectChampSelectAction {
-	/** @format int64 */
-	id: number
-	/** @format int64 */
-	actorCellId: number
-	/** @format int32 */
-	championId: number
-	type: string
-	completed: boolean
-	isAllyAction: boolean
-}
-
-export interface LolChampSelectChampSelectBannedChampions {
-	myTeamBans: number[]
-	theirTeamBans: number[]
-	/** @format int32 */
-	numBans: number
-}
-
-export interface LolChampSelectChampSelectChatRoomDetails {
-	multiUserChatId: string
-	multiUserChatPassword: string
-	mucJwtDto: LolChampSelectMucJwtDto
-}
-
-export interface LolChampSelectChampSelectMySelection {
-	/** @format int32 */
-	selectedSkinId?: number
-	/** @format uint64 */
-	"spell1Id"?: number
-	/** @format uint64 */
-	"spell2Id"?: number
-	/** @format int64 */
-	wardSkinId?: number
-}
-
-export interface LolChampSelectChampSelectPinDropNotification {
-	pinDropSummoners: LolChampSelectChampSelectPinDropSummoner[]
-	mapSide: string
-}
-
-export interface LolChampSelectChampSelectPinDropSummoner {
-	/** @format uint64 */
-	slotId: number
-	position: string
-	lane: string
-	/** @format uint64 */
-	lanePosition: number
-	isLocalSummoner: boolean
-	isPlaceholder: boolean
-}
-
-export interface LolChampSelectChampSelectPlayerSelection {
-	/** @format int64 */
-	cellId: number
-	/** @format int32 */
-	championId: number
-	/** @format int32 */
-	selectedSkinId: number
-	/** @format int64 */
-	wardSkinId: number
-	/** @format uint64 */
-	"spell1Id": number
-	/** @format uint64 */
-	"spell2Id": number
-	/** @format int32 */
-	team: number
-	assignedPosition: string
-	/** @format int32 */
-	championPickIntent: number
-	/** @format uint64 */
-	summonerId: number
-	puuid: string
-	nameVisibilityType: string
-	/** @format uint64 */
-	obfuscatedSummonerId: number
-	obfuscatedPuuid: string
-}
-
-export interface LolChampSelectChampSelectSession {
-	/** @format uint64 */
-	gameId: number
-	timer: LolChampSelectChampSelectTimer
-	chatDetails: LolChampSelectChampSelectChatRoomDetails
-	myTeam: LolChampSelectChampSelectPlayerSelection[]
-	theirTeam: LolChampSelectChampSelectPlayerSelection[]
-	trades: LolChampSelectChampSelectTradeContract[]
-	pickOrderSwaps: LolChampSelectChampSelectSwapContract[]
-	actions: unknown[]
-	bans: LolChampSelectChampSelectBannedChampions
-	/** @format int64 */
-	localPlayerCellId: number
-	isSpectating: boolean
-	allowSkinSelection: boolean
-	allowDuplicatePicks: boolean
-	allowBattleBoost: boolean
-	/** @format int32 */
-	boostableSkinCount: number
-	allowRerolling: boolean
-	/** @format uint64 */
-	rerollsRemaining: number
-	allowLockedEvents: boolean
-	/** @format int32 */
-	lockedEventIndex: number
-	benchEnabled: boolean
-	benchChampions: LolChampSelectBenchChampion[]
-	/** @format int64 */
-	counter: number
-	/** @format int64 */
-	recoveryCounter: number
-	skipChampionSelect: boolean
-	hasSimultaneousBans: boolean
-	hasSimultaneousPicks: boolean
-	showQuitButton: boolean
-	isLegacyChampSelect: boolean
-	isCustomGame: boolean
-}
-
-export interface LolChampSelectChampSelectSummoner {
-	/** @format int64 */
-	cellId: number
-	/** @format uint64 */
-	slotId: number
-	"spell1IconPath": string
-	"spell2IconPath": string
-	assignedPosition: string
-	/** @format uint64 */
-	summonerId: number
-	puuid: string
-	nameVisibilityType: string
-	/** @format uint64 */
-	obfuscatedSummonerId: number
-	obfuscatedPuuid: string
-	activeActionType: string
-	championIconStyle: string
-	skinSplashPath: string
-	actingBackgroundAnimationState: string
-	statusMessageKey: string
-	/** @format int32 */
-	championId: number
-	championName: string
-	pickSnipedClass: string
-	/** @format int32 */
-	currentChampionVotePercentInteger: number
-	/** @format int32 */
-	skinId: number
-	/** @format int32 */
-	banIntentChampionId: number
-	isOnPlayersTeam: boolean
-	shouldShowSelectedSkin: boolean
-	shouldShowExpanded: boolean
-	isActingNow: boolean
-	shouldShowActingBar: boolean
-	isSelf: boolean
-	shouldShowBanIntentIcon: boolean
-	isPickIntenting: boolean
-	isDonePicking: boolean
-	isPlaceholder: boolean
-	shouldShowSpells: boolean
-	shouldShowRingAnimations: boolean
-	areSummonerActionsComplete: boolean
-	/** @format int64 */
-	tradeId: number
-	/** @format int64 */
-	swapId: number
-	showTrades: boolean
-	showSwaps: boolean
-	showMuted: boolean
-}
-
-export interface LolChampSelectChampSelectSwapContract {
-	/** @format int64 */
-	id: number
-	/** @format int64 */
-	cellId: number
-	state: LolChampSelectChampSelectSwapState
-}
-
-export interface LolChampSelectChampSelectSwapNotification {
-	/** @format int64 */
-	id: number
-	/** @format int64 */
-	requestorIndex: number
-	/** @format int64 */
-	responderIndex: number
-	state: LolChampSelectChampSelectSwapState
-	/** @format int64 */
-	otherSummonerIndex: number
-	initiatedByLocalPlayer: boolean
-}
-
-export type LolChampSelectChampSelectSwapState = "ACCEPTED" | "CANCELLED" | "DECLINED" | "SENT" | "RECEIVED" | "INVALID" | "BUSY" | "AVAILABLE"
-
-export interface LolChampSelectChampSelectTimer {
-	/** @format int64 */
-	adjustedTimeLeftInPhase: number
-	/** @format int64 */
-	totalTimeInPhase: number
-	phase: string
-	isInfinite: boolean
-	/** @format uint64 */
-	internalNowInEpochMs: number
-}
-
-export interface LolChampSelectChampSelectTradeContract {
-	/** @format int64 */
-	id: number
-	/** @format int64 */
-	cellId: number
-	state: LolChampSelectChampSelectTradeState
-}
-
-export interface LolChampSelectChampSelectTradeNotification {
-	/** @format int64 */
-	id: number
-	/** @format int64 */
-	responderIndex: number
-	state: LolChampSelectChampSelectTradeState
-	/** @format int64 */
-	otherSummonerIndex: number
-	responderChampionName: string
-	requesterChampionName: string
-	requesterChampionSplashPath: string
-	initiatedByLocalPlayer: boolean
-}
-
-export type LolChampSelectChampSelectTradeState = "ACCEPTED" | "CANCELLED" | "DECLINED" | "SENT" | "RECEIVED" | "INVALID" | "BUSY" | "AVAILABLE"
-
-export interface LolChampSelectChampionMastery {
-	/** @format int32 */
-	championId: number
-	/** @format int32 */
-	championLevel: number
-	/** @format int32 */
-	championPoints: number
-}
-
-export interface LolChampSelectChampionQuestSkinInfo {
-	splashPath: string
-	tilePath: string
-	tiers: LolChampSelectCollectionsChampionQuestSkin[]
-	productType?: LolChampSelectQuestSkinProductType
-}
-
-export interface LolChampSelectChampionSelection {
-	selectedByMe: boolean
-	banIntentedByMe: boolean
-	banIntented: boolean
-	isBanned: boolean
-	pickIntented: boolean
-	pickIntentedByMe: boolean
-	pickIntentedPosition: string
-	pickedByOtherOrBanned: boolean
-}
-
-export interface LolChampSelectChampionSkinAugment {
-	contentId: string
-	overlays: LolChampSelectChampionSkinAugmentOverlays[]
-}
-
-export interface LolChampSelectChampionSkinAugmentOverlays {
-	centeredLCOverlayPath: string
-	socialCardLCOverlayPath: string
-	tileLCOverlayPath: string
-	uncenteredLCOverlayPath: string
-}
-
-export interface LolChampSelectChampionSkinAugments {
-	augments: LolChampSelectChampionSkinAugment[]
-}
-
-export interface LolChampSelectCollectionsChampionChroma {
-	/** @format int32 */
-	championId: number
-	chromaPath?: string
-	/** @format int32 */
-	id: number
-	name: string
-	ownership: LolChampSelectCollectionsOwnership
-	disabled: boolean
-	stillObtainable: boolean
-	skinAugments: LolChampSelectChampionSkinAugments
-	colors: string[]
-}
-
-export interface LolChampSelectCollectionsChampionMinimal {
-	banVoPath: string
-	chooseVoPath: string
-	disabledQueues: string[]
-	/** @format int32 */
-	id: number
-	name: string
-	ownership: LolChampSelectCollectionsOwnership
-	roles: string[]
-	squarePortraitPath: string
-	stingerSfxPath: string
-	baseSplashPath: string
-	freeToPlay: boolean
-}
-
-export interface LolChampSelectCollectionsChampionQuestSkin {
-	/** @format int32 */
-	championId: number
-	chromaPath?: string
-	/** @format int32 */
-	id: number
-	name: string
-	ownership: LolChampSelectCollectionsOwnership
-	isBase: boolean
-	disabled: boolean
-	stillObtainable: boolean
-	skinAugments: LolChampSelectChampionSkinAugments
-	splashPath: string
-	tilePath: string
-	/** @format uint64 */
-	stage: number
-	shortName: string
-	splashVideoPath: string
-}
-
-export interface LolChampSelectCollectionsChampionSkin {
-	/** @format int32 */
-	championId: number
-	chromaPath?: string
-	/** @format int32 */
-	id: number
-	name: string
-	ownership: LolChampSelectCollectionsOwnership
-	isBase: boolean
-	disabled: boolean
-	stillObtainable: boolean
-	skinAugments: LolChampSelectChampionSkinAugments
-	splashPath: string
-	tilePath: string
-	chromas: LolChampSelectCollectionsChampionChroma[]
-	questSkinInfo: LolChampSelectChampionQuestSkinInfo
-	emblems: LolChampSelectCollectionsChampionSkinEmblem[]
-	rarityGemPath: string
-	splashVideoPath?: string
-}
-
-export interface LolChampSelectCollectionsChampionSkinEmblem {
-	name: string
-	emblemPath: LolChampSelectCollectionsChampionSkinEmblemPath
-	positions: LolChampSelectCollectionsChampionSkinEmblemPosition
-}
-
-export interface LolChampSelectCollectionsChampionSkinEmblemPath {
-	large: string
-	small: string
-}
-
-export interface LolChampSelectCollectionsChampionSkinEmblemPosition {
-	vertical: string
-	horizontal: string
-}
-
-export interface LolChampSelectCollectionsChampionSkinMinimal {
-	/** @format int32 */
-	championId: number
-	chromaPath?: string
-	/** @format int32 */
-	id: number
-	name: string
-	ownership: LolChampSelectCollectionsOwnership
-	isBase: boolean
-	disabled: boolean
-	stillObtainable: boolean
-	skinAugments: LolChampSelectChampionSkinAugments
-	splashPath: string
-	tilePath: string
-}
-
-export interface LolChampSelectCollectionsOwnership {
-	loyaltyReward: boolean
-	xboxGPReward: boolean
-	owned: boolean
-	rental: LolChampSelectCollectionsRental
-}
-
-export interface LolChampSelectCollectionsRental {
-	rented: boolean
-}
-
-export interface LolChampSelectGameDataSummonerSpell {
-	/** @format uint64 */
-	id: number
-	iconPath: string
-}
-
 export interface LolChampSelectLegacyChampSelectAction {
 	/** @format int64 */
 	id: number
@@ -3021,8 +2847,6 @@ export interface LolChampSelectLegacyChampSelectMySelection {
 	"spell1Id"?: number
 	/** @format uint64 */
 	"spell2Id"?: number
-	/** @format int64 */
-	wardSkinId?: number
 }
 
 export interface LolChampSelectLegacyChampSelectPlayerSelection {
@@ -3032,8 +2856,6 @@ export interface LolChampSelectLegacyChampSelectPlayerSelection {
 	championId: number
 	/** @format int32 */
 	selectedSkinId: number
-	/** @format int64 */
-	wardSkinId: number
 	/** @format uint64 */
 	"spell1Id": number
 	/** @format uint64 */
@@ -3054,7 +2876,7 @@ export interface LolChampSelectLegacyChampSelectSession {
 	chatDetails: LolChampSelectLegacyChampSelectChatRoomDetails
 	myTeam: LolChampSelectLegacyChampSelectPlayerSelection[]
 	theirTeam: LolChampSelectLegacyChampSelectPlayerSelection[]
-	trades: LolChampSelectLegacyChampSelectTradeContract[]
+	trades: LolChampSelectLegacyChampSelectSwapContract[]
 	actions: unknown[]
 	bans: LolChampSelectLegacyChampSelectBannedChampions
 	/** @format int64 */
@@ -3072,6 +2894,16 @@ export interface LolChampSelectLegacyChampSelectSession {
 	isCustomGame: boolean
 }
 
+export interface LolChampSelectLegacyChampSelectSwapContract {
+	/** @format int64 */
+	id: number
+	/** @format int64 */
+	cellId: number
+	state: LolChampSelectLegacyChampSelectSwapState
+}
+
+export type LolChampSelectLegacyChampSelectSwapState = "SENT" | "RECEIVED" | "INVALID" | "BUSY" | "AVAILABLE"
+
 export interface LolChampSelectLegacyChampSelectTimer {
 	/** @format int64 */
 	adjustedTimeLeftInPhase: number
@@ -3082,16 +2914,6 @@ export interface LolChampSelectLegacyChampSelectTimer {
 	/** @format uint64 */
 	internalNowInEpochMs: number
 }
-
-export interface LolChampSelectLegacyChampSelectTradeContract {
-	/** @format int64 */
-	id: number
-	/** @format int64 */
-	cellId: number
-	state: LolChampSelectLegacyChampSelectTradeState
-}
-
-export type LolChampSelectLegacyChampSelectTradeState = "SENT" | "RECEIVED" | "INVALID" | "BUSY" | "AVAILABLE"
 
 export interface LolChampSelectLegacyChampionSelectPreferences {
 	skins: Record<string, number>
@@ -3206,118 +3028,6 @@ export interface LolChampSelectLegacySummoner {
 }
 
 export interface LolChampSelectLegacyTeamBoost {
-	/** @format int64 */
-	summonerId: number
-	puuid: string
-	skinUnlockMode: string
-	/** @format int64 */
-	price: number
-	/** @format int64 */
-	ipReward: number
-	/** @format int64 */
-	ipRewardForPurchaser: number
-	availableSkins: number[]
-	unlocked: boolean
-}
-
-export interface LolChampSelectLoginSession {
-	puuid: string
-	/** @format uint64 */
-	summonerId?: number
-}
-
-export interface LolChampSelectMucJwtDto {
-	jwt: string
-	channelClaim: string
-	domain: string
-	targetRegion: string
-}
-
-export interface LolChampSelectMutedPlayerInfo {
-	puuid: string
-	/** @format uint64 */
-	summonerId: number
-	obfuscatedPuuid: string
-	/** @format uint64 */
-	obfuscatedSummonerId: number
-}
-
-export type LolChampSelectQuestSkinProductType = "kTieredSkin" | "kQuestSkin"
-
-export interface LolChampSelectSettingsResource {
-	data: unknown
-	/** @format int64 */
-	schemaVersion: number
-}
-
-export interface LolChampSelectSfxNotification {
-	/** @format int64 */
-	delayMillis: number
-	path: string
-	eventType: string
-}
-
-export interface LolChampSelectSkinSelectorChildSkin {
-	/** @format int32 */
-	championId: number
-	chromaPreviewPath?: string
-	/** @format int32 */
-	id: number
-	name: string
-	ownership: LolChampSelectCollectionsOwnership
-	isBase: boolean
-	disabled: boolean
-	stillObtainable: boolean
-	isChampionUnlocked: boolean
-	splashPath: string
-	splashVideoPath?: string
-	tilePath: string
-	unlocked: boolean
-	skinAugments: Record<string, LolChampSelectChampionSkinAugmentOverlays>
-	/** @format int32 */
-	parentSkinId: number
-	colors: string[]
-	/** @format uint64 */
-	stage: number
-	shortName: string
-}
-
-export interface LolChampSelectSkinSelectorInfo {
-	/** @format int32 */
-	selectedSkinId: number
-	isSkinGrantedFromBoost: boolean
-	/** @format int32 */
-	selectedChampionId: number
-	championName: string
-	skinSelectionDisabled: boolean
-	showSkinSelector: boolean
-}
-
-export interface LolChampSelectSkinSelectorSkin {
-	/** @format int32 */
-	championId: number
-	chromaPreviewPath?: string
-	/** @format int32 */
-	id: number
-	name: string
-	ownership: LolChampSelectCollectionsOwnership
-	isBase: boolean
-	disabled: boolean
-	stillObtainable: boolean
-	isChampionUnlocked: boolean
-	splashPath: string
-	splashVideoPath?: string
-	tilePath: string
-	unlocked: boolean
-	skinAugments: Record<string, LolChampSelectChampionSkinAugmentOverlays>
-	childSkins: LolChampSelectSkinSelectorChildSkin[]
-	emblems: LolChampSelectCollectionsChampionSkinEmblem[]
-	rarityGemPath: string
-	groupSplash: string
-	productType?: LolChampSelectQuestSkinProductType
-}
-
-export interface LolChampSelectTeamBoost {
 	/** @format int64 */
 	summonerId: number
 	puuid: string
@@ -4580,6 +4290,7 @@ export interface LolChatQueue {
 	id: number
 	type: string
 	gameMode: string
+	isCustom: boolean
 	gameTypeConfig: LolChatQueueGameTypeConfig
 }
 
@@ -6008,6 +5719,20 @@ export interface LolCosmeticsCapOffer {
 	createdDate: string
 }
 
+export interface LolCosmeticsCatalogEntryDto {
+	id: string
+	productId: string
+	name: string
+	description: string
+	endTime: string
+	purchaseUnits: LolCosmeticsPurchaseUnitDto[]
+	displayMetadata: unknown
+	refundRule: string
+	giftRule: string
+	prerequisites: LolCosmeticsPrerequisiteDto[]
+	purchaseLimits: LolCosmeticsVelocityLimitDeltaDto[]
+}
+
 export interface LolCosmeticsCompanionsFavoritesViewModel {
 	favoriteItems: LolCosmeticsCosmeticsCompanionViewModel[]
 }
@@ -6059,6 +5784,8 @@ export interface LolCosmeticsCosmeticsCompanion {
 	/** @format uint32 */
 	level: number
 	upgrades: string[]
+	companionType: string
+	TFTRarity: string
 }
 
 export interface LolCosmeticsCosmeticsCompanionViewModel {
@@ -6086,12 +5813,15 @@ export interface LolCosmeticsCosmeticsCompanionViewModel {
 	upgrades: LolCosmeticsCosmeticsCompanionViewModel[]
 	offerData?: LolCosmeticsCapOffer
 	starShardsPrice: LolCosmeticsCosmeticsOfferPrice
+	companionType: string
+	TFTRarity: string
 }
 
 export interface LolCosmeticsCosmeticsOfferPrice {
 	offerId: string
 	/** @format uint64 */
 	price: number
+	chemtechUpgradeStoreId: string
 }
 
 export interface LolCosmeticsCosmeticsSettings {
@@ -6118,6 +5848,7 @@ export interface LolCosmeticsCosmeticsTFTDamageSkin {
 	groupId: number
 	groupName: string
 	upgrades: string[]
+	TFTRarity: string
 }
 
 export interface LolCosmeticsCosmeticsTFTDamageSkinViewModel {
@@ -6142,6 +5873,7 @@ export interface LolCosmeticsCosmeticsTFTDamageSkinViewModel {
 	groupId: number
 	groupName: string
 	upgrades: LolCosmeticsCosmeticsTFTDamageSkinViewModel[]
+	TFTRarity: string
 }
 
 export interface LolCosmeticsCosmeticsTFTMapSkin {
@@ -6161,6 +5893,7 @@ export interface LolCosmeticsCosmeticsTFTMapSkin {
 	/** @format uint32 */
 	groupId: number
 	groupName: string
+	TFTRarity: string
 }
 
 export interface LolCosmeticsCosmeticsTFTMapSkinViewModel {
@@ -6182,6 +5915,7 @@ export interface LolCosmeticsCosmeticsTFTMapSkinViewModel {
 	/** @format uint32 */
 	groupId: number
 	groupName: string
+	TFTRarity: string
 }
 
 export interface LolCosmeticsCosmeticsTFTPlaybook {
@@ -6262,6 +5996,7 @@ export interface LolCosmeticsCosmeticsTFTZoomSkin {
 	/** @format uint32 */
 	groupId: number
 	groupName: string
+	TFTRarity: string
 }
 
 export interface LolCosmeticsCosmeticsTFTZoomSkinViewModel {
@@ -6283,12 +6018,58 @@ export interface LolCosmeticsCosmeticsTFTZoomSkinViewModel {
 	/** @format uint32 */
 	groupId: number
 	groupName: string
+	TFTRarity: string
+}
+
+export interface LolCosmeticsEntitlementDto {
+	id: string
+	label: string
+	typeId: string
+	productId: string
+	active: boolean
+	createdDate: string
+	lastModifiedDate: string
+	firstUsedDate: string
+	recipient: unknown
+	ownerId: string
+	item: LolCosmeticsEntitlementItemDto
+}
+
+export interface LolCosmeticsEntitlementItemDto {
+	id: string
+	typeId: string
+}
+
+export interface LolCosmeticsEntitlementsResponse {
+	data: LolCosmeticsEntitlementDto[]
 }
 
 export interface LolCosmeticsFavoriteCosmetics {
 	companions: string[]
 	tft_map_skins: string[]
 	tft_damage_skins: string[]
+}
+
+export interface LolCosmeticsFinalPurchaseUnitDto {
+	payments: LolCosmeticsPaymentDto[]
+	fulfillment: LolCosmeticsFulfillmentDto
+}
+
+export interface LolCosmeticsFulfillmentDto {
+	/** @format int64 */
+	delta: number
+	/** @format int64 */
+	finalDelta: number
+	name: string
+	/** @format int64 */
+	maxQuantity: number
+	/** @format uint64 */
+	ownedQuantity: number
+	ownershipCompensationMode: string
+	itemTypeId: string
+	itemId: string
+	currencyId: string
+	subCurrencyDeltas: Record<string, number>
 }
 
 export interface LolCosmeticsGameDataCompanion {
@@ -6308,6 +6089,8 @@ export interface LolCosmeticsGameDataCompanion {
 	rarityValue: number
 	upgrades: string[]
 	TFTOnly: boolean
+	companionType: string
+	TFTRarity: string
 }
 
 export interface LolCosmeticsGameDataTFTCosmeticsDefaults {
@@ -6328,6 +6111,7 @@ export interface LolCosmeticsGameDataTFTDamageSkin {
 	rarityValue: number
 	/** @format uint32 */
 	level: number
+	TFTRarity: string
 }
 
 export interface LolCosmeticsGameDataTFTMapSkin {
@@ -6342,6 +6126,7 @@ export interface LolCosmeticsGameDataTFTMapSkin {
 	groupName: string
 	/** @format uint32 */
 	rarityValue: number
+	TFTRarity: string
 }
 
 export interface LolCosmeticsGameDataTFTPlaybook {
@@ -6375,6 +6160,7 @@ export interface LolCosmeticsGameDataTFTZoomSkin {
 	groupName: string
 	/** @format uint32 */
 	rarityValue: number
+	TFTRarity: string
 }
 
 export interface LolCosmeticsLoadout {
@@ -6397,10 +6183,222 @@ export interface LolCosmeticsLoadoutUpdateDto {
 	loadout: Record<string, LolCosmeticsLoadoutItem>
 }
 
+export interface LolCosmeticsPagination {
+	/** @format uint32 */
+	offset: number
+	/** @format uint32 */
+	limit: number
+	/** @format uint32 */
+	maxLimit: number
+	/** @format uint32 */
+	total: number
+	previous: string
+	next: string
+}
+
+export interface LolCosmeticsPaymentDto {
+	/** @format int64 */
+	delta: number
+	/** @format int64 */
+	finalDelta: number
+	name: string
+	/** @format int64 */
+	discountedDelta: number
+	/** @format double */
+	discountPercent: number
+	itemTypeId: string
+	itemId: string
+	currencyId: string
+}
+
+export interface LolCosmeticsPaymentOptionDto {
+	key: string
+	payments: LolCosmeticsPaymentDto[]
+}
+
+export interface LolCosmeticsPrerequisiteDto {
+	status: string
+	itemTypeId: string
+	itemId: string
+	/** @format uint16 */
+	requiredQuantity: number
+}
+
+export interface LolCosmeticsPurchaseDto {
+	id: string
+	productId: string
+	storeId: string
+	storeName: string
+	catalogEntryId: string
+	catalogEntryName: string
+	purchaserId: string
+	recipientId: string
+	purchaseUnits: LolCosmeticsFinalPurchaseUnitDto[]
+	createdTime: string
+	completedTime: string
+	purchaseState: string
+	purchaseVisibility: string
+	refund: LolCosmeticsRefundDto
+	refundRule: string
+	refundable: boolean
+	source: string
+}
+
+export interface LolCosmeticsPurchaseErrorMessageDto {
+	/** @format int32 */
+	httpStatus: number
+	errorCode: string
+	message: string
+}
+
+export interface LolCosmeticsPurchaseHistoryResponse {
+	data: LolCosmeticsPurchaseDto[]
+	paging: LolCosmeticsPagination
+	stats: LolCosmeticsResponseStats
+	notes: string[]
+	errors: LolCosmeticsResponseError[]
+}
+
+export interface LolCosmeticsPurchaseRequest {
+	storeId: string
+	catalogEntryId: string
+	paymentOptionsKeys: string[]
+	/** @format uint32 */
+	quantity: number
+}
+
+export interface LolCosmeticsPurchaseRequestDto {
+	storeId: string
+	catalogEntryId: string
+	paymentOptionsKeys: string[]
+	idempotencyId: string
+	source: string
+	/** @format uint32 */
+	quantity: number
+}
+
+export interface LolCosmeticsPurchaseResponse {
+	data: LolCosmeticsPurchaseDto
+	paging: LolCosmeticsPagination
+	stats: LolCosmeticsResponseStats
+	notes: string[]
+	errors: LolCosmeticsResponseError[]
+}
+
+export interface LolCosmeticsPurchaseTransaction {
+	purchaseId: string
+	productId: string
+	storeId: string
+	catalogEntryId: string
+	purchaseState: string
+	refundId: string
+	refundState: string
+}
+
+export interface LolCosmeticsPurchaseUnitDto {
+	paymentOptions: LolCosmeticsPaymentOptionDto[]
+	payment: LolCosmeticsPaymentDto[]
+	fulfillment: LolCosmeticsFulfillmentDto
+}
+
+export interface LolCosmeticsRefundDto {
+	id: string
+	purchaseId: string
+	createdTime: string
+	completedTime: string
+	state: string
+	source: string
+}
+
+export interface LolCosmeticsRefundRequest {
+	purchaseId: string
+}
+
+export interface LolCosmeticsRefundRequestDto {
+	purchaseId: string
+	source: string
+}
+
+export interface LolCosmeticsRefundResponse {
+	data: LolCosmeticsRefundDto
+	paging: LolCosmeticsPagination
+	stats: LolCosmeticsResponseStats
+	notes: string[]
+	errors: LolCosmeticsResponseError[]
+}
+
+export interface LolCosmeticsRegionLocale {
+	region: string
+	locale: string
+	webRegion: string
+}
+
+export interface LolCosmeticsResponseError {
+	message: string
+	type: string
+	/** @format uint32 */
+	code: number
+}
+
+export interface LolCosmeticsResponseStats {
+	/** @format uint32 */
+	durationMs: number
+}
+
+export interface LolCosmeticsRiotMessagingServiceMessage {
+	resource: string
+	service: string
+	version: string
+	/** @format int64 */
+	timestamp: number
+	payload: string
+}
+
+export interface LolCosmeticsRotationalShopBundleData {
+	asset: string
+	description: string
+	descriptionKey: string
+	title: string
+	titleKey: string
+}
+
+export interface LolCosmeticsRotationalShopBundleListData {
+	items: LolCosmeticsRotationalShopBundleData[]
+}
+
+export interface LolCosmeticsRotationalShopItemData {
+	backgroundTextureLCU: string
+	contentID: string
+	descriptionTraKey: string
+	description: string
+	name: string
+	standaloneLoadoutsLargeIcon: string
+	videoID: string
+	redeemIconTexture: string
+	rarity: string
+	typeID: string
+}
+
 export interface LolCosmeticsSettingsStorageContainer {
 	data: LolCosmeticsCosmeticsSettings
 	/** @format uint16 */
 	schemaVersion: number
+}
+
+export interface LolCosmeticsStoreDto {
+	id: string
+	productId: string
+	name: string
+	catalogEntries: LolCosmeticsCatalogEntryDto[]
+	displayMetadata: unknown
+}
+
+export interface LolCosmeticsStoresResponse {
+	data: LolCosmeticsStoreDto[]
+	paging: LolCosmeticsPagination
+	stats: LolCosmeticsResponseStats
+	notes: string[]
+	errors: LolCosmeticsResponseError[]
 }
 
 export interface LolCosmeticsTFTDamageSkinFavoritesViewModel {
@@ -6469,6 +6467,28 @@ export interface LolCosmeticsTFTPlaybookGroupedViewModel {
 	groups: LolCosmeticsTFTPlaybookGroupViewModel[]
 }
 
+export interface LolCosmeticsTFTRotationalShopConfig {
+	enabled: boolean
+	contentPreviewConfig: unknown
+	uiToggleEnabled: boolean
+	navs: LolCosmeticsTFTRotationalShopNavConfig[]
+	refund: LolCosmeticsTFTRotationalShopRefundConfig
+	littleLegendsUpgradeEnabled: boolean
+}
+
+export interface LolCosmeticsTFTRotationalShopNavConfig {
+	name: string
+	enabled: boolean
+	supportedCurrencies: string[]
+}
+
+export interface LolCosmeticsTFTRotationalShopRefundConfig {
+	enabled: boolean
+	allowedTypes: string[]
+	/** @format uint8 */
+	thresholdDays: number
+}
+
 export interface LolCosmeticsTFTSettingsDataResource {
 	iconOverride: string
 }
@@ -6503,10 +6523,29 @@ export interface LolCosmeticsTFTZoomSkinGroupedViewModel {
 	groups: LolCosmeticsTFTZoomSkinGroupViewModel[]
 }
 
+export interface LolCosmeticsTraKeyName {
+	nameTraKey: string
+	translatedName: string
+}
+
 export interface LolCosmeticsUserResource {
 	/** @format uint64 */
 	summonerId: number
 	lol: Record<string, string>
+}
+
+export interface LolCosmeticsVelocityLimitDeltaDto {
+	ruleId: string
+	/** @format int64 */
+	delta: number
+	/** @format int64 */
+	remaining: number
+}
+
+export interface LolCosmeticsVelocityLimiterDto {
+	/** @format int64 */
+	availableTokens: number
+	refill: string
 }
 
 export interface LolDiscordRpGameDataChampionSummary {
@@ -6535,7 +6574,6 @@ export interface LolDropsCapDropsDropTableDisplayMetadata {
 	isCollectorsBounty: boolean
 	dataAssetId: string
 	nameTraKey: string
-	mythicOfferId: string
 	progressionId: string
 	/** @format uint8 */
 	priority: number
@@ -7614,6 +7652,8 @@ export interface LolEventHubEventDetailsUIData {
 	helpModalImagePath: string
 	inducteeName: string
 	promotionBannerImage: string
+	objectiveBannerImage: string
+	memoryBookBackgroundImage: string
 }
 
 export interface LolEventHubEventHubError {
@@ -7837,6 +7877,7 @@ export interface LolEventHubHallOfLegends {
 	helpModalImage: string
 	inducteeName: string
 	promotionBannerImage: string
+	objectiveBannerImage: string
 	eventPassBundlesCatalogEntry: LolEventHubCatalogEntry[]
 	progressionPurchaseCatalogEntry: LolEventHubCatalogEntry
 	skinIds: string[]
@@ -7849,6 +7890,7 @@ export interface LolEventHubHallOfLegends {
 	upsellBackgroundImageUrl: string
 	upsellTooltipBackgroundImageUrl: string
 	upsellIconUrl: string
+	memoryBookBackgroundImage: string
 }
 
 export interface LolEventHubHallOfLegendsClientConfig {
@@ -7886,6 +7928,7 @@ export interface LolEventHubInventoryItem {
 	/** @format uint64 */
 	quantity: number
 	ownershipType: LolEventHubItemOwnershipType
+	usedInGameDate: string
 	expirationDate: string
 	/** @format uint64 */
 	wins: number
@@ -7925,6 +7968,7 @@ export interface LolEventHubInventoryItemWithPayload {
 	/** @format uint64 */
 	quantity: number
 	ownershipType: LolEventHubItemOwnershipType
+	usedInGameDate: string
 	expirationDate: string
 	"f2p": boolean
 	rental: boolean
@@ -8074,6 +8118,11 @@ export interface LolEventHubLoginSession {
 
 export type LolEventHubLoginSessionStates = "ERROR" | "LOGGING_OUT" | "SUCCEEDED" | "IN_PROGRESS"
 
+export interface LolEventHubLolInventoryType {
+	inventoryTypeId: string
+	capInventoryTypeId: string
+}
+
 export interface LolEventHubLoyaltyRewards {
 	/** @format int32 */
 	freeRewardedChampionsCount: number
@@ -8159,7 +8208,10 @@ export interface LolEventHubNarrativeElement {
 export interface LolEventHubNarrativeVideo {
 	localizedNarrativeVideoUrl: string
 	localizedPlayNarrativeButtonLabel: string
+	localizedVideoTitle: string
+	thumbnailImage: string
 	narrativeVideoIsLockedOnLevel?: boolean
+	localizedNarrativeVideoDescription: string
 }
 
 export interface LolEventHubNavigationButtonUIData {
@@ -8180,8 +8232,13 @@ export interface LolEventHubNextRewardUIData {
 
 export interface LolEventHubObjectivesBanner {
 	eventName: string
+	promotionBannerImage: string
+	objectiveBannerImage: string
+	isPassPurchased: boolean
 	currentChapter: LolEventHubChapter
+	trackProgressNextReward: LolEventHubTrackProgressNextReward
 	trackProgress: LolEventHubTrackProgressNextReward
+	rewardTrackProgress: LolEventHubRewardTrackProgress
 }
 
 export interface LolEventHubOffer {
@@ -8236,6 +8293,10 @@ export interface LolEventHubPlayerSettingsData {
 	lastSeenTokenBalance: number
 	/** @format uint32 */
 	lastSeenTokenShopOffersVersion: number
+}
+
+export interface LolEventHubPlayerSettingsDataMap {
+	playerSettingsDataMap: Record<string, LolEventHubPlayerSettingsData>
 }
 
 export interface LolEventHubPriceDetail {
@@ -8471,6 +8532,9 @@ export interface LolEventHubRewardTrackItemOption {
 	headerType: LolEventHubRewardTrackItemHeaderType
 	rewardName: string
 	rewardDescription: string
+	rewardItemType: string
+	rewardItemId: string
+	rewardFulfillmentSource: string
 	cardSize: string
 	rewardGroupId: string
 	celebrationType: LolEventHubCelebrationType
@@ -8618,6 +8682,7 @@ export interface LolEventHubSeasonPass {
 	localizedUpsellButtonText: string
 	upsellBackgroundImageUrl: string
 	upsellTooltipBackgroundImageUrl: string
+	objectiveBannerImage: string
 	chapters: LolEventHubChapter[]
 }
 
@@ -8637,7 +8702,7 @@ export interface LolEventHubSelectionStrategyConfig {
 }
 
 export interface LolEventHubSettingsResource {
-	data: LolEventHubPlayerSettingsData
+	data: LolEventHubPlayerSettingsDataMap
 	/** @format int16 */
 	schemaVersion: number
 }
@@ -9070,8 +9135,16 @@ export interface LolGameClientChatMutedPlayerInfo {
 	obfuscatedSummonerId: number
 }
 
-export interface LolGameQueuesDoubleUpConfig {
-	enabled: boolean
+export interface LolGameDataInventoryLolInventoryType {
+	inventoryTypeId: string
+	capInventoryTypeId: string
+	gipAware: boolean
+	gipJsonPath: string
+	gipIsMap: boolean
+	gipItemId: string
+	gipName: string
+	gipDescription: string
+	gipImage: string
 }
 
 export interface LolGameQueuesLoginDataPacket {
@@ -9452,6 +9525,7 @@ export interface LolGameflowQueue {
 	removalFromGameAllowed: boolean
 	/** @format int32 */
 	removalFromGameDelayMinutes: number
+	isCustom: boolean
 }
 
 export type LolGameflowQueueAvailability = "DoesntMeetRequirements" | "PlatformDisabled" | "Available"
@@ -10017,6 +10091,7 @@ export interface LolInventoryInventoryItem {
 	/** @format uint64 */
 	quantity: number
 	ownershipType: LolInventoryItemOwnershipType
+	usedInGameDate: string
 	expirationDate: string
 	/** @format uint64 */
 	wins: number
@@ -10056,6 +10131,7 @@ export interface LolInventoryInventoryItemWithPayload {
 	/** @format uint64 */
 	quantity: number
 	ownershipType: LolInventoryItemOwnershipType
+	usedInGameDate: string
 	expirationDate: string
 	"f2p": boolean
 	rental: boolean
@@ -10100,6 +10176,11 @@ export interface LolInventoryLoginSession {
 }
 
 export type LolInventoryLoginSessionStates = "ERROR" | "LOGGING_OUT" | "SUCCEEDED" | "IN_PROGRESS"
+
+export interface LolInventoryLolInventoryType {
+	inventoryTypeId: string
+	capInventoryTypeId: string
+}
 
 export interface LolInventoryLoyaltyRewards {
 	/** @format int32 */
@@ -10757,12 +10838,18 @@ export interface LolLobbyAutoFillQueueDto {
 	autoFillProtectedForRemedy: boolean
 }
 
+export interface LolLobbyBotChampionIdsByMapIdDto {
+	botChampionIdsByMapId: unknown
+}
+
 export interface LolLobbyBotParticipantDto {
+	botId?: string
 	/** @format int32 */
-	championId: number
+	championId?: number
 	/** @format int32 */
-	botSkillLevel: number
-	team: string
+	botSkillLevel?: number
+	team?: string
+	position?: string
 }
 
 export interface LolLobbyChampionSkinSelection {
@@ -10882,6 +10969,7 @@ export interface LolLobbyEligibilityRestriction {
 	expiredTimestamp: number
 	summonerIds: number[]
 	summonerIdsString: string
+	puuids: string[]
 }
 
 export type LolLobbyEligibilityRestrictionCode = "FullPartyUnranked" | "PlayerNoRankedUpdatesDueToRankDisparity" | "MmrStandardDeviationTooLarge" | "UserInfoNotAvailable" | "InventoryQueuesInfoNotAvailable" | "InventoryChampsInfoNotAvailable" | "LeaguesInfoNotAvailable" | "SummonerInfoNotAvailable" | "MinorInfoNotAvailable" | "BanInfoNotAvailable" | "TooManyIncompleteSubteamsRestriction" | "QPInsufficientPlayerChampionCoveragePopularChampion" | "QPScarcePositionsNotAvailableRestriction" | "QPNonUniquePrimarySlotRestriction" | "QPInvalidChampionSelectionRestriction" | "QPInvalidPositionSelectionRestriction" | "QPInvalidNumberOfPlayerSlotsRestriction" | "QPPlayerChampionCoverageRestriction" | "QPPartyChampionCoverageRestriction" | "QPPlayerPositionCoverageRestriction" | "QPPartyPositionCoverageRestriction" | "QPPlayerScarcePositionCoverageRestriction" | "MinNormalGamesForRankedRestriction" | "LOLNewPlayerRestriction" | "UnknownRestriction" | "SeasonVersionLockout" | "TFTNewPlayerRestriction" | "QueueEntryNotEntitledRestriction" | "GameVersionNotSupported" | "GameVersionMissing" | "GameVersionMismatch" | "PrerequisiteQueuesNotPlayedRestriction" | "TeamSizeRestriction" | "TeamHighMMRMaxSizeRestriction" | "PlayerRankedSuspensionRestriction" | "PlayerRankSoloOnlyRestriction" | "PlayerTimePlayedRestriction" | "PlayerMinorRestriction" | "PlayerMinLevelRestriction" | "PlayerMaxLevelRestriction" | "PlayerTimeBasedRankRestriction" | "PlayerGameBasedRankRestriction" | "PlayerLeaverTaintedWarningRestriction" | "PlayerLeaverQueueLockoutRestriction" | "PlayerLeaverBustedRestriction" | "PlayerInGameRestriction" | "PlayerReadyCheckFailRestriction" | "PlayerDodgeRestriction" | "PlayerBingeRestriction" | "TeamMinSizeRestriction" | "TeamMaxSizeRestriction" | "TeamSkillRestriction" | "TeamDivisionRestriction" | "PlayerAvailableChampionRestriction" | "PlayerBannedRestriction" | "PlayerTimedRestriction" | "PlayerLevelRestriction" | "QueueUnsupported" | "QueueDisabled"
@@ -11088,7 +11176,7 @@ export interface LolLobbyLobbyBotChampion {
 	botDifficulties: LolLobbyLobbyBotDifficulty[]
 }
 
-export type LolLobbyLobbyBotDifficulty = "RSINTERMEDIATE" | "RSBEGINNER" | "RSINTRO" | "INTRO" | "TUTORIAL" | "UBER" | "HARD" | "MEDIUM" | "EASY" | "NONE"
+export type LolLobbyLobbyBotDifficulty = "RSWARMINTRO" | "RSINTERMEDIATE" | "RSBEGINNER" | "RSINTRO" | "INTRO" | "TUTORIAL" | "UBER" | "HARD" | "MEDIUM" | "EASY" | "NONE"
 
 export interface LolLobbyLobbyBotParams {
 	/** @format int32 */
@@ -11891,98 +11979,6 @@ export interface LolLobbySummoner {
 	tagLine: string
 }
 
-export interface LolLobbyTeamBuilderActionV1 {
-	/** @format int32 */
-	actionId: number
-	/** @format int32 */
-	actorCellId: number
-	type: string
-	/** @format int32 */
-	championId: number
-	completed: boolean
-	/** @format int64 */
-	duration: number
-}
-
-export interface LolLobbyTeamBuilderAfkCheckStateV1 {
-	/** @format uint32 */
-	maxAfkMillis: number
-	/** @format int32 */
-	remainingAfkMillis: number
-	afkReady: boolean
-	inventoryDraft: LolLobbyTeamBuilderTbdInventory
-	additionalInventoryTypes: string[]
-	compressAfkCheckPayload: boolean
-	autoAccept: boolean
-	mucJwtDto: LolLobbyTeamBuilderMucJwtDto
-}
-
-export interface LolLobbyTeamBuilderBackwardsTransitionInfoV1 {
-	backwardsTransitionReason: string
-	initiatorSummonerIds: number[]
-}
-
-export interface LolLobbyTeamBuilderBenchChampion {
-	/** @format int32 */
-	championId: number
-	isPriority: boolean
-}
-
-export interface LolLobbyTeamBuilderCellV1 {
-	/** @format int32 */
-	teamId: number
-	/** @format int32 */
-	cellId: number
-	/** @format int32 */
-	championPickIntent: number
-	/** @format int32 */
-	championId: number
-	/** @format int32 */
-	skinId: number
-	assignedPosition: string
-	/** @format int32 */
-	"spell1Id": number
-	/** @format int32 */
-	"spell2Id": number
-	/** @format uint64 */
-	summonerId: number
-	puuid: string
-	nameVisibilityType: string
-	/** @format uint64 */
-	obfuscatedSummonerId: number
-	obfuscatedPuuid: string
-}
-
-export interface LolLobbyTeamBuilderCellsV1 {
-	alliedTeam: LolLobbyTeamBuilderCellV1[]
-	enemyTeam: LolLobbyTeamBuilderCellV1[]
-}
-
-export interface LolLobbyTeamBuilderCeremonyV1 {
-	name: string
-	/** @format int64 */
-	duration: number
-}
-
-export interface LolLobbyTeamBuilderChampSelectAction {
-	/** @format int64 */
-	id: number
-	/** @format int64 */
-	actorCellId: number
-	/** @format int32 */
-	championId: number
-	type: string
-	completed: boolean
-	isAllyAction: boolean
-	isInProgress: boolean
-}
-
-export interface LolLobbyTeamBuilderChampSelectChatRoomDetails {
-	multiUserChatId: string
-	multiUserChatPassword: string
-	mucJwtDto: LolLobbyTeamBuilderMucJwtDto
-}
-
 export interface LolLobbyTeamBuilderChampSelectDevPanelData {
 	/** @format int64 */
 	counter: number
@@ -11994,162 +11990,6 @@ export interface LolLobbyTeamBuilderChampSelectDevPanelData {
 	teamIdSuffix: number
 }
 
-export interface LolLobbyTeamBuilderChampSelectMySelection {
-	/** @format int32 */
-	selectedSkinId?: number
-	/** @format uint64 */
-	"spell1Id"?: number
-	/** @format uint64 */
-	"spell2Id"?: number
-	/** @format int64 */
-	wardSkinId?: number
-}
-
-export interface LolLobbyTeamBuilderChampSelectPlayerSelection {
-	/** @format int64 */
-	cellId: number
-	/** @format int32 */
-	championId: number
-	/** @format int32 */
-	selectedSkinId: number
-	/** @format int64 */
-	wardSkinId: number
-	/** @format uint64 */
-	"spell1Id": number
-	/** @format uint64 */
-	"spell2Id": number
-	/** @format int32 */
-	team: number
-	assignedPosition: string
-	/** @format int32 */
-	championPickIntent: number
-	playerType: string
-	/** @format uint64 */
-	summonerId: number
-	puuid: string
-	nameVisibilityType: string
-	/** @format uint64 */
-	obfuscatedSummonerId: number
-	obfuscatedPuuid: string
-}
-
-export interface LolLobbyTeamBuilderChampSelectSession {
-	/** @format uint64 */
-	gameId: number
-	timer: LolLobbyTeamBuilderChampSelectTimer
-	chatDetails: LolLobbyTeamBuilderChampSelectChatRoomDetails
-	myTeam: LolLobbyTeamBuilderChampSelectPlayerSelection[]
-	theirTeam: LolLobbyTeamBuilderChampSelectPlayerSelection[]
-	trades: LolLobbyTeamBuilderChampSelectTradeContract[]
-	pickOrderSwaps: LolLobbyTeamBuilderChampSelectSwapContract[]
-	actions: unknown[]
-	/** @format int64 */
-	localPlayerCellId: number
-	allowSkinSelection: boolean
-	allowDuplicatePicks: boolean
-	allowBattleBoost: boolean
-	/** @format int32 */
-	boostableSkinCount: number
-	allowRerolling: boolean
-	/** @format uint64 */
-	rerollsRemaining: number
-	allowLockedEvents: boolean
-	/** @format int32 */
-	lockedEventIndex: number
-	benchEnabled: boolean
-	benchChampions: LolLobbyTeamBuilderBenchChampion[]
-	/** @format int64 */
-	counter: number
-	/** @format int64 */
-	recoveryCounter: number
-	skipChampionSelect: boolean
-	isSpectating: boolean
-	hasSimultaneousBans: boolean
-	hasSimultaneousPicks: boolean
-	showQuitButton: boolean
-	isLegacyChampSelect: boolean
-}
-
-export interface LolLobbyTeamBuilderChampSelectSwapContract {
-	/** @format int64 */
-	id: number
-	/** @format int64 */
-	cellId: number
-	state: LolLobbyTeamBuilderChampSelectSwapState
-}
-
-export type LolLobbyTeamBuilderChampSelectSwapState = "SENT" | "RECEIVED" | "INVALID" | "BUSY" | "AVAILABLE"
-
-export interface LolLobbyTeamBuilderChampSelectTimer {
-	/** @format int64 */
-	adjustedTimeLeftInPhase: number
-	/** @format int64 */
-	totalTimeInPhase: number
-	phase: string
-	isInfinite: boolean
-	/** @format uint64 */
-	internalNowInEpochMs: number
-}
-
-export interface LolLobbyTeamBuilderChampSelectTradeContract {
-	/** @format int64 */
-	id: number
-	/** @format int64 */
-	cellId: number
-	state: LolLobbyTeamBuilderChampSelectTradeState
-}
-
-export type LolLobbyTeamBuilderChampSelectTradeState = "SENT" | "RECEIVED" | "INVALID" | "BUSY" | "AVAILABLE"
-
-export interface LolLobbyTeamBuilderChampionBenchChampionV1 {
-	/** @format int32 */
-	championId: number
-	isPriority: boolean
-}
-
-export interface LolLobbyTeamBuilderChampionBenchStateV1 {
-	benchEnabled: boolean
-	championIds: number[]
-	benchChampions: LolLobbyTeamBuilderChampionBenchChampionV1[]
-}
-
-export interface LolLobbyTeamBuilderChampionSelectPreferences {
-	skins: Record<string, number>
-	spells: Record<string, unknown>
-}
-
-export interface LolLobbyTeamBuilderChampionSelectStateV1 {
-	teamId: string
-	teamChatRoomId: string
-	subphase: string
-	actionSetList: unknown[]
-	ceremoniesByActionSetIndex: Record<string, unknown>
-	/** @format int32 */
-	currentActionSetIndex: number
-	cells: LolLobbyTeamBuilderCellsV1
-	/** @format int32 */
-	localPlayerCellId: number
-	/** @format int64 */
-	currentTotalTimeMillis: number
-	/** @format int64 */
-	currentTimeRemainingMillis: number
-	trades: LolLobbyTeamBuilderTradeV1[]
-	pickOrderSwaps: LolLobbyTeamBuilderPickOrderSwapV1[]
-	pickIntentClearedReason: string
-	allowOptingOutOfBanning: boolean
-	allowSkinSelection: boolean
-	allowDuplicatePicks: boolean
-	lcuSkipsSendingLoadoutsGco: boolean
-	rerollState: LolLobbyTeamBuilderRerollStateV1
-	lockedEventsState: LolLobbyTeamBuilderLockedEventsStateV1
-	battleBoostState: LolLobbyTeamBuilderTeamBuilderBoostInfo
-	championBenchState: LolLobbyTeamBuilderChampionBenchStateV1
-	inventoryDraft: LolLobbyTeamBuilderTbdInventory
-	skipChampionSelect: boolean
-	isSpectating: boolean
-	showQuitButton: boolean
-}
-
 export interface LolLobbyTeamBuilderCountdownTimer {
 	phaseName: string
 	/** @format int64 */
@@ -12158,387 +11998,11 @@ export interface LolLobbyTeamBuilderCountdownTimer {
 	counter: number
 }
 
-export interface LolLobbyTeamBuilderGameModeSpellList {
-	spells: number[]
-}
-
-export interface LolLobbyTeamBuilderGameflowGameClient {
-	running: boolean
-}
-
-export interface LolLobbyTeamBuilderGameflowGameData {
-	queue: LolLobbyTeamBuilderGameflowQueue
-}
-
-export interface LolLobbyTeamBuilderGameflowGameMap {
-	perPositionRequiredSummonerSpells: Record<string, LolLobbyTeamBuilderGameModeSpellList>
-	perPositionDisallowedSummonerSpells: Record<string, LolLobbyTeamBuilderGameModeSpellList>
-}
-
-export interface LolLobbyTeamBuilderGameflowQueue {
-	/** @format int32 */
-	id: number
-}
-
-export type LolLobbyTeamBuilderGameflowServiceErrorType = "PLAYER_LACKS_VANGUARD_SESSION"
-
-export interface LolLobbyTeamBuilderGameflowSession {
-	gameData: LolLobbyTeamBuilderGameflowGameData
-	gameClient: LolLobbyTeamBuilderGameflowGameClient
-	map: LolLobbyTeamBuilderGameflowGameMap
-}
-
-export interface LolLobbyTeamBuilderGatekeeperRestricted {
-	gatekeeperRestrictions: LolLobbyTeamBuilderGatekeeperRestriction[]
-}
-
-export interface LolLobbyTeamBuilderGatekeeperRestriction {
-	/** @format uint64 */
-	summonerId: number
-	reason: string
-	/** @format uint32 */
-	remainingMillis: number
-	payload: string
-	/** @format int32 */
-	queueId: number
-}
-
-export interface LolLobbyTeamBuilderLeaverBusterAbandoned {
-	abandonerName: string
-}
-
-export interface LolLobbyTeamBuilderLobby {
-	/** @format int32 */
-	queueId: number
-	invitationId: string
-	multiUserChatId: string
-	multiUserChatPassword: string
-	mucJwtDto: LolLobbyTeamBuilderMucJwtDto
-	members: LolLobbyTeamBuilderLobbyMember[]
-	localMember: LolLobbyTeamBuilderLobbyMember
-	invitations: LolLobbyTeamBuilderLobbyInvitation[]
-	wasKicked: boolean
-	removalReason: LolLobbyTeamBuilderLobbyRemovedFromGameReason
-	canStartMatchmaking: boolean
-	showPositionSelector: boolean
-	showPositionExcluder: boolean
-	specifiablePositionPreferences: string[]
-	autoFillEligible: boolean
-	autoFillProtectedForStreaking: boolean
-	autoFillProtectedForPromos: boolean
-	isTeamBuilderManaged: boolean
-	premadeSizeAllowed: boolean
-	requiredPositionCoverageMet: boolean
-	allowablePremadeSizes: number[]
-}
-
-export interface LolLobbyTeamBuilderLobbyCountdownTimer {
-	phaseName: string
-	/** @format int64 */
-	timer: number
-	/** @format int32 */
-	counter: number
-}
-
-export interface LolLobbyTeamBuilderLobbyInvitation {
-	invitationMetaData: unknown
-}
-
-export interface LolLobbyTeamBuilderLobbyMember {
-	/** @format uint64 */
-	id: number
-	isOwner: boolean
-	canInviteOthers: boolean
-	positionPreferences: LolLobbyTeamBuilderLobbyPositionPreferences
-	excludedPositionPreference?: string
-	showPositionExcluder: boolean
-	autoFillEligible: boolean
-	autoFillProtectedForStreaking: boolean
-	autoFillProtectedForPromos: boolean
-	autoFillProtectedForSoloing: boolean
-}
-
-export interface LolLobbyTeamBuilderLobbyPositionPreferences {
-	firstPreference: string
-	secondPreference: string
-}
-
-export interface LolLobbyTeamBuilderLobbyPositionPreferencesV2 {
-	firstPreference: string
-	secondPreference: string
-	excludedPreference: string
-}
-
-export type LolLobbyTeamBuilderLobbyRemovedFromGameReason = "ServiceShutdown" | "GameStartError" | "Timeout" | "Other" | "ServiceError" | "Left" | "Disbanded" | "Kicked" | "None"
-
-export interface LolLobbyTeamBuilderLockedEventsStateV1 {
-	allowLockedEvents: boolean
-	/** @format int32 */
-	lockedEventIndex: number
-}
-
-export interface LolLobbyTeamBuilderLoginSession {
-	state: LolLobbyTeamBuilderLoginSessionState
-	/** @format uint64 */
-	summonerId: number
-	/** @format uint64 */
-	accountId: number
-	connected: boolean
-}
-
-export type LolLobbyTeamBuilderLoginSessionState = "ERROR" | "LOGGING_OUT" | "SUCCEEDED" | "IN_PROGRESS"
-
-export interface LolLobbyTeamBuilderMatchmakingDodgeData {
-	state: LolLobbyTeamBuilderMatchmakingDodgeState
-	/** @format uint64 */
-	dodgerId: number
-}
-
-export type LolLobbyTeamBuilderMatchmakingDodgeState = "TournamentDodged" | "StrangerDodged" | "PartyDodged" | "Invalid"
-
-export type LolLobbyTeamBuilderMatchmakingDodgeWarning = "Penalty" | "Warning" | "None"
-
-export interface LolLobbyTeamBuilderMatchmakingLowPriorityData {
-	penalizedSummonerIds: number[]
-	/** @format double */
-	penaltyTime: number
-	/** @format double */
-	penaltyTimeRemaining: number
-	bustedLeaverAccessToken: string
-}
-
-export interface LolLobbyTeamBuilderMatchmakingReadyCheckResource {
-	state: LolLobbyTeamBuilderMatchmakingReadyCheckState
-	playerResponse: LolLobbyTeamBuilderMatchmakingReadyCheckResponse
-	dodgeWarning: LolLobbyTeamBuilderMatchmakingDodgeWarning
-	/** @format float */
-	timer: number
-	declinerIds: number[]
-}
-
-export type LolLobbyTeamBuilderMatchmakingReadyCheckResponse = "Declined" | "Accepted" | "None"
-
-export type LolLobbyTeamBuilderMatchmakingReadyCheckState = "Error" | "PartyNotReady" | "StrangerNotReady" | "EveryoneReady" | "InProgress" | "Invalid"
-
 export interface LolLobbyTeamBuilderMatchmakingSearch {
 	searchState: LolLobbyTeamBuilderMatchmakingSearchState
 }
 
-export interface LolLobbyTeamBuilderMatchmakingSearchErrorResource {
-	/** @format int32 */
-	id: number
-	errorType: string
-	/** @format uint64 */
-	penalizedSummonerId: number
-	/** @format double */
-	penaltyTimeRemaining: number
-	message: string
-}
-
-export interface LolLobbyTeamBuilderMatchmakingSearchResource {
-	/** @format int32 */
-	queueId: number
-	isCurrentlyInQueue: boolean
-	lobbyId: string
-	searchState: LolLobbyTeamBuilderMatchmakingSearchState
-	/** @format float */
-	timeInQueue: number
-	/** @format float */
-	estimatedQueueTime: number
-	readyCheck: LolLobbyTeamBuilderMatchmakingReadyCheckResource
-	dodgeData: LolLobbyTeamBuilderMatchmakingDodgeData
-	lowPriorityData: LolLobbyTeamBuilderMatchmakingLowPriorityData
-	errors: LolLobbyTeamBuilderMatchmakingSearchErrorResource[]
-}
-
 export type LolLobbyTeamBuilderMatchmakingSearchState = "ServiceShutdown" | "ServiceError" | "Error" | "Found" | "Searching" | "Canceled" | "AbandonedLowPriorityQueue" | "Invalid"
-
-export interface LolLobbyTeamBuilderMucJwtDto {
-	jwt: string
-	channelClaim: string
-	domain: string
-	targetRegion: string
-}
-
-export interface LolLobbyTeamBuilderPickOrderSwapV1 {
-	/** @format int32 */
-	id: number
-	/** @format int32 */
-	cellId: number
-	state: string
-}
-
-export interface LolLobbyTeamBuilderQueue {
-	/** @format int32 */
-	id: number
-	/** @format int32 */
-	mapId: number
-	name: string
-	shortName: string
-	description: string
-	detailedDescription: string
-	type: string
-	gameMode: string
-	assetMutator: string
-	category: LolLobbyTeamBuilderQueueGameCategory
-	gameTypeConfig: LolLobbyTeamBuilderQueueGameTypeConfig
-	/** @format int32 */
-	numPlayersPerTeam: number
-	/** @format int32 */
-	minimumParticipantListSize: number
-	/** @format int32 */
-	maximumParticipantListSize: number
-	/** @format uint32 */
-	minLevel: number
-	isRanked: boolean
-	areFreeChampionsAllowed: boolean
-	isTeamBuilderManaged: boolean
-	queueAvailability: LolLobbyTeamBuilderQueueAvailability
-	queueRewards: LolLobbyTeamBuilderQueueReward
-	spectatorEnabled: boolean
-	/** @format uint32 */
-	championsRequiredToPlay: number
-	allowablePremadeSizes: number[]
-	showPositionSelector: boolean
-	showQuickPlaySlotSelection: boolean
-	/** @format uint64 */
-	lastToggledOffTime: number
-	/** @format uint64 */
-	lastToggledOnTime: number
-	removalFromGameAllowed: boolean
-	/** @format int32 */
-	removalFromGameDelayMinutes: number
-}
-
-export type LolLobbyTeamBuilderQueueAvailability = "DoesntMeetRequirements" | "PlatformDisabled" | "Available"
-
-export type LolLobbyTeamBuilderQueueGameCategory = "Alpha" | "VersusAi" | "PvP" | "Custom" | "None"
-
-export interface LolLobbyTeamBuilderQueueGameTypeConfig {
-	/** @format int64 */
-	id: number
-	name: string
-	/** @format int32 */
-	maxAllowableBans: number
-	allowTrades: boolean
-	allowPickOrderSwaps: boolean
-	exclusivePick: boolean
-	duplicatePick: boolean
-	teamChampionPool: boolean
-	crossTeamChampionPool: boolean
-	advancedLearningQuests: boolean
-	battleBoost: boolean
-	deathMatch: boolean
-	doNotRemove: boolean
-	learningQuests: boolean
-	onboardCoopBeginner: boolean
-	reroll: boolean
-	/** @format int32 */
-	mainPickTimerDuration: number
-	/** @format int32 */
-	postPickTimerDuration: number
-	/** @format int32 */
-	banTimerDuration: number
-	pickMode: string
-	banMode: string
-}
-
-export interface LolLobbyTeamBuilderQueueReward {
-	isIpEnabled: boolean
-	isXpEnabled: boolean
-	isChampionPointsEnabled: boolean
-	partySizeIpRewards: number[]
-}
-
-export interface LolLobbyTeamBuilderRerollStateV1 {
-	allowRerolling: boolean
-	/** @format uint64 */
-	rerollsRemaining: number
-}
-
-export interface LolLobbyTeamBuilderSettingCategoryResource {
-	/** @format int32 */
-	schemaVersion: number
-	data: LolLobbyTeamBuilderChampionSelectPreferences
-}
-
-export interface LolLobbyTeamBuilderTBDMatchmakingState {
-	/** @format int64 */
-	estimatedMatchmakingTimeMillis: number
-	/** @format int64 */
-	timeInMatchmakingMillis: number
-	backwardsTransitionReason: string
-}
-
-export interface LolLobbyTeamBuilderTbLobbyStateResource {
-	/** @format int32 */
-	counter: number
-	/** @format int32 */
-	recoveryCounter: number
-	phaseName: string
-	/** @format int32 */
-	queueId: number
-	/** @format uint64 */
-	gameId: number
-	matchmakingState?: LolLobbyTeamBuilderTBDMatchmakingState
-	afkCheckState?: LolLobbyTeamBuilderAfkCheckStateV1
-	championSelectState?: LolLobbyTeamBuilderChampionSelectStateV1
-}
-
-export interface LolLobbyTeamBuilderTbRemovedFromServiceNotification {
-	reason: string
-	backwardsTransitionInfo: LolLobbyTeamBuilderBackwardsTransitionInfoV1
-}
-
-export interface LolLobbyTeamBuilderTbdInventory {
-	lastSelectedSkinIdByChampionId: Record<string, number>
-	skinIds: number[]
-	spellIds: number[]
-	initialSpellIds: number[]
-	allChampionIds: number[]
-	disabledChampionIds: number[]
-	crowdFavoriteChampionIds: number[]
-}
-
-export interface LolLobbyTeamBuilderTeamBoost {
-	/** @format int64 */
-	summonerId: number
-	puuid: string
-	skinUnlockMode: string
-	/** @format int64 */
-	price: number
-	/** @format int64 */
-	ipReward: number
-	/** @format int64 */
-	ipRewardForPurchaser: number
-	availableSkins: number[]
-	unlocked: boolean
-}
-
-export interface LolLobbyTeamBuilderTeamBuilderBoostInfo {
-	allowBattleBoost: boolean
-	/** @format int32 */
-	boostableSkinCount: number
-	/** @format int64 */
-	activatorCellId: number
-	battleBoostActivated: boolean
-	/** @format int64 */
-	cost: number
-	unlockedSkinIds: number[]
-}
-
-export interface LolLobbyTeamBuilderTeambuilderLeagueEdgeResponse {
-	payload: LolLobbyTeamBuilderTbLobbyStateResource
-	status: string
-}
-
-export interface LolLobbyTeamBuilderTradeV1 {
-	/** @format int32 */
-	id: number
-	/** @format int32 */
-	cellId: number
-	state: string
-}
 
 export interface LolLobbyUserInfoToken {
 	userInfo: string
@@ -13795,6 +13259,29 @@ export interface LolMarketplaceCatalogEntryDto {
 	purchaseLimits: LolMarketplaceVelocityLimitDeltaDto[]
 }
 
+export interface LolMarketplaceEntitlementDto {
+	id: string
+	label: string
+	typeId: string
+	productId: string
+	active: boolean
+	createdDate: string
+	lastModifiedDate: string
+	firstUsedDate: string
+	recipient: unknown
+	ownerId: string
+	item: LolMarketplaceEntitlementItemDto
+}
+
+export interface LolMarketplaceEntitlementItemDto {
+	id: string
+	typeId: string
+}
+
+export interface LolMarketplaceEntitlementsResponse {
+	data: LolMarketplaceEntitlementDto[]
+}
+
 export interface LolMarketplaceFinalPurchaseUnitDto {
 	payments: LolMarketplacePaymentDto[]
 	fulfillment: LolMarketplaceFulfillmentDto
@@ -13874,6 +13361,7 @@ export interface LolMarketplacePurchaseDto {
 	purchaseVisibility: string
 	refund: LolMarketplaceRefundDto
 	refundRule: string
+	refundable: boolean
 	source: string
 }
 
@@ -14028,6 +13516,28 @@ export interface LolMarketplaceStoresResponse {
 	errors: LolMarketplaceResponseError[]
 }
 
+export interface LolMarketplaceTFTRotationalShopConfig {
+	enabled: boolean
+	contentPreviewConfig: unknown
+	uiToggleEnabled: boolean
+	navs: LolMarketplaceTFTRotationalShopNavConfig[]
+	refund: LolMarketplaceTFTRotationalShopRefundConfig
+	littleLegendsUpgradeEnabled: boolean
+}
+
+export interface LolMarketplaceTFTRotationalShopNavConfig {
+	name: string
+	enabled: boolean
+	supportedCurrencies: string[]
+}
+
+export interface LolMarketplaceTFTRotationalShopRefundConfig {
+	enabled: boolean
+	allowedTypes: string[]
+	/** @format uint8 */
+	thresholdDays: number
+}
+
 export interface LolMarketplaceTraKeyName {
 	nameTraKey: string
 	translatedName: string
@@ -14148,6 +13658,7 @@ export interface LolMatchHistoryMatchHistoryGame {
 	seasonId: number
 	gameVersion: string
 	gameMode: string
+	gameModeMutators: string[]
 	gameType: string
 	teams: LolMatchHistoryMatchHistoryTeam[]
 	participants: LolMatchHistoryMatchHistoryParticipant[]
@@ -14711,6 +14222,124 @@ export interface LolMatchmakingQueue {
 
 export type LolMatchmakingQueueCustomGameSpectatorPolicy = "AllAllowed" | "FriendsAllowed" | "LobbyAllowed" | "NotAllowed"
 
+export interface LolMissionsCAPMission {
+	missionId: string
+	title: string
+	description: string
+	missionIconAsset: LolMissionsMissionAsset
+	rewards: LolMissionsCAPMissionReward[]
+	objectives: LolMissionsCAPMissionObjective[]
+}
+
+export interface LolMissionsCAPMissionCollection {
+	missionCollectionId: string
+	dates: LolMissionsCAPMissionCollectionDates
+	seriesList: LolMissionsCAPMissionSeries[]
+}
+
+export interface LolMissionsCAPMissionCollectionDateRange {
+	/** @format uint64 */
+	activationTimeEpoch: number
+	/** @format uint64 */
+	deactivationTimeEpoch: number
+}
+
+export interface LolMissionsCAPMissionCollectionDates {
+	live: LolMissionsCAPMissionCollectionDateRange
+	pbe: LolMissionsCAPMissionCollectionDateRange
+	internal: LolMissionsCAPMissionCollectionDateRange
+}
+
+export interface LolMissionsCAPMissionObjective {
+	statId: string
+	description: string
+}
+
+export interface LolMissionsCAPMissionReward {
+	itemId: string
+	rewardName: string
+	/** @format uint32 */
+	quantity: number
+	rewardAsset: LolMissionsMissionAsset
+}
+
+export interface LolMissionsCAPMissionSeries {
+	seriesId: string
+	seriesTitle: string
+	seriesBackgroundImageUrl: string
+	seriesIconAsset: LolMissionsMissionAsset
+	missions: LolMissionsCAPMission[]
+}
+
+export interface LolMissionsCapMissionSeriesMission {
+	name: string
+	missionId: string
+	expression: string
+	missionCollectionId: string
+	status: string
+	completedTimeUtc: string
+	missionInstanceId: string
+	objectives: LolMissionsCapMissionSeriesMissionObjective[]
+	eligibility: LolMissionsCapMissionSeriesMissionEligibility[]
+	rewardsStatus: LolMissionsCapMissionSeriesMissionRewardsStatus
+	/** @format uint32 */
+	repeatSequence: number
+	properties: Record<string, string>
+	metadata: Record<string, string>
+}
+
+export interface LolMissionsCapMissionSeriesMissionEligibility {
+	type: string
+	missionCollectionId: string
+	missionId: string
+	startTime: string
+}
+
+export interface LolMissionsCapMissionSeriesMissionObjective {
+	statId: string
+	objectiveId: string
+	/** @format uint32 */
+	goal: number
+	/** @format uint32 */
+	currentValue: number
+}
+
+export interface LolMissionsCapMissionSeriesMissionReward {
+	type: string
+	counterId: string
+	itemId: string
+	itemTypeId: string
+	typeId: string
+	/** @format uint32 */
+	amount: number
+}
+
+export interface LolMissionsCapMissionSeriesMissionRewardsStatus {
+	requiresClaim: boolean
+	status: string
+	rewards: LolMissionsCapMissionSeriesMissionReward[]
+}
+
+export interface LolMissionsCapMissionsMarkAsViewedPostBody {
+	events: LolMissionsCapMissionsMarkAsViewedPostBodyEvent[]
+}
+
+export interface LolMissionsCapMissionsMarkAsViewedPostBodyEvent {
+	configurationId: string
+	missions: LolMissionsCapMissionsMarkAsViewedPostBodyMission[]
+}
+
+export interface LolMissionsCapMissionsMarkAsViewedPostBodyMission {
+	missionInstanceId: string
+	metadata: Record<string, string>
+}
+
+export interface LolMissionsCapMissionsMeResponse {
+	productId: string
+	ownerId: string
+	series: LolMissionsCAPMissionSeries[]
+}
+
 export interface LolMissionsCollectionsChampion {
 	/** @format int32 */
 	id: number
@@ -14774,6 +14403,8 @@ export interface LolMissionsLoginSession {
 	puuid: string
 	platformId: string
 }
+
+export type LolMissionsLoginSessionStates = "ERROR" | "LOGGING_OUT" | "SUCCEEDED" | "IN_PROGRESS"
 
 export type LolMissionsLoyaltyStatus = "DISABLED" | "REVOKE" | "CHANGE" | "EXPIRY" | "REWARDS_GRANT" | "LEGACY"
 
@@ -14868,6 +14499,21 @@ export type LolMissionsRewardStrategy = "SELECTION" | "RANDOM" | "ALL"
 export interface LolMissionsRewardsProductConfig {
 	enabled: boolean
 	serviceUrl: string
+}
+
+export interface LolMissionsRiotMessagingServiceMessage {
+	resource: string
+	service: string
+	version: string
+	/** @format int64 */
+	timestamp: number
+	payload: string
+}
+
+export interface LolMissionsRiotMessagingServicePayload {
+	deltaEventId: string
+	ownerId: string
+	updatedMissions: string[]
 }
 
 export interface LolMissionsSelectionStrategyConfig {
@@ -15043,6 +14689,11 @@ export interface LolNachoGameDataNachoReward {
 export interface LolNachoGameDataPityCounter {
 	id: string
 	name: string
+}
+
+export interface LolNachoGipItem {
+	/** @format uint32 */
+	gipItemId: number
 }
 
 export interface LolNachoNachoBannersResponse {
@@ -15350,10 +15001,13 @@ export interface LolNpeTutorialPathMission {
 	title: string
 	helperText: string
 	description: string
+	missionLineText: string
 	backgroundImageUrl: string
 	iconImageUrl: string
 	seriesName: string
 	locale: string
+	/** @format int32 */
+	sequence: number
 	metadata: LolNpeTutorialPathMissionMetadata
 	/** @format int64 */
 	startTime: number
@@ -15374,20 +15028,50 @@ export interface LolNpeTutorialPathMission {
 	missionType: string
 	displayType: string
 	/** @format int64 */
+	earnedDate: number
+	/** @format int64 */
 	completedDate: number
 	/** @format int64 */
 	cooldownTimeMillis: number
 	celebrationType: string
 	clientNotifyLevel: string
 	internalName: string
+	media: Record<string, string>
 }
 
 export interface LolNpeTutorialPathMissionDisplay {
 	attributes: string[]
+	locations: string[]
 }
 
 export interface LolNpeTutorialPathMissionMetadata {
 	tutorial: LolNpeTutorialPathTutorialMetadata
+	npeRewardPack: LolNpeTutorialPathNpeRewardPackMetadata
+	missionType: string
+	/** @format int32 */
+	weekNum: number
+	/** @format int32 */
+	xpReward: number
+	/** @format int32 */
+	chain: number
+	/** @format int32 */
+	order: number
+	/** @format int32 */
+	chainSize: number
+}
+
+export interface LolNpeTutorialPathNpeReward {
+	renderer: string
+	data: unknown
+}
+
+export interface LolNpeTutorialPathNpeRewardPackMetadata {
+	/** @format int32 */
+	index: number
+	premiumReward: boolean
+	rewardKey: string
+	majorReward: LolNpeTutorialPathNpeReward
+	minorRewards: LolNpeTutorialPathNpeReward[]
 }
 
 export interface LolNpeTutorialPathObjective {
@@ -15397,6 +15081,9 @@ export interface LolNpeTutorialPathObjective {
 	/** @format int32 */
 	sequence: number
 	rewardGroups: string[]
+	hasObjectiveBasedReward: boolean
+	status: string
+	requirements: string[]
 }
 
 export interface LolNpeTutorialPathProgress {
@@ -15417,6 +15104,7 @@ export interface LolNpeTutorialPathReward {
 	rewardGroup: string
 	description: string
 	iconUrl: string
+	smallIconUrl: string
 	itemId: string
 	uniqueName: string
 	rewardFulfilled: boolean
@@ -15425,13 +15113,16 @@ export interface LolNpeTutorialPathReward {
 	sequence: number
 	/** @format int32 */
 	quantity: number
+	isObjectiveBasedReward: boolean
+	media: Record<string, string>
+	iconNeedsFrame: boolean
 }
 
 export interface LolNpeTutorialPathRewardStrategy {
 	groupStrategy: string
-	/** @format int16 */
+	/** @format uint16 */
 	selectMaxGroupCount: number
-	/** @format int16 */
+	/** @format uint16 */
 	selectMinGroupCount: number
 }
 
@@ -15511,6 +15202,137 @@ export type LolNpeTutorialPathTutorialStatus = "COMPLETED" | "UNLOCKED" | "LOCKE
 
 export type LolNpeTutorialPathTutorialType = "REWARD" | "CARD"
 
+export interface LolObjectivesActiveEventUIData {
+	eventId: string
+	eventInfo: LolObjectivesEventInfoUIData
+}
+
+export interface LolObjectivesCAPMission {
+	missionId: string
+	title: string
+	description: string
+	missionIconAsset: LolObjectivesMissionAsset
+	rewards: LolObjectivesCAPMissionReward[]
+	objectives: LolObjectivesCAPMissionObjective[]
+}
+
+export interface LolObjectivesCAPMissionCollection {
+	missionCollectionId: string
+	dates: LolObjectivesCAPMissionCollectionDates
+	seriesList: LolObjectivesCAPMissionSeries[]
+}
+
+export interface LolObjectivesCAPMissionCollectionDateRange {
+	/** @format uint64 */
+	activationTimeEpoch: number
+	/** @format uint64 */
+	deactivationTimeEpoch: number
+}
+
+export interface LolObjectivesCAPMissionCollectionDates {
+	live: LolObjectivesCAPMissionCollectionDateRange
+	pbe: LolObjectivesCAPMissionCollectionDateRange
+	internal: LolObjectivesCAPMissionCollectionDateRange
+}
+
+export interface LolObjectivesCAPMissionObjective {
+	statId: string
+	description: string
+}
+
+export interface LolObjectivesCAPMissionReward {
+	itemId: string
+	rewardName: string
+	/** @format uint32 */
+	quantity: number
+	rewardAsset: LolObjectivesMissionAsset
+}
+
+export interface LolObjectivesCAPMissionSeries {
+	seriesId: string
+	seriesTitle: string
+	seriesBackgroundImageUrl: string
+	seriesIconAsset: LolObjectivesMissionAsset
+	missions: LolObjectivesCAPMission[]
+}
+
+export interface LolObjectivesCapMissionSeriesMission {
+	name: string
+	missionId: string
+	expression: string
+	missionCollectionId: string
+	status: string
+	completedTimeUtc: string
+	missionInstanceId: string
+	objectives: LolObjectivesCapMissionSeriesMissionObjective[]
+	eligibility: LolObjectivesCapMissionSeriesMissionEligibility[]
+	rewardsStatus: LolObjectivesCapMissionSeriesMissionRewardsStatus
+	/** @format uint32 */
+	repeatSequence: number
+	properties: Record<string, string>
+	metadata: Record<string, string>
+}
+
+export interface LolObjectivesCapMissionSeriesMissionEligibility {
+	type: string
+	missionCollectionId: string
+	missionId: string
+	startTime: string
+}
+
+export interface LolObjectivesCapMissionSeriesMissionObjective {
+	statId: string
+	objectiveId: string
+	/** @format uint32 */
+	goal: number
+	/** @format uint32 */
+	currentValue: number
+}
+
+export interface LolObjectivesCapMissionSeriesMissionReward {
+	type: string
+	counterId: string
+	itemId: string
+	itemTypeId: string
+	typeId: string
+	/** @format uint32 */
+	amount: number
+}
+
+export interface LolObjectivesCapMissionSeriesMissionRewardsStatus {
+	requiresClaim: boolean
+	status: string
+	rewards: LolObjectivesCapMissionSeriesMissionReward[]
+}
+
+export interface LolObjectivesCapMissionsMarkAsViewedPostBody {
+	events: LolObjectivesCapMissionsMarkAsViewedPostBodyEvent[]
+}
+
+export interface LolObjectivesCapMissionsMarkAsViewedPostBodyEvent {
+	configurationId: string
+	missions: LolObjectivesCapMissionsMarkAsViewedPostBodyMission[]
+}
+
+export interface LolObjectivesCapMissionsMarkAsViewedPostBodyMission {
+	missionInstanceId: string
+	metadata: Record<string, string>
+}
+
+export interface LolObjectivesCapMissionsMeResponse {
+	productId: string
+	ownerId: string
+	series: LolObjectivesCAPMissionSeries[]
+}
+
+export interface LolObjectivesCatalogEntry {
+	contentId: string
+	/** @format int32 */
+	itemId: number
+	offerId: string
+	typeId: string
+}
+
 export interface LolObjectivesCollectionsChampion {
 	/** @format int32 */
 	id: number
@@ -15553,6 +15375,31 @@ export interface LolObjectivesCollectionsWardSkin {
 	ownership: LolObjectivesCollectionsOwnership
 }
 
+export type LolObjectivesEventHubType = "Unknown" | "SeasonPass" | "HallOfLegends" | "EventShop"
+
+export interface LolObjectivesEventInfoUIData {
+	eventId: string
+	eventName: string
+	eventType: string
+	eventIcon: string
+	navBarIcon: string
+	eventTokenImage: string
+	startDate: string
+	progressEndDate: string
+	endDate: string
+	/** @format int32 */
+	currentTokenBalance: number
+	/** @format int32 */
+	lockedTokenCount: number
+	/** @format int32 */
+	unclaimedRewardCount: number
+	/** @format int64 */
+	timeOfLastUnclaimedReward: number
+	isPassPurchased: boolean
+	eventPassBundles: LolObjectivesCatalogEntry[]
+	tokenBundles: LolObjectivesCatalogEntry[]
+}
+
 export type LolObjectivesGameflowPhase = "TerminatedInError" | "EndOfGame" | "PreEndOfGame" | "WaitingForStats" | "Reconnect" | "InProgress" | "FailedToLaunch" | "GameStart" | "ChampSelect" | "ReadyCheck" | "CheckedIntoTournament" | "Matchmaking" | "Lobby" | "None"
 
 export interface LolObjectivesGameflowSession {
@@ -15574,6 +15421,8 @@ export interface LolObjectivesLoginSession {
 	puuid: string
 	platformId: string
 }
+
+export type LolObjectivesLoginSessionStates = "ERROR" | "LOGGING_OUT" | "SUCCEEDED" | "IN_PROGRESS"
 
 export type LolObjectivesLoyaltyStatus = "DISABLED" | "REVOKE" | "CHANGE" | "EXPIRY" | "REWARDS_GRANT" | "LEGACY"
 
@@ -15624,12 +15473,15 @@ export interface LolObjectivesNonPooledObjectives {
 	localizedDescription: string
 }
 
+export type LolObjectivesObjectiveCategoryType = "kTFTPassData" | "kEventHubConfiguration" | "kNonPass"
+
 export interface LolObjectivesObjectivesContainer {
 	pooledObjectives: LolObjectivesPooledObjectives[]
 	nonPooledObjectives: LolObjectivesNonPooledObjectives[]
 }
 
 export interface LolObjectivesObjectivesGroup {
+	id: string
 	backgroundImage: string
 	/** @format uint64 */
 	startDate: number
@@ -15732,6 +15584,21 @@ export interface LolObjectivesRewardsProductConfig {
 	serviceUrl: string
 }
 
+export interface LolObjectivesRiotMessagingServiceMessage {
+	resource: string
+	service: string
+	version: string
+	/** @format int64 */
+	timestamp: number
+	payload: string
+}
+
+export interface LolObjectivesRiotMessagingServicePayload {
+	deltaEventId: string
+	ownerId: string
+	updatedMissions: string[]
+}
+
 export interface LolObjectivesSelectionStrategyConfig {
 	/** @format uint32 */
 	minSelectionsAllowed: number
@@ -15754,6 +15621,68 @@ export interface LolObjectivesSvcReward {
 	localizations: Record<string, string>
 }
 
+export interface LolObjectivesTftBattlepass {
+	/** @format int32 */
+	totalPointsEarned: number
+	milestones: LolObjectivesTftBattlepassMilestone[]
+	bonuses: LolObjectivesTftBattlepassMilestone[]
+	activeMilestone: LolObjectivesTftBattlepassMilestone
+	info: LolObjectivesTftBattlepassInfo
+	/** @format int32 */
+	lastViewedProgress: number
+	lastViewedMilestone: LolObjectivesTftBattlepassMilestone
+	/** @format int32 */
+	currentLevel: number
+}
+
+export interface LolObjectivesTftBattlepassInfo {
+	title: string
+	description: string
+	/** @format uint64 */
+	startDate: number
+	/** @format uint64 */
+	endDate: number
+	premium: boolean
+	premiumTitle: string
+	premiumEntitlementId: string
+	pcPurchaseRequirement: string
+	passId: string
+	media: Record<string, string>
+	passType: LolObjectivesTftPassType
+}
+
+export interface LolObjectivesTftBattlepassMilestone {
+	milestoneId: string
+	title: string
+	description: string
+	status: string
+	/** @format int32 */
+	pointsNeededForMilestone: number
+	/** @format int32 */
+	pointsEarnedForMilestone: number
+	/** @format int32 */
+	totalPointsForMilestone: number
+	/** @format int32 */
+	level: number
+	iconImageUrl: string
+	iconNeedsFrame: boolean
+	rewards: LolObjectivesTftBattlepassReward[]
+	isPaid: boolean
+	isLocked: boolean
+	isKeystone: boolean
+	isBonus: boolean
+	isClaimRequestPending: boolean
+}
+
+export interface LolObjectivesTftBattlepassReward {
+	name: string
+	description: string
+	itemId: string
+	itemTypeId: string
+	iconUrl: string
+	iconNeedsFrame: boolean
+}
+
 export interface LolObjectivesTftOrb {
 	missionId: string
 	status: string
@@ -15763,6 +15692,8 @@ export interface LolObjectivesTftOrb {
 	rewardLevel: number
 	rewards: PlayerMissionRewardDTO[]
 }
+
+export type LolObjectivesTftPassType = "kUnknown" | "kSkillTreePass" | "kDailyLoginPass" | "kEventPass" | "kBattlePass"
 
 export interface LolObjectivesTftWeeklyMissions {
 	missions: PlayerMissionDTO[]
@@ -15794,7 +15725,25 @@ export interface LolObjectivesUIObjectives {
 	isPooledMission: boolean
 }
 
+export interface LolObjectivesUIObjectivesCategory {
+	id: string
+	/** @format uint64 */
+	startDate: number
+	/** @format uint64 */
+	progressEndDate: number
+	/** @format uint64 */
+	endDate: number
+	categorySectionImage: string
+	categoryName: string
+	overrideBackgroundImage: string
+	objectives: LolObjectivesUIObjectives[]
+	categoryType: LolObjectivesObjectiveCategoryType
+	tftPassType: LolObjectivesTftPassType
+	lolEventHubType: LolObjectivesEventHubType
+}
+
 export interface LolObjectivesUIObjectivesGroup {
+	uuid: string
 	backgroundImage: string
 	gameType: string
 	/** @format uint64 */
@@ -15803,6 +15752,7 @@ export interface LolObjectivesUIObjectivesGroup {
 	endDate: number
 	isActive: boolean
 	objectives: LolObjectivesUIObjectives[]
+	objectivesCategories: LolObjectivesUIObjectivesCategory[]
 }
 
 export interface LolObjectivesUserInfo {
@@ -15843,6 +15793,12 @@ export interface LolPatchComponentStateProgress {
 }
 
 export type LolPatchComponentStateWorkType = "Disk" | "Network" | "Scanning"
+
+export type LolPatchConfigReadiness = "Disabled" | "Ready" | "NotReady"
+
+export interface LolPatchConfigStatus {
+	readiness: LolPatchConfigReadiness
+}
 
 export interface LolPatchEntitlementsTokenResource {
 	accessToken: string
@@ -15967,30 +15923,6 @@ export interface LolPatchUxResource {
 	visible: boolean
 }
 
-export interface LolPerksChampSelectAction {
-	/** @format int64 */
-	id: number
-	/** @format int64 */
-	actorCellId: number
-	/** @format int32 */
-	championId: number
-	type: string
-	completed: boolean
-}
-
-export interface LolPerksChampSelectBannedChampions {
-	myTeamBans: number[]
-	theirTeamBans: number[]
-	/** @format int32 */
-	numBans: number
-}
-
-export interface LolPerksChampSelectChatRoomDetails {
-	multiUserChatId: string
-	multiUserChatPassword: string
-	mucJwtDto: LolPerksMucJwtDto
-}
-
 export interface LolPerksChampSelectMySelection {
 	/** @format int32 */
 	selectedSkinId?: number
@@ -15998,8 +15930,6 @@ export interface LolPerksChampSelectMySelection {
 	"spell1Id"?: number
 	/** @format uint64 */
 	"spell2Id"?: number
-	/** @format int64 */
-	wardSkinId?: number
 }
 
 export interface LolPerksChampSelectPlayerSelection {
@@ -16009,8 +15939,6 @@ export interface LolPerksChampSelectPlayerSelection {
 	championId: number
 	/** @format int32 */
 	selectedSkinId: number
-	/** @format int64 */
-	wardSkinId: number
 	/** @format uint64 */
 	"spell1Id": number
 	/** @format uint64 */
@@ -16026,15 +15954,9 @@ export interface LolPerksChampSelectPlayerSelection {
 
 export interface LolPerksChampSelectSession {
 	timer: LolPerksChampSelectTimer
-	chatDetails: LolPerksChampSelectChatRoomDetails
 	myTeam: LolPerksChampSelectPlayerSelection[]
-	theirTeam: LolPerksChampSelectPlayerSelection[]
-	trades: LolPerksChampSelectTradeContract[]
-	actions: unknown[]
-	bans: LolPerksChampSelectBannedChampions
 	/** @format int64 */
 	localPlayerCellId: number
-	isSpectating: boolean
 }
 
 export interface LolPerksChampSelectTimer {
@@ -16047,16 +15969,6 @@ export interface LolPerksChampSelectTimer {
 	/** @format uint64 */
 	internalNowInEpochMs: number
 }
-
-export interface LolPerksChampSelectTradeContract {
-	/** @format int64 */
-	id: number
-	/** @format int64 */
-	cellId: number
-	state: LolPerksChampSelectTradeState
-}
-
-export type LolPerksChampSelectTradeState = "SENT" | "RECEIVED" | "INVALID" | "BUSY" | "AVAILABLE"
 
 export interface LolPerksChampionPreferredStyle {
 	championName: string
@@ -16133,13 +16045,6 @@ export interface LolPerksLoginSession {
 }
 
 export type LolPerksLoginSessionState = "ERROR" | "LOGGING_OUT" | "SUCCEEDED" | "IN_PROGRESS"
-
-export interface LolPerksMucJwtDto {
-	jwt: string
-	channelClaim: string
-	domain: string
-	targetRegion: string
-}
 
 export interface LolPerksNamecheckAuthorization {
 	subject: string
@@ -16345,6 +16250,7 @@ export interface LolPerksQueue {
 	/** @format int32 */
 	mapId: number
 	isTeamBuilderManaged: boolean
+	isCustom: boolean
 }
 
 export interface LolPerksQuickPlayPresetSlotDto {
@@ -17885,28 +17791,6 @@ export interface LolRankedEosNotificationsConfigEntry {
 	"offsetTime3": number
 }
 
-export interface LolRankedEosRewardData {
-	id: string
-	type: string
-	overrideImagePath: string
-}
-
-export interface LolRankedEosRewardGroupsConfig {
-	rewardGroups: Record<string, LolRankedEosRewardGroupsRewardsList>
-}
-
-export interface LolRankedEosRewardGroupsRewardsList {
-	rewards: string[]
-}
-
-export interface LolRankedEosRewardsConfig {
-	seasons: Record<string, LolRankedEosRewardsConfigEntry>
-}
-
-export interface LolRankedEosRewardsConfigEntry {
-	rewards: Record<string, LolRankedEosRewardData>
-}
-
 export interface LolRankedEosSettingsData {
 	notificationShown: boolean
 }
@@ -17970,8 +17854,10 @@ export interface LolRankedLcuLeagueNotification {
 	timeUntilInactivityStatusChanges: number
 	rewardEarnedId: string
 	rewardEarnedType: string
+	rewardEarnedTitle: string
+	rewardEarnedDescription: string
+	rewardEarnedTier: string
 	rewardOverrideImagePath: string
-	splitPointsNotification?: LolRankedSplitPointsNotification
 	promoSeriesForRanksEnabled: boolean
 	/** @format int32 */
 	consolationLpUsed: number
@@ -18160,6 +18046,32 @@ export interface LolRankedLoginSession {
 
 export type LolRankedLoginSessionStates = "ERROR" | "LOGGING_OUT" | "SUCCEEDED" | "IN_PROGRESS"
 
+export interface LolRankedLolEosRewardGameData {
+	id: string
+	name: string
+	title: string
+	description: string
+	tier: LolRankedLolEosRewardTier
+	type: LolRankedLolEosRewardType
+	overrideImagePath: string
+}
+
+export interface LolRankedLolEosRewardGroupGameData {
+	id: string
+	rewardNames: string[]
+}
+
+export type LolRankedLolEosRewardTier = "kChallenger" | "kGrandmaster" | "kMaster" | "kDiamond" | "kEmerald" | "kPlatinum" | "kGold" | "kSilver" | "kBronze" | "kIron" | "kNone"
+
+export type LolRankedLolEosRewardType = "kEmote" | "kSummonerIcon" | "kVictoriousSkinBorder" | "kVictoriousChroma" | "kVictoriousSkin" | "kChampion" | "kEternalsCapsule" | "kNone"
+
+export interface LolRankedLolEosRewardsConfigGameData {
+	/** @format int64 */
+	seasonId: number
+	rewards: LolRankedLolEosRewardGameData[]
+	rewardGroups: LolRankedLolEosRewardGroupGameData[]
+}
+
 export type LolRankedMiniseries = "N" | "L" | "W"
 
 export type LolRankedNotificationDisplayType = "VIGNETTE" | "MODAL" | "TOAST" | "NONE"
@@ -18329,18 +18241,8 @@ export type LolRankedRatedTier = "ORANGE" | "PURPLE" | "BLUE" | "GREEN" | "GRAY"
 
 export interface LolRankedRewardNotification {
 	rewardGroupId: string
-	/** @format int32 */
+	/** @format int64 */
 	seasonId: number
-}
-
-export interface LolRankedRewardsInfo {
-	splits: LolRankedSeasonSplit[]
-	currentSplit?: LolRankedSeasonSplit
-	rewardInfoByRewardId: Record<string, LolRankedSplitReward>
-	/** @format int32 */
-	currentSplitId: number
-	/** @format int32 */
-	currentSeasonId: number
 }
 
 export interface LolRankedSeasonDTO {
@@ -18350,32 +18252,6 @@ export interface LolRankedSeasonDTO {
 	currentSeasonEnd: number
 	/** @format int64 */
 	nextSeasonStart: number
-}
-
-export interface LolRankedSeasonSplit {
-	/** @format int32 */
-	splitId: number
-	/** @format int32 */
-	seasonId: number
-	/** @format uint64 */
-	startTimeMillis: number
-	/** @format uint64 */
-	endTimeMillis: number
-	rewardTrack: LolRankedSplitRewardGroup[]
-	victoriousSkinRewardGroup: LolRankedVictoriousSkin
-}
-
-export interface LolRankedSeasonSplitDTO {
-	/** @format int32 */
-	splitId: number
-	/** @format int32 */
-	seasonId: number
-	/** @format uint64 */
-	startTime: number
-	/** @format uint64 */
-	endTime: number
-	rewardTrack: LolRankedSplitRewardGroupDTO[]
-	victoriousSkinRewardGroup: LolRankedVictoriousSkinDTO
 }
 
 export interface LolRankedSequenceEvent {
@@ -18441,65 +18317,6 @@ export interface LolRankedSocialLeaderboardRankedQueueStatsDTO {
 	losses: number
 }
 
-export interface LolRankedSplitPointsNotification {
-	/** @format int32 */
-	splitPointsDelta: number
-	/** @format int32 */
-	splitPointsBeforeGame: number
-	/** @format int32 */
-	splitPointsAfterGame: number
-	/** @format int32 */
-	previousSplitPointsRequired: number
-	/** @format int32 */
-	splitPointsRequired: number
-	nextRewardId: string
-	nextRewardType: string
-	splitPointsBreakdown: Record<string, number>
-}
-
-export interface LolRankedSplitReward {
-	rewardType: string
-	/** @format int32 */
-	quantity: number
-	description: string
-	id: string
-	/** @format int32 */
-	regaliaLevel?: number
-	/** @format int32 */
-	pointsRequired: number
-	/** @format int32 */
-	splitId: number
-	/** @format int32 */
-	championId: number
-}
-
-export interface LolRankedSplitRewardDTO {
-	rewardType: string
-	metadata: LolRankedSplitRewardsMetaData
-	defaultRewardId: string
-	tieredRewardIds: Record<string, string>
-}
-
-export interface LolRankedSplitRewardGroup {
-	/** @format int32 */
-	splitPoints: number
-	rewards: LolRankedSplitReward[]
-}
-
-export interface LolRankedSplitRewardGroupDTO {
-	/** @format int32 */
-	splitPoints: number
-	rewards: LolRankedSplitRewardDTO[]
-}
-
-export interface LolRankedSplitRewardsMetaData {
-	/** @format int32 */
-	quantity: number
-	description: string
-	/** @format int32 */
-	championId: number
-}
-
 export interface LolRankedSummoner {
 	/** @format uint64 */
 	summonerId: number
@@ -18507,11 +18324,6 @@ export interface LolRankedSummoner {
 }
 
 export interface LolRankedVictoriousSkin {
-	splitPointsByHighestSeasonEndTier: Record<string, number>
-	itemInstanceId: string
-}
-
-export interface LolRankedVictoriousSkinDTO {
 	splitPointsByHighestSeasonEndTier: Record<string, number>
 	itemInstanceId: string
 }
@@ -19441,6 +19253,9 @@ export interface LolRewardTrackRewardTrackItemOption {
 	headerType: LolRewardTrackRewardTrackItemHeaderType
 	rewardName: string
 	rewardDescription: string
+	rewardItemType: string
+	rewardItemId: string
+	rewardFulfillmentSource: string
 	cardSize: string
 	rewardGroupId: string
 	celebrationType: LolRewardTrackCelebrationType
@@ -20130,6 +19945,31 @@ export interface LolSettingsVNGStatusResponse {
 	action_required: boolean
 	action_url: string
 	action_url_raw: string
+}
+
+export interface LolShoppefrontPurchaseRequest {
+	storeId: string
+	catalogEntryId: string
+	/** @format uint32 */
+	quantity: number
+	paymentOptions: string[]
+}
+
+export interface LolShoppefrontPurchaseResponse {
+	id: string
+	status: LolShoppefrontPurchaseResponseStatus
+}
+
+export type LolShoppefrontPurchaseResponseStatus = "Failure" | "Success" | "Pending" | "None"
+
+export interface LolShutdownAuthorization {
+	currentPlatformId: string
+}
+
+export interface LolShutdownSessionRMSNotification {
+	product: string
+	region: string
+	serviceState: string
 }
 
 export interface LolShutdownShutdownNotification {
@@ -21379,6 +21219,124 @@ export interface LolTftDataModelResponse {
 	modelData: unknown
 }
 
+export interface LolTftEventCAPMission {
+	missionId: string
+	title: string
+	description: string
+	missionIconAsset: LolTftEventMissionAsset
+	rewards: LolTftEventCAPMissionReward[]
+	objectives: LolTftEventCAPMissionObjective[]
+}
+
+export interface LolTftEventCAPMissionCollection {
+	missionCollectionId: string
+	dates: LolTftEventCAPMissionCollectionDates
+	seriesList: LolTftEventCAPMissionSeries[]
+}
+
+export interface LolTftEventCAPMissionCollectionDateRange {
+	/** @format uint64 */
+	activationTimeEpoch: number
+	/** @format uint64 */
+	deactivationTimeEpoch: number
+}
+
+export interface LolTftEventCAPMissionCollectionDates {
+	live: LolTftEventCAPMissionCollectionDateRange
+	pbe: LolTftEventCAPMissionCollectionDateRange
+	internal: LolTftEventCAPMissionCollectionDateRange
+}
+
+export interface LolTftEventCAPMissionObjective {
+	statId: string
+	description: string
+}
+
+export interface LolTftEventCAPMissionReward {
+	itemId: string
+	rewardName: string
+	/** @format uint32 */
+	quantity: number
+	rewardAsset: LolTftEventMissionAsset
+}
+
+export interface LolTftEventCAPMissionSeries {
+	seriesId: string
+	seriesTitle: string
+	seriesBackgroundImageUrl: string
+	seriesIconAsset: LolTftEventMissionAsset
+	missions: LolTftEventCAPMission[]
+}
+
+export interface LolTftEventCapMissionSeriesMission {
+	name: string
+	missionId: string
+	expression: string
+	missionCollectionId: string
+	status: string
+	completedTimeUtc: string
+	missionInstanceId: string
+	objectives: LolTftEventCapMissionSeriesMissionObjective[]
+	eligibility: LolTftEventCapMissionSeriesMissionEligibility[]
+	rewardsStatus: LolTftEventCapMissionSeriesMissionRewardsStatus
+	/** @format uint32 */
+	repeatSequence: number
+	properties: Record<string, string>
+	metadata: Record<string, string>
+}
+
+export interface LolTftEventCapMissionSeriesMissionEligibility {
+	type: string
+	missionCollectionId: string
+	missionId: string
+	startTime: string
+}
+
+export interface LolTftEventCapMissionSeriesMissionObjective {
+	statId: string
+	objectiveId: string
+	/** @format uint32 */
+	goal: number
+	/** @format uint32 */
+	currentValue: number
+}
+
+export interface LolTftEventCapMissionSeriesMissionReward {
+	type: string
+	counterId: string
+	itemId: string
+	itemTypeId: string
+	typeId: string
+	/** @format uint32 */
+	amount: number
+}
+
+export interface LolTftEventCapMissionSeriesMissionRewardsStatus {
+	requiresClaim: boolean
+	status: string
+	rewards: LolTftEventCapMissionSeriesMissionReward[]
+}
+
+export interface LolTftEventCapMissionsMarkAsViewedPostBody {
+	events: LolTftEventCapMissionsMarkAsViewedPostBodyEvent[]
+}
+
+export interface LolTftEventCapMissionsMarkAsViewedPostBodyEvent {
+	configurationId: string
+	missions: LolTftEventCapMissionsMarkAsViewedPostBodyMission[]
+}
+
+export interface LolTftEventCapMissionsMarkAsViewedPostBodyMission {
+	missionInstanceId: string
+	metadata: Record<string, string>
+}
+
+export interface LolTftEventCapMissionsMeResponse {
+	productId: string
+	ownerId: string
+	series: LolTftEventCAPMissionSeries[]
+}
+
 export interface LolTftEventCollectionsChampion {
 	/** @format int32 */
 	id: number
@@ -21455,6 +21413,8 @@ export interface LolTftEventLoginSession {
 	platformId: string
 }
 
+export type LolTftEventLoginSessionStates = "ERROR" | "LOGGING_OUT" | "SUCCEEDED" | "IN_PROGRESS"
+
 export interface LolTftEventLolTftBackgrounds {
 	backgrounds: Record<string, string>
 }
@@ -21465,6 +21425,7 @@ export interface LolTftEventLolTftBattlePassHub {
 
 export interface LolTftEventLolTftEvent {
 	titleTranslationKey: string
+	eventId: string
 	enabled: boolean
 	url: string
 	urlFaq: string
@@ -21476,6 +21437,8 @@ export interface LolTftEventLolTftEvent {
 	defaultLandingPage: boolean
 	eventHubAssetKey: string
 	eventHubTemplateType: string
+	eventPassId: string
+	skillTreePassId: string
 	eventFuture: boolean
 	weblinkSubnavs: LolTftEventLolTftEventWebLinkSubnav[]
 }
@@ -21500,6 +21463,7 @@ export interface LolTftEventLolTftHomeHub {
 	primeGamingPromoOffer?: LolTftEventLolTftPrimeGaming
 	overrideUrl: string
 	headerButtonsOverrideUrl: string
+	rotatingShopPromos: LolTftEventTFTRotatingShopPromos
 }
 
 export interface LolTftEventLolTftNewsHub {
@@ -21644,6 +21608,21 @@ export interface LolTftEventRewardsProductConfig {
 	serviceUrl: string
 }
 
+export interface LolTftEventRiotMessagingServiceMessage {
+	resource: string
+	service: string
+	version: string
+	/** @format int64 */
+	timestamp: number
+	payload: string
+}
+
+export interface LolTftEventRiotMessagingServicePayload {
+	deltaEventId: string
+	ownerId: string
+	updatedMissions: string[]
+}
+
 export interface LolTftEventSelectionStrategyConfig {
 	/** @format uint32 */
 	minSelectionsAllowed: number
@@ -21676,6 +21655,23 @@ export interface LolTftEventTFTEventMissionChain {
 	/** @format uint32 */
 	chainSize: number
 	missions: PlayerMissionDTO[]
+}
+
+export interface LolTftEventTFTEventMissionChains {
+	missionChains: LolTftEventTFTEventMissionChain[]
+	seriesId: string
+}
+
+export interface LolTftEventTFTRotatingShopPromo {
+	id: string
+	bundleId: string
+	storeType: string
+}
+
+export interface LolTftEventTFTRotatingShopPromos {
+	firstPromos: LolTftEventTFTRotatingShopPromo[]
+	secondPromos: LolTftEventTFTRotatingShopPromo[]
+	fallbackPromo: LolTftEventTFTRotatingShopPromo
 }
 
 export interface LolTftEventTftOrb {
@@ -21719,6 +21715,7 @@ export interface LolTftLolTftBattlePassHub {
 
 export interface LolTftLolTftEvent {
 	titleTranslationKey: string
+	eventId: string
 	enabled: boolean
 	url: string
 	urlFaq: string
@@ -21730,6 +21727,8 @@ export interface LolTftLolTftEvent {
 	defaultLandingPage: boolean
 	eventHubAssetKey: string
 	eventHubTemplateType: string
+	eventPassId: string
+	skillTreePassId: string
 	eventFuture: boolean
 	weblinkSubnavs: LolTftLolTftEventWebLinkSubnav[]
 }
@@ -21754,6 +21753,7 @@ export interface LolTftLolTftHomeHub {
 	primeGamingPromoOffer?: LolTftLolTftPrimeGaming
 	overrideUrl: string
 	headerButtonsOverrideUrl: string
+	rotatingShopPromos: LolTftTFTRotatingShopPromos
 }
 
 export interface LolTftLolTftNewsHub {
@@ -21887,6 +21887,7 @@ export interface LolTftPassInventoryItem {
 	/** @format uint64 */
 	quantity: number
 	ownershipType: LolTftPassItemOwnershipType
+	usedInGameDate: string
 	expirationDate: string
 	/** @format uint64 */
 	wins: number
@@ -21926,6 +21927,7 @@ export interface LolTftPassInventoryItemWithPayload {
 	/** @format uint64 */
 	quantity: number
 	ownershipType: LolTftPassItemOwnershipType
+	usedInGameDate: string
 	expirationDate: string
 	"f2p": boolean
 	rental: boolean
@@ -21970,6 +21972,11 @@ export interface LolTftPassLoginSession {
 }
 
 export type LolTftPassLoginSessionStates = "ERROR" | "LOGGING_OUT" | "SUCCEEDED" | "IN_PROGRESS"
+
+export interface LolTftPassLolInventoryType {
+	inventoryTypeId: string
+	capInventoryTypeId: string
+}
 
 export interface LolTftPassLoyaltyRewards {
 	/** @format int32 */
@@ -22168,7 +22175,7 @@ export interface LolTftPassTFTPassDTO {
 	premiumTitle: string
 	description: string
 	/** @format int64 */
-	activiationTimeMS: number
+	activationTimeMS: number
 	/** @format int64 */
 	deactivationTimeMS: number
 	assetID: string
@@ -22244,6 +22251,7 @@ export interface LolTftPassTftBattlepassInfo {
 	pcPurchaseRequirement: string
 	passId: string
 	media: Record<string, string>
+	passType: LolTftPassTftPassType
 }
 
 export interface LolTftPassTftBattlepassMilestone {
@@ -22277,6 +22285,8 @@ export interface LolTftPassTftBattlepassReward {
 	iconUrl: string
 	iconNeedsFrame: boolean
 }
+
+export type LolTftPassTftPassType = "kUnknown" | "kSkillTreePass" | "kDailyLoginPass" | "kEventPass" | "kBattlePass"
 
 export interface LolTftPassTrigger {
 	type: string
@@ -22579,6 +22589,7 @@ export interface LolTftSkillTreeTftBattlepassInfo {
 	pcPurchaseRequirement: string
 	passId: string
 	media: Record<string, string>
+	passType: LolTftSkillTreeTftPassType
 }
 
 export interface LolTftSkillTreeTftBattlepassMilestone {
@@ -22613,6 +22624,8 @@ export interface LolTftSkillTreeTftBattlepassReward {
 	iconNeedsFrame: boolean
 }
 
+export type LolTftSkillTreeTftPassType = "kUnknown" | "kSkillTreePass" | "kDailyLoginPass" | "kEventPass" | "kBattlePass"
+
 export interface LolTftSkillTreeUpdateLoadoutDTO {
 	id: string
 	name: string
@@ -22622,6 +22635,18 @@ export interface LolTftSkillTreeUpdateLoadoutDTO {
 export interface LolTftSkillTreeUpdateLoadoutRequestDTO {
 	serviceToJwtsMap: Record<string, unknown>
 	loadout: LolTftSkillTreeUpdateLoadoutDTO
+}
+
+export interface LolTftTFTRotatingShopPromo {
+	id: string
+	bundleId: string
+	storeType: string
+}
+
+export interface LolTftTFTRotatingShopPromos {
+	firstPromos: LolTftTFTRotatingShopPromo[]
+	secondPromos: LolTftTFTRotatingShopPromo[]
+	fallbackPromo: LolTftTFTRotatingShopPromo
 }
 
 export interface LolTftTeamPlannerChampion {
@@ -22781,7 +22806,6 @@ export interface LolTftTrovesCapDropsDropTableDisplayMetadata {
 	isCollectorsBounty: boolean
 	dataAssetId: string
 	nameTraKey: string
-	mythicOfferId: string
 	progressionId: string
 	/** @format uint8 */
 	priority: number
@@ -22900,7 +22924,6 @@ export interface LolTftTrovesGameDataTrovesBanner {
 	id: string
 	activationTime: string
 	deactivationTime: string
-	mythicTokenOfferId: string
 	/** @format uint32 */
 	pityThreshold: number
 	bannerTexture: string
@@ -23122,7 +23145,6 @@ export interface LolTftTrovesTrovesBanner {
 	/** @format uint32 */
 	pityLimit: number
 	rollOffer: string
-	mythicOffer: string
 	bannerTexture: string
 	thumbnailTexture: string
 	backgroundTexture: string
@@ -23154,8 +23176,6 @@ export interface LolTftTrovesTrovesCelebrationHighlightSegmentData {
 	lottieJsonPath: string
 	revealSoundPath: string
 	transitionWipeSoundPath: string
-	promiseTokenTitle: string
-	promiseTokenDescription: string
 }
 
 export interface LolTftTrovesTrovesCelebrationPortalSegmentData {
@@ -23533,6 +23553,7 @@ export interface LolYourshopInventoryItem {
 	/** @format uint64 */
 	quantity: number
 	ownershipType: LolYourshopItemOwnershipType
+	usedInGameDate: string
 	expirationDate: string
 	/** @format uint64 */
 	wins: number
@@ -23572,6 +23593,7 @@ export interface LolYourshopInventoryItemWithPayload {
 	/** @format uint64 */
 	quantity: number
 	ownershipType: LolYourshopItemOwnershipType
+	usedInGameDate: string
 	expirationDate: string
 	"f2p": boolean
 	rental: boolean
@@ -23616,6 +23638,11 @@ export interface LolYourshopLoginSession {
 }
 
 export type LolYourshopLoginSessionStates = "ERROR" | "LOGGING_OUT" | "SUCCEEDED" | "IN_PROGRESS"
+
+export interface LolYourshopLolInventoryType {
+	inventoryTypeId: string
+	capInventoryTypeId: string
+}
 
 export interface LolYourshopLoyaltyRewards {
 	/** @format int32 */
@@ -24400,6 +24427,7 @@ export interface PaymentsPMCStartUrlRequest {
 	/** @format int16 */
 	minVirtualAmount: number
 	orderDetailsJSON: string
+	machineId: string
 }
 
 export interface PaymentsPMCStartUrlResult {
@@ -25334,6 +25362,1370 @@ export interface StoreLcdsStoreFulfillmentNotification {
 	/** @format int64 */
 	ip: number
 	data: unknown
+}
+
+export interface TeamBuilderDirect_Action {
+	/** @format int32 */
+	actionId: number
+	/** @format int32 */
+	actorCellId: number
+	type: string
+	/** @format int32 */
+	championId: number
+	completed: boolean
+	/** @format int64 */
+	duration: number
+}
+
+/** The state of ready check in the TB session */
+export interface TeamBuilderDirect_AfkCheckState {
+	/** @format int64 */
+	maxAfkMillis: number
+	/** @format int64 */
+	remainingAfkMillis: number
+	afkReady: boolean
+	inventoryDraft: TeamBuilderDirect_InventoryDraft
+	compressAfkCheckPayload: boolean
+	multiUserChatJWT: string
+	chatRoomName: string
+	mucJwtDto: TeamBuilderDirect_MucJwtDto
+	autoAccept: boolean
+}
+
+export interface TeamBuilderDirect_BackwardsTransitionInfo {
+	backwardsTransitionReason: string
+	initiatorSummonerIds: number[]
+}
+
+export interface TeamBuilderDirect_BenchChampion {
+	/** @format int32 */
+	championId: number
+	isPriority: boolean
+}
+
+export interface TeamBuilderDirect_Cell {
+	/** @format int32 */
+	teamId: number
+	/** @format int32 */
+	cellId: number
+	/** @format int32 */
+	championPickIntent: number
+	/** @format int32 */
+	championId: number
+	/** @format int32 */
+	skinId: number
+	assignedPosition: string
+	/** @format int32 */
+	"spell1Id": number
+	/** @format int32 */
+	"spell2Id": number
+	/** @format int64 */
+	summonerId: number
+	gameName: string
+	tagLine: string
+	puuid: string
+	isHumanoid: boolean
+	nameVisibilityType: string
+	/** @format int64 */
+	obfuscatedSummonerId: number
+	obfuscatedPuuid: string
+}
+
+export interface TeamBuilderDirect_Cells {
+	alliedTeam: TeamBuilderDirect_Cell[]
+	enemyTeam: TeamBuilderDirect_Cell[]
+}
+
+export interface TeamBuilderDirect_Ceremony {
+	name: string
+	/** @format int64 */
+	duration: number
+}
+
+export interface TeamBuilderDirect_ChampGridChampion {
+	/** @format int32 */
+	id: number
+	name: string
+	squarePortraitPath: string
+	freeToPlay: boolean
+	loyaltyReward: boolean
+	xboxGPReward: boolean
+	freeToPlayForQueue: boolean
+	owned: boolean
+	rented: boolean
+	disabled: boolean
+	roles: string[]
+	/** @format int32 */
+	masteryPoints: number
+	/** @format int32 */
+	masteryLevel: number
+	selectionStatus: TeamBuilderDirect_ChampionSelection
+	positionsFavorited: string[]
+}
+
+export interface TeamBuilderDirect_ChampSelectAction {
+	/** @format int64 */
+	id: number
+	/** @format int64 */
+	actorCellId: number
+	/** @format int32 */
+	championId: number
+	type: string
+	completed: boolean
+	isAllyAction: boolean
+	isInProgress: boolean
+	/** @format int32 */
+	pickTurn: number
+	/** @format int64 */
+	duration: number
+}
+
+export interface TeamBuilderDirect_ChampSelectBannedChampions {
+	myTeamBans: number[]
+	theirTeamBans: number[]
+	/** @format int32 */
+	numBans: number
+}
+
+export interface TeamBuilderDirect_ChampSelectChampionSwapNotification {
+	/** @format int64 */
+	id: number
+	/** @format int64 */
+	responderIndex: number
+	state: TeamBuilderDirect_ChampSelectSwapState
+	/** @format int64 */
+	otherSummonerIndex: number
+	responderChampionName: string
+	requesterChampionName: string
+	requesterChampionSplashPath: string
+	initiatedByLocalPlayer: boolean
+	type: TeamBuilderDirect_ChampSelectSwapType
+	/** @format int32 */
+	requesterChampionId: number
+}
+
+export interface TeamBuilderDirect_ChampSelectChatRoomDetails {
+	multiUserChatId: string
+	multiUserChatPassword: string
+	mucJwtDto: TeamBuilderDirect_MucJwtDto
+}
+
+export interface TeamBuilderDirect_ChampSelectMySelection {
+	/** @format int32 */
+	selectedSkinId?: number
+	/** @format uint64 */
+	"spell1Id"?: number
+	/** @format uint64 */
+	"spell2Id"?: number
+}
+
+export interface TeamBuilderDirect_ChampSelectPickOrderSwapNotification {
+	/** @format int64 */
+	id: number
+	/** @format int64 */
+	requestorIndex: number
+	/** @format int64 */
+	responderIndex: number
+	state: TeamBuilderDirect_ChampSelectSwapState
+	/** @format int64 */
+	otherSummonerIndex: number
+	initiatedByLocalPlayer: boolean
+	type: TeamBuilderDirect_ChampSelectSwapType
+}
+
+export interface TeamBuilderDirect_ChampSelectPickSnipeData {
+	pickSnipeClass: string
+	/** @format int64 */
+	snipedPlayerCellId: number
+	/** @format uint64 */
+	expirationTimeMillis: number
+	/** @format uint64 */
+	creationTimeMillis: number
+	/** @format int32 */
+	snipedChampionId: number
+}
+
+export interface TeamBuilderDirect_ChampSelectPinDropNotification {
+	pinDropSummoners: TeamBuilderDirect_ChampSelectPinDropSummoner[]
+	mapSide: string
+}
+
+export interface TeamBuilderDirect_ChampSelectPinDropSummoner {
+	/** @format uint64 */
+	slotId: number
+	position: string
+	lane: string
+	/** @format uint64 */
+	lanePosition: number
+	isLocalSummoner: boolean
+	isPlaceholder: boolean
+}
+
+export interface TeamBuilderDirect_ChampSelectPlayerSelection {
+	/** @format int64 */
+	cellId: number
+	/** @format int32 */
+	championId: number
+	/** @format int32 */
+	selectedSkinId: number
+	/** @format int64 */
+	wardSkinId: number
+	/** @format uint64 */
+	"spell1Id": number
+	/** @format uint64 */
+	"spell2Id": number
+	/** @format int32 */
+	team: number
+	assignedPosition: string
+	/** @format int32 */
+	championPickIntent: number
+	playerType: string
+	/** @format uint64 */
+	summonerId: number
+	gameName: string
+	tagLine: string
+	puuid: string
+	isHumanoid: boolean
+	nameVisibilityType: string
+	playerAlias: string
+	/** @format uint64 */
+	obfuscatedSummonerId: number
+	obfuscatedPuuid: string
+	internalName: string
+	/** @format int32 */
+	pickMode: number
+	/** @format int32 */
+	pickTurn: number
+}
+
+export interface TeamBuilderDirect_ChampSelectPositionSwapNotification {
+	/** @format int64 */
+	id: number
+	/** @format int64 */
+	requestorIndex: number
+	/** @format int64 */
+	responderIndex: number
+	requesterPosition: string
+	responderPosition: string
+	state: TeamBuilderDirect_ChampSelectSwapState
+	/** @format int64 */
+	otherSummonerIndex: number
+	initiatedByLocalPlayer: boolean
+	type: TeamBuilderDirect_ChampSelectSwapType
+}
+
+export interface TeamBuilderDirect_ChampSelectSession {
+	id: string
+	/** @format uint64 */
+	gameId: number
+	timer: TeamBuilderDirect_TeambuilderDirectTypes_ChampSelectTimer
+	chatDetails: TeamBuilderDirect_ChampSelectChatRoomDetails
+	myTeam: TeamBuilderDirect_ChampSelectPlayerSelection[]
+	theirTeam: TeamBuilderDirect_ChampSelectPlayerSelection[]
+	trades: TeamBuilderDirect_ChampSelectSwapContract[]
+	pickOrderSwaps: TeamBuilderDirect_ChampSelectSwapContract[]
+	positionSwaps: TeamBuilderDirect_ChampSelectSwapContract[]
+	actions: unknown[]
+	bans: TeamBuilderDirect_ChampSelectBannedChampions
+	/** @format int64 */
+	localPlayerCellId: number
+	isSpectating: boolean
+	allowSkinSelection: boolean
+	allowSubsetChampionPicks: boolean
+	allowDuplicatePicks: boolean
+	allowBattleBoost: boolean
+	/** @format int32 */
+	boostableSkinCount: number
+	allowRerolling: boolean
+	/** @format uint64 */
+	rerollsRemaining: number
+	allowLockedEvents: boolean
+	/** @format int32 */
+	lockedEventIndex: number
+	benchEnabled: boolean
+	benchChampions: TeamBuilderDirect_BenchChampion[]
+	/** @format int64 */
+	counter: number
+	skipChampionSelect: boolean
+	hasSimultaneousBans: boolean
+	hasSimultaneousPicks: boolean
+	showQuitButton: boolean
+	isLegacyChampSelect: boolean
+	isCustomGame: boolean
+}
+
+export interface TeamBuilderDirect_ChampSelectSummoner {
+	/** @format int64 */
+	cellId: number
+	/** @format uint64 */
+	slotId: number
+	"spell1IconPath": string
+	"spell2IconPath": string
+	assignedPosition: string
+	/** @format uint64 */
+	summonerId: number
+	gameName: string
+	tagLine: string
+	puuid: string
+	isHumanoid: boolean
+	nameVisibilityType: string
+	/** @format uint64 */
+	obfuscatedSummonerId: number
+	obfuscatedPuuid: string
+	activeActionType: string
+	championIconStyle: string
+	skinSplashPath: string
+	actingBackgroundAnimationState: string
+	statusMessageKey: string
+	/** @format int32 */
+	championId: number
+	championName: string
+	pickSnipedClass: string
+	/** @format int32 */
+	currentChampionVotePercentInteger: number
+	/** @format int32 */
+	skinId: number
+	/** @format int32 */
+	banIntentChampionId: number
+	isOnPlayersTeam: boolean
+	shouldShowSelectedSkin: boolean
+	shouldShowExpanded: boolean
+	isActingNow: boolean
+	shouldShowActingBar: boolean
+	isSelf: boolean
+	shouldShowBanIntentIcon: boolean
+	isPickIntenting: boolean
+	isDonePicking: boolean
+	isPlaceholder: boolean
+	shouldShowSpells: boolean
+	shouldShowRingAnimations: boolean
+	areSummonerActionsComplete: boolean
+	/** @format int64 */
+	tradeId: number
+	/** @format int64 */
+	swapId: number
+	/** @format int64 */
+	positionSwapId: number
+	showTrades: boolean
+	showSwaps: boolean
+	showPositionSwaps: boolean
+	showMuted: boolean
+}
+
+export interface TeamBuilderDirect_ChampSelectSwapContract {
+	/** @format int64 */
+	id: number
+	/** @format int64 */
+	cellId: number
+	state: TeamBuilderDirect_ChampSelectSwapState
+}
+
+export type TeamBuilderDirect_ChampSelectSwapState = "ACCEPTED" | "CANCELLED" | "DECLINED" | "SENT" | "RECEIVED" | "INVALID" | "BUSY" | "AVAILABLE"
+
+export type TeamBuilderDirect_ChampSelectSwapType = "POSITION" | "PICK_ORDER" | "CHAMPION"
+
+export interface TeamBuilderDirect_ChampionBenchState {
+	benchEnabled: boolean
+	championIds: number[]
+	benchChampions: TeamBuilderDirect_BenchChampion[]
+}
+
+export interface TeamBuilderDirect_ChampionMastery {
+	/** @format int32 */
+	championId: number
+	/** @format int32 */
+	championLevel: number
+	/** @format int32 */
+	championPoints: number
+}
+
+export interface TeamBuilderDirect_ChampionQuestSkinInfo {
+	splashPath: string
+	tilePath: string
+	tiers: TeamBuilderDirect_CollectionsChampionQuestSkin[]
+	productType?: TeamBuilderDirect_QuestSkinProductType
+}
+
+export interface TeamBuilderDirect_ChampionSelectPreferences {
+	skins: Record<string, number>
+	spells: Record<string, unknown>
+}
+
+export interface TeamBuilderDirect_ChampionSelectState {
+	teamId: string
+	teamChatRoomId: string
+	subphase: string
+	actionSetList: unknown[]
+	ceremoniesByActionSetIndex: Record<string, unknown>
+	cells: TeamBuilderDirect_Cells
+	/** @format int32 */
+	currentActionSetIndex: number
+	/** @format int32 */
+	localPlayerCellId: number
+	/** @format int64 */
+	currentTotalTimeMillis: number
+	/** @format int64 */
+	currentTimeRemainingMillis: number
+	trades: TeamBuilderDirect_Swap[]
+	pickOrderSwaps: TeamBuilderDirect_Swap[]
+	positionSwaps: TeamBuilderDirect_Swap[]
+	pickIntentClearedReason: string
+	allowOptingOutOfBanning: boolean
+	allowSkinSelection: boolean
+	allowDuplicatePicks: boolean
+	allowSubsetChampionPicks: boolean
+	rerollState: TeamBuilderDirect_RerollState
+	lockedEventsState: TeamBuilderDirect_LockedEventsState
+	battleBoostState: TeamBuilderDirect_TeamBuilderBoostInfo
+	championBenchState: TeamBuilderDirect_ChampionBenchState
+	inventoryDraft: TeamBuilderDirect_InventoryDraft
+	skipChampionSelect: boolean
+	isSpectating: boolean
+	showQuitButton: boolean
+}
+
+export interface TeamBuilderDirect_ChampionSelection {
+	selectedByMe: boolean
+	banIntentedByMe: boolean
+	banIntented: boolean
+	isBanned: boolean
+	pickIntented: boolean
+	pickIntentedByMe: boolean
+	pickIntentedPosition: string
+	pickedByOtherOrBanned: boolean
+}
+
+export interface TeamBuilderDirect_ChampionSkinAugment {
+	contentId: string
+	overlays: TeamBuilderDirect_ChampionSkinAugmentOverlays[]
+}
+
+export interface TeamBuilderDirect_ChampionSkinAugmentOverlays {
+	centeredLCOverlayPath: string
+	socialCardLCOverlayPath: string
+	tileLCOverlayPath: string
+	uncenteredLCOverlayPath: string
+}
+
+export interface TeamBuilderDirect_ChampionSkinAugments {
+	augments: TeamBuilderDirect_ChampionSkinAugment[]
+}
+
+export interface TeamBuilderDirect_CollectionsChampion {
+	disabledQueues: string[]
+	freeToPlay: boolean
+	/** @format int32 */
+	id: number
+	ownership: TeamBuilderDirect_CollectionsOwnership
+	active: boolean
+}
+
+export interface TeamBuilderDirect_CollectionsChampionBaseSkin {
+	/** @format int32 */
+	championId: number
+	chromaPath?: string
+	/** @format int32 */
+	id: number
+	name: string
+	ownership: TeamBuilderDirect_CollectionsOwnership
+	isBase: boolean
+	disabled: boolean
+	stillObtainable: boolean
+	skinAugments: TeamBuilderDirect_ChampionSkinAugments
+}
+
+export interface TeamBuilderDirect_CollectionsChampionChroma {
+	/** @format int32 */
+	championId: number
+	chromaPath?: string
+	/** @format int32 */
+	id: number
+	name: string
+	ownership: TeamBuilderDirect_CollectionsOwnership
+	isBase: boolean
+	disabled: boolean
+	stillObtainable: boolean
+	skinAugments: TeamBuilderDirect_ChampionSkinAugments
+	colors: string[]
+}
+
+export interface TeamBuilderDirect_CollectionsChampionMinimal {
+	banVoPath: string
+	chooseVoPath: string
+	disabledQueues: string[]
+	/** @format int32 */
+	id: number
+	name: string
+	ownership: TeamBuilderDirect_CollectionsOwnership
+	roles: string[]
+	squarePortraitPath: string
+	stingerSfxPath: string
+	baseSplashPath: string
+	freeToPlay: boolean
+}
+
+export interface TeamBuilderDirect_CollectionsChampionQuestSkin {
+	/** @format int32 */
+	championId: number
+	chromaPath?: string
+	/** @format int32 */
+	id: number
+	name: string
+	ownership: TeamBuilderDirect_CollectionsOwnership
+	isBase: boolean
+	disabled: boolean
+	stillObtainable: boolean
+	skinAugments: TeamBuilderDirect_ChampionSkinAugments
+	splashPath: string
+	tilePath: string
+	/** @format uint64 */
+	stage: number
+	shortName: string
+	splashVideoPath: string
+}
+
+export interface TeamBuilderDirect_CollectionsChampionSkin {
+	/** @format int32 */
+	championId: number
+	chromaPath?: string
+	/** @format int32 */
+	id: number
+	name: string
+	ownership: TeamBuilderDirect_CollectionsOwnership
+	isBase: boolean
+	disabled: boolean
+	stillObtainable: boolean
+	skinAugments: TeamBuilderDirect_ChampionSkinAugments
+	splashPath: string
+	tilePath: string
+	chromas: TeamBuilderDirect_CollectionsChampionChroma[]
+	questSkinInfo: TeamBuilderDirect_ChampionQuestSkinInfo
+	emblems: TeamBuilderDirect_CollectionsChampionSkinEmblem[]
+	rarityGemPath: string
+	splashVideoPath?: string
+	skinType?: string
+}
+
+export interface TeamBuilderDirect_CollectionsChampionSkinEmblem {
+	name: string
+	emblemPath: TeamBuilderDirect_CollectionsChampionSkinEmblemPath
+	positions: TeamBuilderDirect_CollectionsChampionSkinEmblemPosition
+}
+
+export interface TeamBuilderDirect_CollectionsChampionSkinEmblemPath {
+	large: string
+	small: string
+}
+
+export interface TeamBuilderDirect_CollectionsChampionSkinEmblemPosition {
+	vertical: string
+	horizontal: string
+}
+
+export interface TeamBuilderDirect_CollectionsChampionSkinMinimal {
+	/** @format int32 */
+	championId: number
+	chromaPath?: string
+	/** @format int32 */
+	id: number
+	name: string
+	ownership: TeamBuilderDirect_CollectionsOwnership
+	isBase: boolean
+	disabled: boolean
+	stillObtainable: boolean
+	skinAugments: TeamBuilderDirect_ChampionSkinAugments
+	splashPath: string
+	tilePath: string
+}
+
+export interface TeamBuilderDirect_CollectionsOwnership {
+	loyaltyReward: boolean
+	xboxGPReward: boolean
+	owned: boolean
+	rental: TeamBuilderDirect_CollectionsRental
+}
+
+export interface TeamBuilderDirect_CollectionsRental {
+	rented: boolean
+}
+
+export interface TeamBuilderDirect_GameDataSummonerSpell {
+	/** @format uint64 */
+	id: number
+	iconPath: string
+}
+
+export interface TeamBuilderDirect_GameModeSpellList {
+	spells: number[]
+}
+
+export interface TeamBuilderDirect_GameflowGameClient {
+	running: boolean
+	visible: boolean
+}
+
+export interface TeamBuilderDirect_GameflowGameData {
+	queue: TeamBuilderDirect_Queue
+}
+
+export interface TeamBuilderDirect_GameflowGameDodge {
+	state: TeamBuilderDirect_GameflowGameDodgeState
+	dodgeIds: number[]
+}
+
+export type TeamBuilderDirect_GameflowGameDodgeState = "TournamentDodged" | "StrangerDodged" | "PartyDodged" | "Invalid"
+
+export interface TeamBuilderDirect_GameflowGameMap {
+	perPositionRequiredSummonerSpells: Record<string, TeamBuilderDirect_GameModeSpellList>
+	perPositionDisallowedSummonerSpells: Record<string, TeamBuilderDirect_GameModeSpellList>
+}
+
+export type TeamBuilderDirect_GameflowPhase = "TerminatedInError" | "EndOfGame" | "PreEndOfGame" | "WaitingForStats" | "Reconnect" | "InProgress" | "FailedToLaunch" | "GameStart" | "ChampSelect" | "ReadyCheck" | "CheckedIntoTournament" | "Matchmaking" | "Lobby" | "None"
+
+export interface TeamBuilderDirect_GameflowQueue {
+	/** @format int32 */
+	id: number
+}
+
+export type TeamBuilderDirect_GameflowServiceErrorType = "PLAYER_LACKS_VANGUARD_SESSION"
+
+export interface TeamBuilderDirect_GameflowSession {
+	phase: TeamBuilderDirect_GameflowPhase
+	gameClient: TeamBuilderDirect_GameflowGameClient
+	gameData: TeamBuilderDirect_GameflowGameData
+}
+
+/** Reasons that the gatekeeper service has kept you from entering a lobby or matchmaking */
+export interface TeamBuilderDirect_GatekeeperRestricted {
+	gatekeeperRestrictions: TeamBuilderDirect_GatekeeperRestriction[]
+}
+
+/** A specific gatekeeper restriction incident */
+export interface TeamBuilderDirect_GatekeeperRestriction {
+	/** @format int64 */
+	summonerId: number
+	reason: string
+	/** @format uint32 */
+	remainingMillis: number
+	payload: string
+	/** @format int32 */
+	queueId: number
+}
+
+export interface TeamBuilderDirect_InventoryDraft {
+	lastSelectedSkinIdByChampionId: Record<string, number>
+	skinIds: number[]
+	spellIds: number[]
+	initialSpellIds: number[]
+	allChampionIds: number[]
+	disabledChampionIds: number[]
+	crowdFavoriteChampionIds: number[]
+	subsetChampionIds: number[]
+}
+
+export interface TeamBuilderDirect_InventoryItem {
+	/** @format int64 */
+	itemId: number
+}
+
+export interface TeamBuilderDirect_InventoryItemWithPayload {
+	/** @format int64 */
+	itemId: number
+	payload: unknown
+}
+
+export interface TeamBuilderDirect_LobbyStatus {
+	/** @format int32 */
+	queueId: number
+	isCustom: boolean
+	isLeader: boolean
+	isSpectator: boolean
+	allowedPlayAgain: boolean
+	memberSummonerIds: number[]
+}
+
+export interface TeamBuilderDirect_LockedEventsState {
+	allowLockedEvents: boolean
+	/** @format int32 */
+	lockedEventIndex: number
+}
+
+export interface TeamBuilderDirect_LoginSession {
+	state: TeamBuilderDirect_LoginSessionState
+	puuid: string
+	/** @format uint64 */
+	summonerId?: number
+}
+
+export type TeamBuilderDirect_LoginSessionState = "ERROR" | "LOGGING_OUT" | "SUCCEEDED" | "IN_PROGRESS"
+
+export interface TeamBuilderDirect_MatchmakingDodgeData {
+	state: TeamBuilderDirect_MatchmakingDodgeState
+	/** @format int64 */
+	dodgerId: number
+}
+
+export type TeamBuilderDirect_MatchmakingDodgeState = "TournamentDodged" | "StrangerDodged" | "PartyDodged" | "Invalid"
+
+export type TeamBuilderDirect_MatchmakingDodgeWarning = "Penalty" | "Warning" | "None"
+
+export interface TeamBuilderDirect_MatchmakingLowPriorityData {
+	penalizedSummonerIds: number[]
+	/** @format double */
+	penaltyTime: number
+	/** @format double */
+	penaltyTimeRemaining: number
+	bustedLeaverAccessToken: string
+}
+
+export interface TeamBuilderDirect_MatchmakingReadyCheckResource {
+	state: TeamBuilderDirect_MatchmakingReadyCheckState
+	playerResponse: TeamBuilderDirect_MatchmakingReadyCheckResponse
+	dodgeWarning: TeamBuilderDirect_MatchmakingDodgeWarning
+	/** @format float */
+	timer: number
+	declinerIds: number[]
+}
+
+export type TeamBuilderDirect_MatchmakingReadyCheckResponse = "Declined" | "Accepted" | "None"
+
+export type TeamBuilderDirect_MatchmakingReadyCheckState = "Error" | "PartyNotReady" | "StrangerNotReady" | "EveryoneReady" | "InProgress" | "Invalid"
+
+export interface TeamBuilderDirect_MatchmakingSearchErrorResource {
+	/** @format int32 */
+	id: number
+	errorType: string
+	/** @format int64 */
+	penalizedSummonerId: number
+	/** @format double */
+	penaltyTimeRemaining: number
+	message: string
+}
+
+export interface TeamBuilderDirect_MatchmakingSearchResource {
+	/** @format int32 */
+	queueId: number
+	isCurrentlyInQueue: boolean
+	lobbyId: string
+	searchState: TeamBuilderDirect_MatchmakingSearchState
+	/** @format float */
+	timeInQueue: number
+	/** @format float */
+	estimatedQueueTime: number
+	readyCheck: TeamBuilderDirect_MatchmakingReadyCheckResource
+	dodgeData: TeamBuilderDirect_MatchmakingDodgeData
+	lowPriorityData: TeamBuilderDirect_MatchmakingLowPriorityData
+	errors: TeamBuilderDirect_MatchmakingSearchErrorResource[]
+}
+
+export type TeamBuilderDirect_MatchmakingSearchState = "ServiceShutdown" | "ServiceError" | "Error" | "Found" | "Searching" | "Canceled" | "AbandonedLowPriorityQueue" | "Invalid"
+
+export interface TeamBuilderDirect_MatchmakingState {
+	/** @format int64 */
+	estimatedMatchmakingTimeMillis: number
+	/** @format int64 */
+	timeInMatchmakingMillis: number
+	backwardsTransitionReason: string
+}
+
+export interface TeamBuilderDirect_MucJwtDto {
+	jwt: string
+	channelClaim: string
+	domain: string
+	targetRegion: string
+}
+
+export interface TeamBuilderDirect_MutedPlayerInfo {
+	puuid: string
+	/** @format uint64 */
+	summonerId: number
+	obfuscatedPuuid: string
+	/** @format uint64 */
+	obfuscatedSummonerId: number
+}
+
+export interface TeamBuilderDirect_PlayerStatus {
+	currentLobbyStatus?: TeamBuilderDirect_LobbyStatus
+	lastQueuedLobbyStatus?: TeamBuilderDirect_LobbyStatus
+}
+
+export type TeamBuilderDirect_QuestSkinProductType = "kTieredSkin" | "kQuestSkin"
+
+export interface TeamBuilderDirect_Queue {
+	/** @format int32 */
+	id: number
+	/** @format int32 */
+	mapId: number
+	name: string
+	shortName: string
+	description: string
+	detailedDescription: string
+	type: string
+	gameMode: string
+	assetMutator: string
+	category: TeamBuilderDirect_QueueGameCategory
+	gameTypeConfig: TeamBuilderDirect_QueueGameTypeConfig
+	/** @format int32 */
+	numPlayersPerTeam: number
+	/** @format int32 */
+	minimumParticipantListSize: number
+	/** @format int32 */
+	maximumParticipantListSize: number
+	/** @format int32 */
+	minLevel: number
+	isRanked: boolean
+	areFreeChampionsAllowed: boolean
+	isTeamBuilderManaged: boolean
+	queueAvailability: TeamBuilderDirect_QueueAvailability
+	queueRewards: TeamBuilderDirect_QueueReward
+	spectatorEnabled: boolean
+	/** @format uint32 */
+	championsRequiredToPlay: number
+	allowablePremadeSizes: number[]
+	showPositionSelector: boolean
+	showQuickPlaySlotSelection: boolean
+	/** @format uint64 */
+	lastToggledOffTime: number
+	/** @format uint64 */
+	lastToggledOnTime: number
+	removalFromGameAllowed: boolean
+	/** @format int32 */
+	removalFromGameDelayMinutes: number
+}
+
+export type TeamBuilderDirect_QueueAvailability = "DoesntMeetRequirements" | "PlatformDisabled" | "Available"
+
+export type TeamBuilderDirect_QueueGameCategory = "Alpha" | "VersusAi" | "PvP" | "Custom" | "None"
+
+export interface TeamBuilderDirect_QueueGameTypeConfig {
+	/** @format int64 */
+	id: number
+	name: string
+	/** @format int32 */
+	maxAllowableBans: number
+	allowTrades: boolean
+	allowPickOrderSwaps: boolean
+	exclusivePick: boolean
+	duplicatePick: boolean
+	teamChampionPool: boolean
+	crossTeamChampionPool: boolean
+	advancedLearningQuests: boolean
+	battleBoost: boolean
+	deathMatch: boolean
+	doNotRemove: boolean
+	learningQuests: boolean
+	onboardCoopBeginner: boolean
+	reroll: boolean
+	/** @format int32 */
+	mainPickTimerDuration: number
+	/** @format int32 */
+	postPickTimerDuration: number
+	/** @format int32 */
+	banTimerDuration: number
+	pickMode: string
+	banMode: string
+}
+
+export interface TeamBuilderDirect_QueueReward {
+	isIpEnabled: boolean
+	isXpEnabled: boolean
+	isChampionPointsEnabled: boolean
+	partySizeIpRewards: number[]
+}
+
+export interface TeamBuilderDirect_RerollState {
+	allowRerolling: boolean
+	/** @format uint64 */
+	rerollsRemaining: number
+}
+
+export interface TeamBuilderDirect_SettingCategoryResource {
+	/** @format int32 */
+	schemaVersion: number
+	data: TeamBuilderDirect_ChampionSelectPreferences
+}
+
+export interface TeamBuilderDirect_SettingsResource {
+	data: unknown
+	/** @format int64 */
+	schemaVersion: number
+}
+
+export interface TeamBuilderDirect_SfxNotification {
+	/** @format int64 */
+	delayMillis: number
+	path: string
+	eventType: string
+}
+
+export interface TeamBuilderDirect_SkinSelectorBaseSkin {
+	/** @format int32 */
+	championId: number
+	chromaPreviewPath?: string
+	/** @format int32 */
+	id: number
+	name: string
+	ownership: TeamBuilderDirect_CollectionsOwnership
+	isBase: boolean
+	disabled: boolean
+	stillObtainable: boolean
+	isChampionUnlocked: boolean
+	splashPath: string
+	splashVideoPath?: string
+	tilePath: string
+	unlocked: boolean
+	skinAugments: Record<string, TeamBuilderDirect_ChampionSkinAugmentOverlays>
+}
+
+export interface TeamBuilderDirect_SkinSelectorChildSkin {
+	/** @format int32 */
+	championId: number
+	chromaPreviewPath?: string
+	/** @format int32 */
+	id: number
+	name: string
+	ownership: TeamBuilderDirect_CollectionsOwnership
+	isBase: boolean
+	disabled: boolean
+	stillObtainable: boolean
+	isChampionUnlocked: boolean
+	splashPath: string
+	splashVideoPath?: string
+	tilePath: string
+	unlocked: boolean
+	skinAugments: Record<string, TeamBuilderDirect_ChampionSkinAugmentOverlays>
+	/** @format int32 */
+	parentSkinId: number
+	colors: string[]
+	/** @format uint64 */
+	stage: number
+	shortName: string
+}
+
+export interface TeamBuilderDirect_SkinSelectorInfo {
+	/** @format int32 */
+	selectedSkinId: number
+	isSkinGrantedFromBoost: boolean
+	/** @format int32 */
+	selectedChampionId: number
+	championName: string
+	skinSelectionDisabled: boolean
+	showSkinSelector: boolean
+}
+
+export interface TeamBuilderDirect_SkinSelectorSkin {
+	/** @format int32 */
+	championId: number
+	chromaPreviewPath?: string
+	/** @format int32 */
+	id: number
+	name: string
+	ownership: TeamBuilderDirect_CollectionsOwnership
+	isBase: boolean
+	disabled: boolean
+	stillObtainable: boolean
+	isChampionUnlocked: boolean
+	splashPath: string
+	splashVideoPath?: string
+	tilePath: string
+	unlocked: boolean
+	skinAugments: Record<string, TeamBuilderDirect_ChampionSkinAugmentOverlays>
+	childSkins: TeamBuilderDirect_SkinSelectorChildSkin[]
+	emblems: TeamBuilderDirect_CollectionsChampionSkinEmblem[]
+	rarityGemPath: string
+	groupSplash: string
+	productType?: TeamBuilderDirect_QuestSkinProductType
+}
+
+export interface TeamBuilderDirect_Summoner {
+	/** @format uint64 */
+	summonerId: number
+	/** @format uint32 */
+	summonerLevel: number
+}
+
+export interface TeamBuilderDirect_Swap {
+	/** @format int32 */
+	id: number
+	/** @format int32 */
+	cellId: number
+	state: string
+}
+
+export interface TeamBuilderDirect_TbRemovedFromServiceNotification {
+	reason: string
+	backwardsTransitionInfo: TeamBuilderDirect_BackwardsTransitionInfo
+}
+
+/** General representation of the state in a Team Builder game flow. */
+export interface TeamBuilderDirect_TbdGameDto {
+	/** @format int32 */
+	counter: number
+	phaseName: string
+	/** @format int32 */
+	queueId: number
+	/** @format int64 */
+	gameId: number
+	matchmakingState?: TeamBuilderDirect_MatchmakingState
+	afkCheckState?: TeamBuilderDirect_AfkCheckState
+	championSelectState?: TeamBuilderDirect_ChampionSelectState
+}
+
+export interface TeamBuilderDirect_TeamBoost {
+	/** @format int64 */
+	summonerId: number
+	puuid: string
+	skinUnlockMode: string
+	/** @format int64 */
+	price: number
+	/** @format int64 */
+	ipReward: number
+	/** @format int64 */
+	ipRewardForPurchaser: number
+	availableSkins: number[]
+	unlocked: boolean
+}
+
+export interface TeamBuilderDirect_TeamBuilderBoostInfo {
+	allowBattleBoost: boolean
+	/** @format int32 */
+	boostableSkinCount: number
+	/** @format int64 */
+	activatorCellId: number
+	battleBoostActivated: boolean
+	/** @format int64 */
+	cost: number
+	unlockedSkinIds: number[]
+}
+
+export interface TeamBuilderDirect_TeambuilderDirectTypes_ChampSelectTimer {
+	/** @format int64 */
+	adjustedTimeLeftInPhase: number
+	/** @format int64 */
+	totalTimeInPhase: number
+	phase: string
+	isInfinite: boolean
+	/** @format uint64 */
+	internalNowInEpochMs: number
+}
+
+export interface TeamBuilderDirect_TeambuilderLeagueEdgeResponse {
+	payload: TeamBuilderDirect_TbdGameDto
+	status: string
+}
+
+export interface TeambuilderEdge_AcceptPickOrderSwapV1 {
+	/** @format int32 */
+	swapId: number
+}
+
+export interface TeambuilderEdge_AcceptPositionSwapV1 {
+	/** @format int32 */
+	swapId: number
+}
+
+export interface TeambuilderEdge_AcceptTradeV1 {
+	/** @format int32 */
+	tradeId: number
+}
+
+export interface TeambuilderEdge_ActionV1 {
+	/** @format int32 */
+	actionId: number
+	/** @format int32 */
+	actorCellId: number
+	type: string
+	/** @format int32 */
+	championId: number
+	completed: boolean
+}
+
+export interface TeambuilderEdge_AfkCheckStateV1 {
+	/** @format int64 */
+	maxAfkMillis: number
+	/** @format int64 */
+	remainingAfkMillis: number
+	afkReady: boolean
+	inventoryDraft: TeambuilderEdge_InventoryDraftV1
+	compressAfkCheckPayload: boolean
+	multiUserChatJWT: string
+	chatRoomName: string
+	mucJwtDto: TeambuilderEdge_MucJwtDto
+	autoAccept: boolean
+}
+
+export interface TeambuilderEdge_AutoFillDataBagForClientV1 {
+	/** @format int64 */
+	queueId: number
+	autoFillEligible: boolean
+	autoFillProtectedForStreaking: boolean
+	autoFillProtectedForPromos: boolean
+	autoFillProtectedForRemedy: boolean
+}
+
+export interface TeambuilderEdge_BattleBoostStateV1 {
+	allowBattleBoost: boolean
+	/** @format int32 */
+	boostableSkinCount: number
+	battleBoostActivated: boolean
+	/** @format int32 */
+	activatorCellId: number
+	unlockedSkinIds: number[]
+	/** @format int64 */
+	cost: number
+}
+
+export interface TeambuilderEdge_CellV1 {
+	/** @format int32 */
+	teamId: number
+	/** @format int32 */
+	cellId: number
+	puuid: string
+	summonerName: string
+	gameName: string
+	tagLine: string
+	isHumanoid: boolean
+	/** @format int64 */
+	summonerId: number
+	/** @format int32 */
+	championPickIntent: number
+	/** @format int32 */
+	championId: number
+	assignedPosition: string
+	/** @format int32 */
+	"spell1Id": number
+	/** @format int32 */
+	"spell2Id": number
+	/** @format int32 */
+	skinId: number
+	nameVisibilityType: string
+}
+
+export interface TeambuilderEdge_CellsV1 {
+	alliedTeam: TeambuilderEdge_CellV1[]
+	enemyTeam: TeambuilderEdge_CellV1[]
+}
+
+export interface TeambuilderEdge_CeremonyDescriptorV1 {
+	/** @format int64 */
+	duration: number
+	name: string
+}
+
+export interface TeambuilderEdge_ChampionBenchStateV1 {
+	benchEnabled: boolean
+	championIds: number[]
+}
+
+export interface TeambuilderEdge_ChampionBenchSwapV1 {
+	/** @format int32 */
+	championId: number
+}
+
+export interface TeambuilderEdge_ChampionSelectStateV1 {
+	teamId: string
+	teamChatRoomId: string
+	subphase: string
+	actionSetList: unknown
+	/** @format int32 */
+	currentActionSetIndex: number
+	ceremoniesByActionSetIndex: unknown
+	cells: TeambuilderEdge_CellsV1
+	/** @format int32 */
+	localPlayerCellId: number
+	/** @format int64 */
+	currentTotalTimeMillis: number
+	/** @format int64 */
+	currentTimeRemainingMillis: number
+	trades: TeambuilderEdge_TradeV1[]
+	pickOrderSwaps: TeambuilderEdge_PickOrderTradeV1[]
+	positionSwaps: TeambuilderEdge_PositionTradeV1[]
+	pickIntentClearedReason: string
+	allowOptingOutOfBanning: boolean
+	allowSkinSelection: boolean
+	allowDuplicatePicks: boolean
+	rerollState: TeambuilderEdge_RerollStateV1
+	lockedEventsState: TeambuilderEdge_LockedEventsStateV1
+	battleBoostState: TeambuilderEdge_BattleBoostStateV1
+	championBenchState: TeambuilderEdge_ChampionBenchStateV1
+	inventoryDraft: TeambuilderEdge_InventoryDraftV1
+	skipChampionSelect: boolean
+	isSpectating: boolean
+	showQuitButton: boolean
+	allowSubsetChampionPicks: boolean
+}
+
+export interface TeambuilderEdge_DeclinePickOrderSwapV1 {
+	/** @format int32 */
+	swapId: number
+}
+
+export interface TeambuilderEdge_DeclinePositionSwapV1 {
+	/** @format int32 */
+	swapId: number
+}
+
+export interface TeambuilderEdge_DeclineTradeV1 {
+	/** @format int32 */
+	tradeId: number
+}
+
+export interface TeambuilderEdge_GameloopPlayerInfoV2 {
+	autoFillDataBags: TeambuilderEdge_AutoFillDataBagForClientV1[]
+	rerollDataBags: TeambuilderEdge_RerollDataBagForClientV1[]
+}
+
+export interface TeambuilderEdge_IndicateAfkReadinessV2 {
+	afkReady: boolean
+	initialSpellIds?: number[]
+	lastSelectedSkinIdByChampionId?: Record<string, number>
+	simplifiedInventoryJwt?: string
+}
+
+export interface TeambuilderEdge_InventoryDraftV1 {
+	lastSelectedSkinIdByChampionId: Record<string, number>
+	skinIds: number[]
+	spellIds: number[]
+	initialSpellIds: number[]
+	allChampionIds: number[]
+	disabledChampionIds: number[]
+	crowdFavoriteChampionIds: number[]
+	subsetChampionIds: number[]
+}
+
+export interface TeambuilderEdge_LeaveV1 {
+	removedFromServiceReason: string
+	contextJson: string
+	removeHard: boolean
+}
+
+export interface TeambuilderEdge_LockedEventsStateV1 {
+	allowLockedEvents: boolean
+	/** @format int32 */
+	lockedEventIndex: number
+}
+
+export interface TeambuilderEdge_LogoutV1 {
+	softDisconnect: boolean
+}
+
+export interface TeambuilderEdge_MatchmakingStateV1 {
+	/** @format int64 */
+	estimatedMatchmakingTimeMillis: number
+	/** @format int64 */
+	timeInMatchmakingMillis: number
+	backwardsTransitionReason?: string
+}
+
+export interface TeambuilderEdge_MucJwtDto {
+	jwt: string
+	channelClaim: string
+	domain: string
+	targetRegion: string
+}
+
+export interface TeambuilderEdge_PickOrderTradeV1 {
+	/** @format int64 */
+	id: number
+	/** @format int32 */
+	cellId: number
+	state: string
+}
+
+export interface TeambuilderEdge_PickSkinV2 {
+	/** @format int32 */
+	skinId: number
+}
+
+export interface TeambuilderEdge_PickSpellsV1 {
+	/** @format int32 */
+	"spell1Id": number
+	/** @format int32 */
+	"spell2Id": number
+}
+
+export interface TeambuilderEdge_PositionTradeV1 {
+	/** @format int64 */
+	id: number
+	/** @format int32 */
+	cellId: number
+	state: string
+}
+
+export interface TeambuilderEdge_RerollDataBagForClientV1 {
+	/** @format int64 */
+	queueId: number
+	/** @format int32 */
+	pointsGainedLastGame: number
+	/** @format int32 */
+	pointsUntilNextReroll: number
+	/** @format int32 */
+	rerollCount: number
+	/** @format int32 */
+	totalPoints: number
+	/** @format int32 */
+	pointCostOfReroll: number
+	/** @format int32 */
+	maximumRerolls: number
+}
+
+export interface TeambuilderEdge_RerollStateV1 {
+	allowRerolling: boolean
+	/** @format int32 */
+	rerollsRemaining: number
+}
+
+export interface TeambuilderEdge_SignalChampionPickIntentV1 {
+	/** @format int32 */
+	championId: number
+}
+
+export interface TeambuilderEdge_SimplifiedInventoryWrapperV1 {
+	simplifiedInventoryJwt: string
+}
+
+export interface TeambuilderEdge_TbdGameDtoV1 {
+	/** @format int32 */
+	counter: number
+	phaseName: string
+	/** @format int64 */
+	queueId: number
+	/** @format int64 */
+	gameId?: number
+	contextId: string
+	matchmakingState?: TeambuilderEdge_MatchmakingStateV1
+	afkCheckState?: TeambuilderEdge_AfkCheckStateV1
+	championSelectState?: TeambuilderEdge_ChampionSelectStateV1
+}
+
+export interface TeambuilderEdge_TeambuilderLedgeGameloopResponse {
+	payload?: TeambuilderEdge_GameloopPlayerInfoV2
+	status: string
+}
+
+export interface TeambuilderEdge_TeambuilderLedgeResponseV2 {
+	payload?: TeambuilderEdge_TbdGameDtoV1
+	status: string
+}
+
+export interface TeambuilderEdge_TradeV1 {
+	/** @format int64 */
+	id: number
+	/** @format int32 */
+	cellId: number
+	state: string
+}
+
+export interface TeambuilderEdge_UpdateActionV1 {
+	/** @format int32 */
+	actionId: number
+	/** @format int32 */
+	championId: number
+	completed: boolean
+}
+
+export interface TeambuilderEdge_WalletWrapperV1 {
+	signedWalletJwt: string
 }
 
 export interface ThemeVp {
