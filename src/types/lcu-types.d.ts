@@ -10972,7 +10972,7 @@ export interface LolLobbyEligibilityRestriction {
 	puuids: string[]
 }
 
-export type LolLobbyEligibilityRestrictionCode = "FullPartyUnranked" | "PlayerNoRankedUpdatesDueToRankDisparity" | "MmrStandardDeviationTooLarge" | "UserInfoNotAvailable" | "InventoryQueuesInfoNotAvailable" | "InventoryChampsInfoNotAvailable" | "LeaguesInfoNotAvailable" | "SummonerInfoNotAvailable" | "MinorInfoNotAvailable" | "BanInfoNotAvailable" | "TooManyIncompleteSubteamsRestriction" | "QPInsufficientPlayerChampionCoveragePopularChampion" | "QPScarcePositionsNotAvailableRestriction" | "QPNonUniquePrimarySlotRestriction" | "QPInvalidChampionSelectionRestriction" | "QPInvalidPositionSelectionRestriction" | "QPInvalidNumberOfPlayerSlotsRestriction" | "QPPlayerChampionCoverageRestriction" | "QPPartyChampionCoverageRestriction" | "QPPlayerPositionCoverageRestriction" | "QPPartyPositionCoverageRestriction" | "QPPlayerScarcePositionCoverageRestriction" | "MinNormalGamesForRankedRestriction" | "LOLNewPlayerRestriction" | "UnknownRestriction" | "SeasonVersionLockout" | "TFTNewPlayerRestriction" | "QueueEntryNotEntitledRestriction" | "GameVersionNotSupported" | "GameVersionMissing" | "GameVersionMismatch" | "PrerequisiteQueuesNotPlayedRestriction" | "TeamSizeRestriction" | "TeamHighMMRMaxSizeRestriction" | "PlayerRankedSuspensionRestriction" | "PlayerRankSoloOnlyRestriction" | "PlayerTimePlayedRestriction" | "PlayerMinorRestriction" | "PlayerMinLevelRestriction" | "PlayerMaxLevelRestriction" | "PlayerTimeBasedRankRestriction" | "PlayerGameBasedRankRestriction" | "PlayerLeaverTaintedWarningRestriction" | "PlayerLeaverQueueLockoutRestriction" | "PlayerLeaverBustedRestriction" | "PlayerInGameRestriction" | "PlayerReadyCheckFailRestriction" | "PlayerDodgeRestriction" | "PlayerBingeRestriction" | "TeamMinSizeRestriction" | "TeamMaxSizeRestriction" | "TeamSkillRestriction" | "TeamDivisionRestriction" | "PlayerAvailableChampionRestriction" | "PlayerBannedRestriction" | "PlayerTimedRestriction" | "PlayerLevelRestriction" | "QueueUnsupported" | "QueueDisabled"
+export type LolLobbyEligibilityRestrictionCode = "FullPartyUnranked" | "PlayerNoRankedUpdatesDueToRankDisparity" | "MmrStandardDeviationTooLarge" | "UserInfoNotAvailable" | "InventoryQueuesInfoNotAvailable" | "InventoryChampsInfoNotAvailable" | "LeaguesInfoNotAvailable" | "SummonerInfoNotAvailable" | "MinorInfoNotAvailable" | "BanInfoNotAvailable" | "TooManyIncompleteSubteamsRestriction" | "QPInsufficientPlayerChampionCoveragePopularChampion" | "QPScarcePositionsNotAvailableRestriction" | "QPNonUniquePrimarySlotRestriction" | "QPInvalidChampionSelectionRestriction" | "QPInvalidPositionSelectionRestriction" | "QPInvalidNumberOfPlayerSlotsRestriction" | "QPPlayerChampionCoverageRestriction" | "QPPartyChampionCoverageRestriction" | "QPPlayerPositionCoverageRestriction" | "QPPartyPositionCoverageRestriction" | "QPPlayerScarcePositionCoverageRestriction" | "MinNormalGamesForRankedRestriction" | "LOLNewPlayerRestriction" | "UnknownRestriction" | "SeasonVersionLockout" | "TFTNewPlayerRestriction" | "QueueEntryNotEntitledRestriction" | "GameVersionNotSupported" | "GameVersionMissing" | "GameVersionMismatch" | "PrerequisiteQueuesNotPlayedRestriction" | "TeamSizeRestriction" | "TeamHighMMRMaxSizeRestriction" | "PlayerRankedSuspensionRestriction" | "PlayerRankSoloOnlyRestriction" | "PlayerTimePlayedRestriction" | "PlayerMinorRestriction" | "PlayerMinLevelRestriction" | "PlayerMaxLevelRestriction" | "PlayerTimeBasedRankRestriction" | "PlayerGameBasedRankRestriction" | "PlayerLeaverTaintedWarningRestriction" | "PlayerLeaverQueueLockoutRestriction" | "PlayerLeaverBustedRestriction" | "PlayerInGameRestriction" | "PlayerDisruptiveGameplayLockoutRestriction" | "PlayerReadyCheckFailRestriction" | "PlayerDodgeRestriction" | "PlayerBingeRestriction" | "TeamMinSizeRestriction" | "TeamMaxSizeRestriction" | "TeamSkillRestriction" | "TeamDivisionRestriction" | "PlayerAvailableChampionRestriction" | "PlayerBannedRestriction" | "PlayerTimedRestriction" | "PlayerLevelRestriction" | "QueueUnsupported" | "QueueDisabled"
 
 export interface LolLobbyEntitlementsTokenResource {
 	accessToken: string
@@ -14611,6 +14611,7 @@ export interface LolNachoCatalogItemPurchaseRequest {
 	/** @format uint32 */
 	quantity: number
 	paymentOptions: string[]
+	customInventoryLocation: string
 }
 
 export interface LolNachoDropsOddsTreeNodeDTO {
@@ -15375,7 +15376,7 @@ export interface LolObjectivesCollectionsWardSkin {
 	ownership: LolObjectivesCollectionsOwnership
 }
 
-export type LolObjectivesEventHubType = "Unknown" | "SeasonPass" | "HallOfLegends" | "EventShop"
+export type LolObjectivesEventHubType = "NON_PASS" | "SEASON_PASS" | "HALL_OF_LEGENDS" | "EVENT_SHOP"
 
 export interface LolObjectivesEventInfoUIData {
 	eventId: string
@@ -15800,6 +15801,11 @@ export interface LolPatchConfigStatus {
 	readiness: LolPatchConfigReadiness
 }
 
+export interface LolPatchCurrentUpdateStatus {
+	updateAvailable: boolean
+	updateRequired: boolean
+}
+
 export interface LolPatchEntitlementsTokenResource {
 	accessToken: string
 	token: string
@@ -15874,6 +15880,13 @@ export interface LolPatchPatcherSettings {
 	headers: Record<string, string>
 	self_update: LolPatchPatcherSelfUpdateSettings
 	patchsieve_url: string
+}
+
+export interface LolPatchProductIntegrationAppStatus {
+	patchlineId: string
+	productId: string
+	updateAvailable: boolean
+	updateRequired: boolean
 }
 
 export interface LolPatchProductState {
@@ -21795,6 +21808,47 @@ export interface LolTftPassAccessTokenResource {
 	expiry: number
 }
 
+export interface LolTftPassActiveEventUIData {
+	eventId: string
+	eventInfo: LolTftPassEventInfoUIData
+}
+
+export interface LolTftPassBundleOfferUIData {
+	details: LolTftPassBundledItemUIData
+	/** @format int64 */
+	initialPrice: number
+	/** @format int64 */
+	finalPrice: number
+	/** @format int64 */
+	futureBalance: number
+	isPurchasable: boolean
+	/** @format double */
+	discountPercentage: number
+	bundledItems: LolTftPassBundledItemUIData[]
+}
+
+export interface LolTftPassBundledItemUIData {
+	name: string
+	/** @format int32 */
+	itemId: number
+	description: string
+	inventoryType: string
+	subInventoryType: string
+	splashImage: string
+	owned: boolean
+	/** @format uint32 */
+	quantity: number
+	decoratorBadgeURL: string
+}
+
+export interface LolTftPassCatalogEntry {
+	contentId: string
+	/** @format int32 */
+	itemId: number
+	offerId: string
+	typeId: string
+}
+
 export interface LolTftPassCatalogItem {
 	/** @format int32 */
 	itemId: number
@@ -21802,10 +21856,42 @@ export interface LolTftPassCatalogItem {
 	itemInstanceId?: string
 }
 
+export type LolTftPassCelebrationType = "FULLSCREEN" | "TOAST" | "NONE"
+
+export interface LolTftPassChapter {
+	localizedTitle: string
+	localizedDescription: string
+	cardImage: string
+	backgroundImage: string
+	backgroundVideo: string
+	foregroundImage: string
+	objectiveBannerImage: string
+	/** @format uint16 */
+	chapterStart: number
+	/** @format uint16 */
+	chapterEnd: number
+	/** @format uint16 */
+	chapterNumber: number
+	/** @format uint16 */
+	levelFocus: number
+}
+
+export interface LolTftPassChaptersUIData {
+	/** @format uint16 */
+	currentChapter: number
+	chapters: LolTftPassChapter[]
+}
+
 export interface LolTftPassClientCacheClearMessageDTO {
 	regions: string[]
 	clearAll: boolean
 	inventoryTypes: string[]
+}
+
+export interface LolTftPassContentDrop {
+	patch: string
+	activationDate: string
+	offers: LolTftPassOffer[]
 }
 
 export interface LolTftPassCounter {
@@ -21847,6 +21933,118 @@ export interface LolTftPassEntityInstance {
 	milestones: LolTftPassMilestoneInstance[]
 }
 
+export interface LolTftPassEventBackgroundUIData {
+	backgroundImagePath: string
+}
+
+export interface LolTftPassEventDetailsUIData {
+	eventIconPath: string
+	eventName: string
+	headerTitleImagePath: string
+	progressEndDate: string
+	shopEndDate: string
+	eventStartDate: string
+	helpModalImagePath: string
+	inducteeName: string
+	promotionBannerImage: string
+	objectiveBannerImage: string
+	memoryBookBackgroundImage: string
+}
+
+export type LolTftPassEventHubType = "SeasonPass" | "HallOfLegends" | "EventShop"
+
+export interface LolTftPassEventInfoUIData {
+	eventId: string
+	eventName: string
+	eventType: string
+	eventIcon: string
+	navBarIcon: string
+	eventTokenImage: string
+	startDate: string
+	progressEndDate: string
+	endDate: string
+	/** @format int32 */
+	currentTokenBalance: number
+	/** @format int32 */
+	lockedTokenCount: number
+	/** @format int32 */
+	unclaimedRewardCount: number
+	/** @format int64 */
+	timeOfLastUnclaimedReward: number
+	isPassPurchased: boolean
+	eventPassBundles: LolTftPassCatalogEntry[]
+	tokenBundles: LolTftPassCatalogEntry[]
+}
+
+export interface LolTftPassEventPassInfo {
+	eventId: string
+	isPassPurchased: boolean
+}
+
+export interface LolTftPassEventShop {
+	eventId: string
+	eventHubType: string
+	localizedName: string
+	backgroundImage: string
+	navbarIconImage: string
+	headerIconImage: string
+	startDate: string
+	progressEndDate: string
+	endDate: string
+	localizedUpsellTitle: string
+	localizedUpsellTooltipTitle: string
+	localizedUpsellTooltipDescription: string
+	localizedUpsellButtonText: string
+	upsellBackgroundImageUrl: string
+	upsellTooltipBackgroundImageUrl: string
+	helpModalImage: string
+	eventPassBundlesCatalogEntry: LolTftPassCatalogEntry[]
+	tokenShop: LolTftPassTokenShop
+	rewardTrack: LolTftPassRewardTrack
+}
+
+export interface LolTftPassFSC {
+	id: string
+	canvas: LolTftPassFSCCanvas
+	media: LolTftPassFSCMedia
+	rewards: LolTftPassFSCRewards[]
+}
+
+export interface LolTftPassFSCCanvas {
+	title: string
+	subtitle: string
+	canvasBackgroundImage: string
+	canvasSize: LolTftPassFSCCanvasSize
+	canvasDesign: string
+}
+
+export type LolTftPassFSCCanvasSize = "FULL" | "LARGE" | "MEDIUM" | "SMALL"
+
+export interface LolTftPassFSCMedia {
+	introAnimation: string
+	introAnimationAudio: string
+	introLowSpecImage: string
+	loopAnimation: string
+	loopAnimationAudio: string
+	transitionAnimation: string
+	transitionAnimationAudio: string
+}
+
+export interface LolTftPassFSCRewards {
+	/** @format int32 */
+	itemId: number
+	imageOverlay: string
+	title: string
+	subtitle: string
+}
+
+export type LolTftPassGrantStatus = "FAILED" | "FULFILLED" | "PENDING_SELECTION" | "PENDING_FULFILLMENT"
+
+export interface LolTftPassGrantorDescription {
+	appName: string
+	entityId: string
+}
+
 export interface LolTftPassGroup {
 	id: string
 	productId: string
@@ -21854,6 +22052,35 @@ export interface LolTftPassGroup {
 	repeat: LolTftPassRepeat
 	counters: LolTftPassCounter[]
 	milestones: LolTftPassMilestone[]
+}
+
+export interface LolTftPassHallOfLegends {
+	eventId: string
+	eventHubType: string
+	localizedName: string
+	navbarIconImage: string
+	headerIconImage: string
+	headerTitleImage: string
+	startDate: string
+	progressEndDate: string
+	endDate: string
+	helpModalImage: string
+	inducteeName: string
+	promotionBannerImage: string
+	objectiveBannerImage: string
+	eventPassBundlesCatalogEntry: LolTftPassCatalogEntry[]
+	progressionPurchaseCatalogEntry: LolTftPassCatalogEntry
+	skinIds: string[]
+	rewardTrack: LolTftPassRewardTrack
+	narrativeElements: LolTftPassNarrativeElement[]
+	localizedUpsellTitle: string
+	localizedUpsellTooltipTitle: string
+	localizedUpsellTooltipDescription: string
+	localizedUpsellButtonText: string
+	upsellBackgroundImageUrl: string
+	upsellTooltipBackgroundImageUrl: string
+	upsellIconUrl: string
+	memoryBookBackgroundImage: string
 }
 
 export interface LolTftPassInventoryCacheEntry {
@@ -21953,10 +22180,29 @@ export interface LolTftPassInventoryResponseDTO {
 	data: LolTftPassInventoryDTO
 }
 
+export interface LolTftPassItem {
+	itemId: string
+	inventoryType: string
+	/** @format uint32 */
+	price: number
+	/** @format uint32 */
+	quantity: number
+}
+
 export interface LolTftPassItemKey {
 	inventoryType: string
 	/** @format int32 */
 	itemId: number
+}
+
+export interface LolTftPassItemOrderDTO {
+	inventoryType: string
+	/** @format int32 */
+	itemId: number
+	/** @format uint32 */
+	quantity: number
+	/** @format uint32 */
+	rpCost: number
 }
 
 export type LolTftPassItemOwnershipType = "F2P" | "LOYALTY" | "RENTED" | "OWNED"
@@ -22051,6 +22297,57 @@ export interface LolTftPassMilestoneInstance {
 	triggers: LolTftPassTrigger[]
 }
 
+export interface LolTftPassNarrativeElement {
+	localizedNarrativeTitle: string
+	localizedNarrativeDescription: string
+	narrativeBackgroundImage: string
+	/** @format uint16 */
+	narrativeStartingTrackLevel: number
+	narrativeVideo: LolTftPassNarrativeVideo
+}
+
+export interface LolTftPassNarrativeVideo {
+	localizedNarrativeVideoUrl: string
+	localizedPlayNarrativeButtonLabel: string
+	localizedVideoTitle: string
+	thumbnailImage: string
+	narrativeVideoIsLockedOnLevel?: boolean
+	localizedNarrativeVideoDescription: string
+}
+
+export interface LolTftPassNextRewardUIData {
+	thumbIconPath: string
+	state: LolTftPassRewardTrackItemHeaderType
+	name: string
+	description: string
+	level: string
+}
+
+export interface LolTftPassObjectivesBanner {
+	eventName: string
+	promotionBannerImage: string
+	objectiveBannerImage: string
+	isPassPurchased: boolean
+	currentChapter: LolTftPassChapter
+	trackProgressNextReward: LolTftPassTrackProgressNextReward
+	trackProgress: LolTftPassTrackProgressNextReward
+	rewardTrackProgress: LolTftPassRewardTrackProgress
+}
+
+export interface LolTftPassOffer {
+	id: string
+	localizedTitle: string
+	localizedDescription: string
+	image: string
+	promotionType: LolTftPassOfferPromotionType
+	offerCategory: LolTftPassOfferCategory
+	items: LolTftPassItem[]
+}
+
+export type LolTftPassOfferCategory = "Currencies" | "Tft" | "Loot" | "Borders" | "Skins" | "Chromas" | "Featured"
+
+export type LolTftPassOfferPromotionType = "kFeaturedHighlighted" | "kFeatured" | "kNone"
+
 export interface LolTftPassPlayerNotification {
 	critical: boolean
 	detailKey: string
@@ -22059,6 +22356,39 @@ export interface LolTftPassPlayerNotification {
 	titleKey: string
 	type: string
 	iconUrl: string
+}
+
+export interface LolTftPassProgressInfoUIData {
+	tokenImage: string
+	passPurchased: boolean
+	eventPassBundlesCatalogEntry: LolTftPassCatalogEntry[]
+}
+
+export interface LolTftPassProgressionPurchaseUIData {
+	offerId: string
+	/** @format int64 */
+	pricePerLevel: number
+	/** @format int64 */
+	rpBalance: number
+}
+
+export interface LolTftPassPurchaseOfferRequest {
+	offerId: string
+	/** @format uint32 */
+	purchaseQuantity: number
+}
+
+export interface LolTftPassPurchaseOrderResponseDTO {
+	/** @format int64 */
+	rpBalance: number
+	/** @format int64 */
+	ipBalance: number
+	transactions: LolTftPassTransactionResponseDTO[]
+}
+
+export interface LolTftPassRMSPayload {
+	productId: string
+	affinities: string[]
 }
 
 export interface LolTftPassRMSRequest {
@@ -22076,6 +22406,11 @@ export interface LolTftPassRMSRewardsNotificationPayload {
 	rewardId: string
 	rewardInstanceId: string
 	status: string
+}
+
+export interface LolTftPassRegionLocale {
+	region: string
+	locale: string
 }
 
 export interface LolTftPassRepeat {
@@ -22098,6 +22433,189 @@ export interface LolTftPassRepeatGroupTrigger {
 	increaseBy: number
 	/** @format float */
 	multiplier: number
+}
+
+export interface LolTftPassRequestDTO_SelectionRequestDTO {
+	data: LolTftPassSelectionRequestDTO
+	metadata: LolTftPassRequestMetadataDTO
+}
+
+export interface LolTftPassRequestDTO_vector_SelectionRequestDTO {
+	data: LolTftPassSelectionRequestDTO[]
+	metadata: LolTftPassRequestMetadataDTO
+}
+
+export interface LolTftPassRequestDTO_vector_string {
+	data: string[]
+	metadata: LolTftPassRequestMetadataDTO
+}
+
+export interface LolTftPassRequestMetadataDTO {
+	transactionId?: string
+}
+
+export interface LolTftPassResponseDTO_SvcRewardGrant {
+	data: LolTftPassSvcRewardGrant
+	metadata: LolTftPassResponseMetadataDTO
+}
+
+export interface LolTftPassResponseDTO_map_RewardGroupId_SelectGrantStatus {
+	data: Record<string, LolTftPassSelectGrantStatusResponse>
+	metadata: LolTftPassResponseMetadataDTO
+}
+
+export interface LolTftPassResponseDTO_vector_SvcRewardGrant {
+	data: LolTftPassSvcRewardGrant[]
+	metadata: LolTftPassResponseMetadataDTO
+}
+
+export interface LolTftPassResponseDTO_vector_SvcRewardGroup {
+	data: LolTftPassSvcRewardGroup[]
+	metadata: LolTftPassResponseMetadataDTO
+}
+
+export interface LolTftPassResponseMetadataDTO {
+	[key: string | number]: any
+}
+
+export interface LolTftPassReward {
+	id: string
+	itemId: string
+	itemType: string
+	/** @format int32 */
+	quantity: number
+	fulfillmentSource: string
+	media: Record<string, string>
+	localizations: Record<string, string>
+}
+
+export interface LolTftPassRewardGrant {
+	info: LolTftPassSvcRewardGrant
+	rewardGroup: LolTftPassSvcRewardGroup
+}
+
+export type LolTftPassRewardStatus = "FAILED" | "FULFILLED" | "PENDING"
+
+export type LolTftPassRewardStrategy = "SELECTION" | "RANDOM" | "ALL"
+
+export interface LolTftPassRewardTrack {
+	trackConfig: LolTftPassRewardTrackConfiguration
+}
+
+export interface LolTftPassRewardTrackConfiguration {
+	id: string
+	premiumEntitlementId: string
+}
+
+export interface LolTftPassRewardTrackError {
+	errorMessage: string
+	errorId: string
+}
+
+export interface LolTftPassRewardTrackItem {
+	state: LolTftPassRewardTrackItemStates
+	rewardOptions: LolTftPassRewardTrackItemOption[]
+	rewardTags: LolTftPassRewardTrackItemTag[]
+	/** @format int64 */
+	progressRequired: number
+	threshold: string
+}
+
+export type LolTftPassRewardTrackItemHeaderType = "NONE" | "FREE" | "PREMIUM"
+
+export interface LolTftPassRewardTrackItemOption {
+	state: LolTftPassRewardTrackItemStates
+	thumbIconPath: string
+	splashImagePath: string
+	selected: boolean
+	overrideFooter: string
+	headerType: LolTftPassRewardTrackItemHeaderType
+	rewardName: string
+	rewardDescription: string
+	rewardItemType: string
+	rewardItemId: string
+	rewardFulfillmentSource: string
+	cardSize: string
+	rewardGroupId: string
+	celebrationType: LolTftPassCelebrationType
+}
+
+export type LolTftPassRewardTrackItemStates = "Selected" | "Unselected" | "Unlocked" | "Locked"
+
+export type LolTftPassRewardTrackItemTag = "Multiple" | "Choice" | "Instant" | "Free" | "Rare"
+
+export interface LolTftPassRewardTrackProgress {
+	/** @format int16 */
+	level: number
+	/** @format int16 */
+	totalLevels: number
+	/** @format uint16 */
+	levelProgress: number
+	/** @format uint16 */
+	futureLevelProgress: number
+	/** @format int64 */
+	passProgress: number
+	/** @format int64 */
+	currentLevelXP: number
+	/** @format int64 */
+	totalLevelXP: number
+	/** @format uint32 */
+	iteration: number
+}
+
+export interface LolTftPassRewardTrackXP {
+	/** @format int64 */
+	currentLevel: number
+	/** @format int64 */
+	currentLevelXP: number
+	/** @format int64 */
+	totalLevelXP: number
+	isBonusPhase: boolean
+	/** @format uint32 */
+	iteration: number
+}
+
+export interface LolTftPassRewardsCatalogPluginItem {
+	/** @format int32 */
+	itemId: number
+	name: string
+	itemInstanceId: string
+	owned: boolean
+	rarity: string
+	active: boolean
+	questSkinInfo: LolTftPassRewardsSkinLineInfo
+}
+
+export interface LolTftPassRewardsCatalogPluginItemAssets {
+	splashPath: string
+	loadScreenPath: string
+}
+
+export interface LolTftPassRewardsCatalogPluginItemWithDetails {
+	item: LolTftPassRewardsCatalogPluginItem
+	assets: LolTftPassRewardsCatalogPluginItemAssets
+}
+
+export interface LolTftPassRewardsConfig {
+	GrantFiltering: boolean
+}
+
+export interface LolTftPassRewardsSkinLineInfo {
+	tiers: LolTftPassRewardsSkinLineTier[]
+	mostProgressedSkinTier: LolTftPassRewardsSkinLineTier
+	productType: string
+}
+
+export interface LolTftPassRewardsSkinLineTier {
+	/** @format int64 */
+	stage: number
+	name: string
+	uncenteredSplashPath: string
+	ownership: LolTftPassRewardsSkinLineTierOwnership
+}
+
+export interface LolTftPassRewardsSkinLineTierOwnership {
+	owned: boolean
 }
 
 export interface LolTftPassRiotMessagingServiceMessage {
@@ -22138,6 +22656,45 @@ export interface LolTftPassRmsXboxSubscriptionChange {
 	identityProvider: string[]
 }
 
+export interface LolTftPassSeasonPass {
+	eventId: string
+	eventHubType: string
+	localizedName: string
+	navbarIconImage: string
+	headerIconImage: string
+	headerTitleImage: string
+	startDate: string
+	progressEndDate: string
+	endDate: string
+	helpModalImage: string
+	eventPassBundlesCatalogEntry: LolTftPassCatalogEntry[]
+	progressionPurchaseCatalogEntry: LolTftPassCatalogEntry
+	rewardTrack: LolTftPassRewardTrack
+	localizedUpsellTitle: string
+	localizedUpsellTooltipTitle: string
+	localizedUpsellTooltipDescription: string
+	localizedUpsellButtonText: string
+	upsellBackgroundImageUrl: string
+	upsellTooltipBackgroundImageUrl: string
+	objectiveBannerImage: string
+	chapters: LolTftPassChapter[]
+}
+
+export type LolTftPassSelectGrantStatusResponse = "FAILED" | "SELECTED"
+
+export interface LolTftPassSelectionRequestDTO {
+	grantId: string
+	rewardGroupId: string
+	selections: string[]
+}
+
+export interface LolTftPassSelectionStrategyConfig {
+	/** @format uint32 */
+	minSelectionsAllowed: number
+	/** @format uint32 */
+	maxSelectionsAllowed: number
+}
+
 export interface LolTftPassSimpleInventoryDTO {
 	items: Record<string, unknown>
 	itemsJwt: string
@@ -22151,6 +22708,45 @@ export interface LolTftPassSimpleInventoryResponseDTO {
 export interface LolTftPassSummonerIcon {
 	/** @format int32 */
 	itemId: number
+}
+
+export interface LolTftPassSvcRewardGrant {
+	id: string
+	granteeId: string
+	rewardGroupId: string
+	dateCreated: string
+	status: LolTftPassGrantStatus
+	grantElements: LolTftPassSvcRewardGrantElement[]
+	selectedIds: string[]
+	viewed: boolean
+	grantorDescription: LolTftPassGrantorDescription
+	messageParameters: Record<string, unknown>
+}
+
+export interface LolTftPassSvcRewardGrantElement {
+	elementId: string
+	itemId: string
+	itemType: string
+	fulfillmentSource: string
+	status: LolTftPassRewardStatus
+	/** @format int32 */
+	quantity: number
+	media: Record<string, string>
+	localizations: Record<string, string>
+}
+
+export interface LolTftPassSvcRewardGroup {
+	id: string
+	productId: string
+	types: string[]
+	rewards: LolTftPassReward[]
+	childRewardGroupIds: string[]
+	rewardStrategy: LolTftPassRewardStrategy
+	selectionStrategyConfig?: LolTftPassSelectionStrategyConfig
+	active: boolean
+	media: Record<string, string>
+	localizations: Record<string, string>
+	celebrationType: LolTftPassCelebrationType
 }
 
 export interface LolTftPassTFTPassAsset {
@@ -22288,11 +22884,46 @@ export interface LolTftPassTftBattlepassReward {
 
 export type LolTftPassTftPassType = "kUnknown" | "kSkillTreePass" | "kDailyLoginPass" | "kEventPass" | "kBattlePass"
 
+export interface LolTftPassTokenShop {
+	tokenImage: string
+	tokenName: string
+	tokenUuid: string
+	offers: LolTftPassOffer[]
+	contentDrops: LolTftPassContentDrop[]
+	tokenBundlesCatalogEntry: LolTftPassCatalogEntry[]
+}
+
+export interface LolTftPassTrackProgressNextReward {
+	/** @format int64 */
+	currentXP: number
+	/** @format int64 */
+	nextLevelXP: number
+	/** @format int64 */
+	currentLevel: number
+	nextReward: LolTftPassNextRewardUIData
+}
+
+export interface LolTftPassTransactionResponseDTO {
+	id: string
+	inventoryType: string
+	/** @format int32 */
+	itemId: number
+}
+
 export interface LolTftPassTrigger {
 	type: string
 	counterId: string
 	/** @format uint64 */
 	triggerValue: number
+}
+
+export interface LolTftPassUnclaimedRewardsUIData {
+	/** @format int32 */
+	rewardsCount: number
+	/** @format int32 */
+	lockedTokensCount: number
+	/** @format int64 */
+	timeOfLastUnclaimedReward: number
 }
 
 export interface LolTftPassWallet {
@@ -24206,6 +24837,9 @@ export interface MissionMetadata {
 	order: number
 	/** @format int32 */
 	chainSize: number
+	/** @format uint32 */
+	minRequired?: number
+	objectiveMetadataMap?: Record<string, ObjectiveMetaData>
 }
 
 export interface MissionProgressDTO {
@@ -24277,6 +24911,12 @@ export interface NpeRewardPackMetadata {
 	rewardKey: string
 	majorReward: NpeReward
 	minorRewards: NpeReward[]
+}
+
+export interface ObjectiveMetaData {
+	type: string
+	/** @format uint32 */
+	id: number
 }
 
 export interface OpenedTeamDTO {
@@ -26369,6 +27009,7 @@ export interface TeamBuilderDirect_TbdGameDto {
 	matchmakingState?: TeamBuilderDirect_MatchmakingState
 	afkCheckState?: TeamBuilderDirect_AfkCheckState
 	championSelectState?: TeamBuilderDirect_ChampionSelectState
+	requestGuid: string
 }
 
 export interface TeamBuilderDirect_TeamBoost {
@@ -26417,16 +27058,19 @@ export interface TeamBuilderDirect_TeambuilderLeagueEdgeResponse {
 export interface TeambuilderEdge_AcceptPickOrderSwapV1 {
 	/** @format int32 */
 	swapId: number
+	requestGuid: string
 }
 
 export interface TeambuilderEdge_AcceptPositionSwapV1 {
 	/** @format int32 */
 	swapId: number
+	requestGuid: string
 }
 
 export interface TeambuilderEdge_AcceptTradeV1 {
 	/** @format int32 */
 	tradeId: number
+	requestGuid: string
 }
 
 export interface TeambuilderEdge_ActionV1 {
@@ -26520,6 +27164,7 @@ export interface TeambuilderEdge_ChampionBenchStateV1 {
 export interface TeambuilderEdge_ChampionBenchSwapV1 {
 	/** @format int32 */
 	championId: number
+	requestGuid: string
 }
 
 export interface TeambuilderEdge_ChampionSelectStateV1 {
@@ -26558,16 +27203,19 @@ export interface TeambuilderEdge_ChampionSelectStateV1 {
 export interface TeambuilderEdge_DeclinePickOrderSwapV1 {
 	/** @format int32 */
 	swapId: number
+	requestGuid: string
 }
 
 export interface TeambuilderEdge_DeclinePositionSwapV1 {
 	/** @format int32 */
 	swapId: number
+	requestGuid: string
 }
 
 export interface TeambuilderEdge_DeclineTradeV1 {
 	/** @format int32 */
 	tradeId: number
+	requestGuid: string
 }
 
 export interface TeambuilderEdge_GameloopPlayerInfoV2 {
@@ -26580,6 +27228,7 @@ export interface TeambuilderEdge_IndicateAfkReadinessV2 {
 	initialSpellIds?: number[]
 	lastSelectedSkinIdByChampionId?: Record<string, number>
 	simplifiedInventoryJwt?: string
+	requestGuid: string
 }
 
 export interface TeambuilderEdge_InventoryDraftV1 {
@@ -26635,6 +27284,7 @@ export interface TeambuilderEdge_PickOrderTradeV1 {
 export interface TeambuilderEdge_PickSkinV2 {
 	/** @format int32 */
 	skinId: number
+	requestGuid: string
 }
 
 export interface TeambuilderEdge_PickSpellsV1 {
@@ -26642,6 +27292,7 @@ export interface TeambuilderEdge_PickSpellsV1 {
 	"spell1Id": number
 	/** @format int32 */
 	"spell2Id": number
+	requestGuid: string
 }
 
 export interface TeambuilderEdge_PositionTradeV1 {
@@ -26664,9 +27315,9 @@ export interface TeambuilderEdge_RerollDataBagForClientV1 {
 	/** @format int32 */
 	totalPoints: number
 	/** @format int32 */
-	pointCostOfReroll: number
-	/** @format int32 */
 	maximumRerolls: number
+	/** @format int32 */
+	pointCostOfReroll: number
 }
 
 export interface TeambuilderEdge_RerollStateV1 {
@@ -26678,6 +27329,7 @@ export interface TeambuilderEdge_RerollStateV1 {
 export interface TeambuilderEdge_SignalChampionPickIntentV1 {
 	/** @format int32 */
 	championId: number
+	requestGuid: string
 }
 
 export interface TeambuilderEdge_SimplifiedInventoryWrapperV1 {
@@ -26696,6 +27348,7 @@ export interface TeambuilderEdge_TbdGameDtoV1 {
 	matchmakingState?: TeambuilderEdge_MatchmakingStateV1
 	afkCheckState?: TeambuilderEdge_AfkCheckStateV1
 	championSelectState?: TeambuilderEdge_ChampionSelectStateV1
+	requestGuid: string
 }
 
 export interface TeambuilderEdge_TeambuilderLedgeGameloopResponse {
@@ -26722,10 +27375,12 @@ export interface TeambuilderEdge_UpdateActionV1 {
 	/** @format int32 */
 	championId: number
 	completed: boolean
+	requestGuid: string
 }
 
 export interface TeambuilderEdge_WalletWrapperV1 {
 	signedWalletJwt: string
+	requestGuid: string
 }
 
 export interface ThemeVp {
