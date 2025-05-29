@@ -1533,6 +1533,9 @@ export interface LCUEndpoints {
 	"/lol-loot/v1/loot-items": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolLootLootItem[] }
 	},
+	"/lol-loot/v1/loot-items/{lootName}": {
+		get: { path: [lootName: string], params: never, body: never, response: LCUTypes.LolLootLootItemGdsResource }
+	},
 	"/lol-loot/v1/loot-odds/{recipeName}": {
 		get: { path: [recipeName: string], params: never, body: never, response: LCUTypes.LolLootVerboseLootOddsResponse }
 	},
@@ -1703,14 +1706,8 @@ export interface LCUEndpoints {
 	"/lol-nacho/v1/get-active-store-catalog": {
 		get: { path: never, params: never, body: never, response: LCUTypes.ChemtechShoppe_CatalogEntryDto[] }
 	},
-	"/lol-nacho/v1/get-active-stores": {
-		get: { path: never, params: never, body: never, response: LCUTypes.ChemtechShoppe_StoresResponseDto }
-	},
 	"/lol-nacho/v1/get-current-catalog-item": {
 		get: { path: never, params: never, body: never, response: LCUTypes.ChemtechShoppe_CatalogEntryDto }
-	},
-	"/lol-nacho/v1/get-store-digests": {
-		get: { path: never, params: never, body: never, response: LCUTypes.ChemtechShoppe_StoreDigestsDto }
 	},
 	"/lol-nacho/v1/purchases/{purchaseId}": {
 		get: { path: [purchaseId: string], params: never, body: never, response: LCUTypes.LolNachoNachoPurchaseResponse }
@@ -1769,6 +1766,9 @@ export interface LCUEndpoints {
 	},
 	"/lol-patch/v1/notifications": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolPatchNotification[] }
+	},
+	"/lol-patch/v1/product-integration/app-update/status": {
+		get: { path: never, params: never, body: never, response: LCUTypes.LolPatchCurrentUpdateStatus }
 	},
 	"/lol-patch/v1/products/league_of_legends/install-location": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolPatchInstallPaths }
@@ -2167,6 +2167,9 @@ export interface LCUEndpoints {
 	"/lol-shoppefront/v1/stores": {
 		get: { path: never, params: never, body: never, response: LCUTypes.ChemtechShoppe_StoresResponseDto }
 	},
+	"/lol-shoppefront/v1/stores/{shoppefrontId}": {
+		get: { path: [shoppefrontId: string], params: never, body: never, response: LCUTypes.ChemtechShoppe_StoreDto[] }
+	},
 	"/lol-shutdown/v1/notification": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolShutdownShutdownNotification }
 	},
@@ -2378,6 +2381,9 @@ export interface LCUEndpoints {
 	},
 	"/lol-tft-pass/v1/event-pass": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolTftPassTftBattlepass }
+	},
+	"/lol-tft-pass/v1/objectives-banner/{id}": {
+		get: { path: [id: string], params: never, body: never, response: LCUTypes.LolTftPassObjectivesBanner }
 	},
 	"/lol-tft-pass/v1/ready": {
 		get: { path: never, params: never, body: never, response: boolean }
@@ -3330,14 +3336,8 @@ export interface LCUEndpoints {
 	"/lol-nacho/v1/purchase/blessing-token": {
 		post: { path: never, params: never, body: LCUTypes.LolNachoBlessingTokenPurchaseRequest, response: string }
 	},
-	"/lol-nacho/v1/purchase/catalog-item": {
-		post: { path: never, params: never, body: LCUTypes.LolNachoCatalogItemPurchaseRequest, response: string }
-	},
 	"/lol-nacho/v1/purchase/roll": {
 		post: { path: never, params: never, body: LCUTypes.LolNachoBlessingTokenPurchaseRequest, response: string }
-	},
-	"/lol-nacho/v1/set-active-stores": {
-		post: { path: never, params: never, body: LCUTypes.LolNachoSetActiveStoresRequest, response: void }
 	},
 	"/lol-nacho/v1/set-product-id": {
 		post: { path: never, params: never, body: never, response: void }
