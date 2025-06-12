@@ -1645,6 +1645,9 @@ export interface LCUEndpoints {
 	"/lol-marketplace/v1/purchases/{purchaseId}": {
 		get: { path: [purchaseId: string], params: never, body: never, response: LCUTypes.LolMarketplacePurchaseTransaction }
 	},
+	"/lol-marketplace/v1/ready": {
+		get: { path: never, params: never, body: never, response: boolean }
+	},
 	"/lol-match-history/v1/delta": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolMatchHistoryMatchHistoryPlayerDelta }
 	},
@@ -3308,12 +3311,6 @@ export interface LCUEndpoints {
 	},
 	"/lol-loyalty/v1/updateLoyaltyInventory": {
 		post: { path: never, params: never, body: LCUTypes.LolLoyaltyLoyaltyRewards, response: void }
-	},
-	"/lol-mac-graphics-upgrade/hardware-upgrade-notification/ack": {
-		post: { path: never, params: never, body: never, response: void }
-	},
-	"/lol-mac-graphics-upgrade/supported-hardware-notification/ack": {
-		post: { path: never, params: never, body: never, response: void }
 	},
 	"/lol-maps/v1/map": {
 		post: { path: never, params: never, body: LCUTypes.LolMapsMaps, response: void }
