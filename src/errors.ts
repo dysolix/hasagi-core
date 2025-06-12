@@ -2,6 +2,7 @@ import { AxiosError } from "axios";
 
 /** Thrown when a request fails without a response */
 export class RequestError extends Error {
+    /** The error code, e.g. ECONNREFUSED */
     public readonly errorCode?: string;
 
     constructor(error: any) {
@@ -26,8 +27,11 @@ export class RequestError extends Error {
 
 /** Thrown when the LCU responds with a non-success status code */
 export class LCUError extends Error {
+    /** The HTTP status code returned by the API */
     public readonly statusCode: number;
+    /** The error code returned by the API */
     public readonly errorCode: string | null;
+    /** Additional data provided by the API, often empty */
     public readonly implementationDetails: any;
 
     constructor(error: AxiosError) {
@@ -49,12 +53,6 @@ export class LCUError extends Error {
             this.errorCode = null;
             this.implementationDetails = null;
         }
-    }
-}
-
-export class ConnectionRefusedError extends Error {
-    constructor() {
-        super("Can't reach League of Legends client (ECONNREFUSED). The client is like no longer running.");
     }
 }
 

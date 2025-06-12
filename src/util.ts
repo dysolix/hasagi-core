@@ -2,16 +2,6 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { exec } from "child_process";
 
-function getShell() {
-    switch (process.platform) {
-        case "win32":
-            return "powershell.exe";
-        case "darwin":
-        default:
-            return "/bin/bash";
-    }
-}
-
 const shell = process.platform === "darwin" ? "/bin/bash" : "powershell.exe";
 
 export type LCUCredentials = {

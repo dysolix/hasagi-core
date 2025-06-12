@@ -217,6 +217,7 @@ export interface BuildInfo {
 	patchline: string
 	version: string
 	patchlineVisibleName: string
+	buildType: string
 }
 
 export type CapacityEnum = "FULL" | "HIGH" | "MEDIUM" | "LOW"
@@ -2192,6 +2193,7 @@ export interface LolCatalogCatalogPluginItemAssets {
 	iconPath: string
 	tilePath: string
 	loadScreenPath: string
+	previewVideoUrl: string
 	emblems: LolCatalogChampionSkinEmblem[]
 	colors: string[]
 }
@@ -2266,6 +2268,7 @@ export interface LolCatalogGameDataChampionSkin {
 	tilePath: string
 	loadScreenPath: string
 	rarity: string
+	previewVideoUrl: string
 	chromaPath: string
 	questSkinInfo?: LolCatalogSkinLineInfo
 	colors: string[]
@@ -7491,6 +7494,7 @@ export interface LolEventHubCatalogPluginItemAssets {
 	splashPath: string
 	iconPath: string
 	tilePath: string
+	previewVideoUrl: string
 	emblems: LolEventHubChampionSkinEmblem[]
 	colors: string[]
 }
@@ -10972,7 +10976,7 @@ export interface LolLobbyEligibilityRestriction {
 	puuids: string[]
 }
 
-export type LolLobbyEligibilityRestrictionCode = "FullPartyUnranked" | "PlayerNoRankedUpdatesDueToRankDisparity" | "MmrStandardDeviationTooLarge" | "UserInfoNotAvailable" | "InventoryQueuesInfoNotAvailable" | "InventoryChampsInfoNotAvailable" | "LeaguesInfoNotAvailable" | "SummonerInfoNotAvailable" | "MinorInfoNotAvailable" | "BanInfoNotAvailable" | "TooManyIncompleteSubteamsRestriction" | "QPInsufficientPlayerChampionCoveragePopularChampion" | "QPScarcePositionsNotAvailableRestriction" | "QPNonUniquePrimarySlotRestriction" | "QPInvalidChampionSelectionRestriction" | "QPInvalidPositionSelectionRestriction" | "QPInvalidNumberOfPlayerSlotsRestriction" | "QPPlayerChampionCoverageRestriction" | "QPPartyChampionCoverageRestriction" | "QPPlayerPositionCoverageRestriction" | "QPPartyPositionCoverageRestriction" | "QPPlayerScarcePositionCoverageRestriction" | "MinNormalGamesForRankedRestriction" | "LOLNewPlayerRestriction" | "UnknownRestriction" | "SeasonVersionLockout" | "TFTNewPlayerRestriction" | "QueueEntryNotEntitledRestriction" | "GameVersionNotSupported" | "GameVersionMissing" | "GameVersionMismatch" | "PrerequisiteQueuesNotPlayedRestriction" | "TeamSizeRestriction" | "TeamHighMMRMaxSizeRestriction" | "PlayerRankedSuspensionRestriction" | "PlayerRankSoloOnlyRestriction" | "PlayerTimePlayedRestriction" | "PlayerMinorRestriction" | "PlayerMinLevelRestriction" | "PlayerMaxLevelRestriction" | "PlayerTimeBasedRankRestriction" | "PlayerGameBasedRankRestriction" | "PlayerLeaverTaintedWarningRestriction" | "PlayerLeaverQueueLockoutRestriction" | "PlayerLeaverBustedRestriction" | "PlayerInGameRestriction" | "PlayerDisruptiveGameplayLockoutRestriction" | "PlayerReadyCheckFailRestriction" | "PlayerDodgeRestriction" | "PlayerBingeRestriction" | "TeamMinSizeRestriction" | "TeamMaxSizeRestriction" | "TeamSkillRestriction" | "TeamDivisionRestriction" | "PlayerAvailableChampionRestriction" | "PlayerBannedRestriction" | "PlayerTimedRestriction" | "PlayerLevelRestriction" | "QueueUnsupported" | "QueueDisabled"
+export type LolLobbyEligibilityRestrictionCode = "FullPartyUnranked" | "PlayerNoRankedUpdatesDueToRankDisparity" | "MmrStandardDeviationTooLarge" | "UserInfoNotAvailable" | "InventoryQueuesInfoNotAvailable" | "InventoryChampsInfoNotAvailable" | "LeaguesInfoNotAvailable" | "SummonerInfoNotAvailable" | "MinorInfoNotAvailable" | "BanInfoNotAvailable" | "TooManyIncompleteSubteamsRestriction" | "QPInsufficientPlayerChampionCoveragePopularChampion" | "QPScarcePositionsNotAvailableRestriction" | "QPNonUniquePrimarySlotRestriction" | "QPInvalidChampionSelectionRestriction" | "QPInvalidPositionSelectionRestriction" | "QPInvalidNumberOfPlayerSlotsRestriction" | "QPPlayerChampionCoverageRestriction" | "QPPartyChampionCoverageRestriction" | "QPPlayerPositionCoverageRestriction" | "QPPartyPositionCoverageRestriction" | "QPPlayerScarcePositionCoverageRestriction" | "UnknownRestriction" | "PlayerQueueSuspendedRestriction" | "SeasonVersionLockout" | "MinNormalGamesForRankedRestriction" | "LOLNewPlayerRestriction" | "TFTNewPlayerRestriction" | "QueueEntryNotEntitledRestriction" | "GameVersionNotSupported" | "GameVersionMissing" | "GameVersionMismatch" | "PrerequisiteQueuesNotPlayedRestriction" | "TeamSizeRestriction" | "TeamHighMMRMaxSizeRestriction" | "PlayerRankedSuspensionRestriction" | "PlayerRankSoloOnlyRestriction" | "PlayerTimePlayedRestriction" | "PlayerMinorRestriction" | "PlayerMinLevelRestriction" | "PlayerMaxLevelRestriction" | "PlayerTimeBasedRankRestriction" | "PlayerGameBasedRankRestriction" | "PlayerLeaverTaintedWarningRestriction" | "PlayerLeaverQueueLockoutRestriction" | "PlayerLeaverBustedRestriction" | "PlayerInGameRestriction" | "PlayerDisruptiveGameplayLockoutRestriction" | "PlayerReadyCheckFailRestriction" | "PlayerDodgeRestriction" | "PlayerBingeRestriction" | "TeamMinSizeRestriction" | "TeamMaxSizeRestriction" | "TeamSkillRestriction" | "TeamDivisionRestriction" | "PlayerAvailableChampionRestriction" | "PlayerBannedRestriction" | "PlayerTimedRestriction" | "PlayerLevelRestriction" | "QueueUnsupported" | "QueueDisabled"
 
 export interface LolLobbyEntitlementsTokenResource {
 	accessToken: string
@@ -11302,6 +11306,12 @@ export interface LolLobbyLobbyGameConfigDto {
 	maxLobbySize: number
 	/** @format int32 */
 	maxHumanPlayers: number
+	/** @format int32 */
+	numberOfTeamsInLobby: number
+	/** @format int32 */
+	maxLobbySpectatorCount: number
+	/** @format int32 */
+	numPlayersPerTeam: number
 	allowablePremadeSizes: number[]
 	premadeSizeAllowed: boolean
 	isTeamBuilderManaged: boolean
@@ -13201,13 +13211,7 @@ export interface LolLoyaltyRmsEntitlementPayload {
 	resourceOperation: string
 }
 
-export interface LolMacGraphicsUpgradeLocalSettingsCategory {
-	data: unknown
-	/** @format int32 */
-	schemaVersion: number
-}
-
-export type LolMacGraphicsUpgradeMacGraphicsUpgradeNotificationType = "SUPPORTED_HARDWARE" | "HARDWARE_UPGRADE" | "NONE"
+export type LolMacGraphicsUpgradeMacGraphicsUpgradeNotificationType = "HARDWARE_UPGRADE" | "NONE"
 
 export interface LolMapsGameModeSpellList {
 	spells: number[]
@@ -15474,6 +15478,8 @@ export interface LolObjectivesNonPooledObjectives {
 	localizedDescription: string
 }
 
+export type LolObjectivesObjectiveCategoryFilter = "kNPE" | "kNone"
+
 export type LolObjectivesObjectiveCategoryType = "kTFTPassData" | "kEventHubConfiguration" | "kNonPass"
 
 export interface LolObjectivesObjectivesContainer {
@@ -15741,6 +15747,7 @@ export interface LolObjectivesUIObjectivesCategory {
 	categoryType: LolObjectivesObjectiveCategoryType
 	tftPassType: LolObjectivesTftPassType
 	lolEventHubType: LolObjectivesEventHubType
+	objectiveCategoryFilter: LolObjectivesObjectiveCategoryFilter
 }
 
 export interface LolObjectivesUIObjectivesGroup {
@@ -17404,6 +17411,7 @@ export interface LolPurchaseWidgetCatalogPluginItemAssets {
 	splashPath: string
 	iconPath: string
 	tilePath: string
+	previewVideoUrl: string
 	emblems: LolPurchaseWidgetChampionSkinEmblem[]
 	colors: string[]
 }
@@ -21469,10 +21477,7 @@ export interface LolTftEventLolTftEvents {
 
 export interface LolTftEventLolTftHomeHub {
 	enabled: boolean
-	storePromoOfferIds: string[]
 	tacticianPromoOfferIds: string[]
-	battlePassOfferIds: string[]
-	fallbackStorePromoOfferIds: string[]
 	primeGamingPromoOffer?: LolTftEventLolTftPrimeGaming
 	overrideUrl: string
 	headerButtonsOverrideUrl: string
@@ -21679,6 +21684,7 @@ export interface LolTftEventTFTRotatingShopPromo {
 	id: string
 	bundleId: string
 	storeType: string
+	isDeepLink: boolean
 }
 
 export interface LolTftEventTFTRotatingShopPromos {
@@ -21759,10 +21765,7 @@ export interface LolTftLolTftEvents {
 
 export interface LolTftLolTftHomeHub {
 	enabled: boolean
-	storePromoOfferIds: string[]
 	tacticianPromoOfferIds: string[]
-	battlePassOfferIds: string[]
-	fallbackStorePromoOfferIds: string[]
 	primeGamingPromoOffer?: LolTftLolTftPrimeGaming
 	overrideUrl: string
 	headerButtonsOverrideUrl: string
@@ -23272,6 +23275,7 @@ export interface LolTftTFTRotatingShopPromo {
 	id: string
 	bundleId: string
 	storeType: string
+	isDeepLink: boolean
 }
 
 export interface LolTftTFTRotatingShopPromos {
