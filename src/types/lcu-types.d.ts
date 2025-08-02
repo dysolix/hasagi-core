@@ -2145,6 +2145,8 @@ export interface LolCatalogCatalogItem {
 	active: boolean
 	inventoryType: string
 	inactiveDate: string
+	/** @format int32 */
+	maxQuantity: number
 	prices: LolCatalogItemCost[]
 	releaseDate: string
 	sale?: LolCatalogSale
@@ -2179,6 +2181,8 @@ export interface LolCatalogCatalogPluginItem {
 	releaseDate: number
 	/** @format uint64 */
 	inactiveDate: number
+	/** @format int32 */
+	maxQuantity: number
 	prices: LolCatalogCatalogPluginPrice[]
 	tags?: string[]
 	metadata?: LolCatalogItemMetadataEntry[]
@@ -2210,6 +2214,7 @@ export interface LolCatalogCatalogPluginItemWithDetails {
 	metadata: LolCatalogItemMetadataEntry[]
 	/** @format int64 */
 	bundleFinalPrice: number
+	flexible: boolean
 }
 
 export interface LolCatalogCatalogPluginPrice {
@@ -3259,6 +3264,7 @@ export interface LolChampionsCollectionsChampion {
 	botEnabled: boolean
 	freeToPlay: boolean
 	rankedPlayEnabled: boolean
+	isVisibleInClient: boolean
 	passive: LolChampionsCollectionsChampionSpell
 	skins: LolChampionsCollectionsChampionSkin[]
 	spells: LolChampionsCollectionsChampionSpell[]
@@ -3301,6 +3307,7 @@ export interface LolChampionsCollectionsChampionMinimal {
 	botEnabled: boolean
 	freeToPlay: boolean
 	rankedPlayEnabled: boolean
+	isVisibleInClient: boolean
 }
 
 export interface LolChampionsCollectionsChampionPlayableCounts {
@@ -3462,6 +3469,7 @@ export interface LolChampionsGameDataChampion {
 	skins: LolChampionsGameDataChampionSkin[]
 	spells: LolChampionsGameDataChampionSpell[]
 	tacticalInfo: LolChampionsGameDataChampionTacticalInfo
+	isVisibleInClient: boolean
 }
 
 export interface LolChampionsGameDataChampionChroma {
@@ -6073,6 +6081,7 @@ export interface LolCosmeticsFulfillmentDto {
 	itemId: string
 	currencyId: string
 	subCurrencyDeltas: Record<string, number>
+	progressionCounterId: string
 }
 
 export interface LolCosmeticsGameDataCompanion {
@@ -6244,6 +6253,8 @@ export interface LolCosmeticsPurchaseDto {
 	refund: LolCosmeticsRefundDto
 	refundRule: string
 	refundable: boolean
+	/** @format int64 */
+	quantity: number
 	source: string
 }
 
@@ -6380,6 +6391,7 @@ export interface LolCosmeticsRotationalShopItemData {
 	redeemIconTexture: string
 	rarity: string
 	typeID: string
+	speciesLink: string
 }
 
 export interface LolCosmeticsSettingsStorageContainer {
@@ -6984,6 +6996,14 @@ export interface LolEndOfGameGameDataTftTrait {
 	name: string
 }
 
+export interface LolEndOfGameGameStateUpdate {
+	/** @format uint64 */
+	gameId: number
+	gameState: string
+	gameType: string
+	errorMessage: string
+}
+
 export interface LolEndOfGameGameflowAvailability {
 	state: string
 }
@@ -7482,11 +7502,14 @@ export interface LolEventHubCatalogPluginItem {
 	releaseDate: number
 	/** @format uint64 */
 	inactiveDate: number
+	/** @format int32 */
+	maxQuantity: number
 	prices: LolEventHubCatalogPluginPrice[]
 	tags?: string[]
 	metadata?: LolEventHubItemMetadataEntry[]
 	questSkinInfo?: LolEventHubSkinLineInfo
 	active: boolean
+	sale?: LolEventHubSale
 	ownershipType?: LolEventHubInventoryOwnership
 }
 
@@ -7508,11 +7531,14 @@ export interface LolEventHubCatalogPluginItemWithDetails {
 	minimumBundlePrices?: LolEventHubCatalogPluginPrice[]
 	bundledDiscountPrices?: LolEventHubCatalogPluginPrice[]
 	assets: LolEventHubCatalogPluginItemAssets
+	/** @format int32 */
+	bundleFinalPrice: number
+	flexible: boolean
 }
 
 export interface LolEventHubCatalogPluginPrice {
 	currency: string
-	/** @format int64 */
+	/** @format int32 */
 	cost: number
 	costType?: string
 	sale?: LolEventHubCatalogPluginSale
@@ -7523,7 +7549,7 @@ export interface LolEventHubCatalogPluginSale {
 	endDate: string
 	/** @format float */
 	discount?: number
-	/** @format int64 */
+	/** @format int32 */
 	cost: number
 }
 
@@ -7673,6 +7699,7 @@ export interface LolEventHubEventInfoUIData {
 	eventType: string
 	eventIcon: string
 	navBarIcon: string
+	battleExpIcon: string
 	eventTokenImage: string
 	startDate: string
 	progressEndDate: string
@@ -7708,6 +7735,7 @@ export interface LolEventHubEventShop {
 	localizedName: string
 	backgroundImage: string
 	navbarIconImage: string
+	battleExpIconImage: string
 	headerIconImage: string
 	startDate: string
 	progressEndDate: string
@@ -7874,6 +7902,7 @@ export interface LolEventHubHallOfLegends {
 	localizedName: string
 	navbarIconImage: string
 	headerIconImage: string
+	battleExpIconImage: string
 	headerTitleImage: string
 	startDate: string
 	progressEndDate: string
@@ -8027,7 +8056,7 @@ export interface LolEventHubItemChoices {
 
 export interface LolEventHubItemCost {
 	currency: string
-	/** @format int64 */
+	/** @format int32 */
 	cost: number
 	/** @format float */
 	discount?: number
@@ -8089,7 +8118,7 @@ export type LolEventHubItemOwnershipType = "F2P" | "LOYALTY" | "RENTED" | "OWNED
 
 export interface LolEventHubItemPrice {
 	currencyType: string
-	/** @format int64 */
+	/** @format int32 */
 	price: number
 	purchasable: boolean
 }
@@ -8672,6 +8701,7 @@ export interface LolEventHubSeasonPass {
 	localizedName: string
 	navbarIconImage: string
 	headerIconImage: string
+	battleExpIconImage: string
 	headerTitleImage: string
 	startDate: string
 	progressEndDate: string
@@ -9235,6 +9265,7 @@ export interface LolGameQueuesQueue {
 	gameSelectCategory: string
 	/** @format uint8 */
 	gameSelectPriority: number
+	isLimitedTimeQueue: boolean
 	isSkillTreeQueue: boolean
 	isCustom: boolean
 	/** @format uint32 */
@@ -9326,6 +9357,7 @@ export interface LolGameQueuesQueueTranslation {
 	gameSelectCategory: string
 	/** @format uint8 */
 	gameSelectPriority: number
+	isLimitedTimeQueue: boolean
 	isSkillTreeQueue: boolean
 	hidePlayerPosition: boolean
 }
@@ -13306,6 +13338,7 @@ export interface LolMarketplaceFulfillmentDto {
 	itemId: string
 	currencyId: string
 	subCurrencyDeltas: Record<string, number>
+	progressionCounterId: string
 }
 
 export interface LolMarketplacePagination {
@@ -13366,6 +13399,8 @@ export interface LolMarketplacePurchaseDto {
 	refund: LolMarketplaceRefundDto
 	refundRule: string
 	refundable: boolean
+	/** @format int64 */
+	quantity: number
 	source: string
 }
 
@@ -13502,6 +13537,7 @@ export interface LolMarketplaceRotationalShopItemData {
 	redeemIconTexture: string
 	rarity: string
 	typeID: string
+	speciesLink: string
 }
 
 export interface LolMarketplaceStoreDto {
@@ -13561,16 +13597,6 @@ export interface LolMarketplaceVelocityLimiterDto {
 	refill: string
 }
 
-export interface LolMatchHistoryAcsEndPoint {
-	url: string
-}
-
-export interface LolMatchHistoryAcsPlayer {
-	platformId: string
-	/** @format uint64 */
-	accountId: number
-}
-
 export interface LolMatchHistoryAlias {
 	gameName: string
 	tagLine: string
@@ -13609,15 +13635,6 @@ export interface LolMatchHistoryLoginSession {
 }
 
 export type LolMatchHistoryLoginSessionStates = "ERROR" | "LOGGING_OUT" | "SUCCEEDED" | "IN_PROGRESS"
-
-export interface LolMatchHistoryMHSummoner {
-	/** @format uint64 */
-	summonerId: number
-	/** @format uint64 */
-	accountId: number
-	displayName: string
-	puuid: string
-}
 
 export interface LolMatchHistoryMatchHistoryEvent {
 	type: string
@@ -13969,45 +13986,6 @@ export interface LolMatchHistoryMatchHistoryParticipantStatistics {
 	subteamPlacement: number
 }
 
-export interface LolMatchHistoryMatchHistoryPlayerChampMasteryDelta {
-	grade: string
-}
-
-export interface LolMatchHistoryMatchHistoryPlayerDelta {
-	/** @format uint64 */
-	originalAccountId: number
-	originalPlatformId: string
-	deltas: LolMatchHistoryMatchHistoryPlayerGameDelta[]
-}
-
-export interface LolMatchHistoryMatchHistoryPlayerGameDelta {
-	gamePlatformId: string
-	/** @format uint64 */
-	gameId: number
-	platformDelta: LolMatchHistoryMatchHistoryPlayerPlatformDelta
-	leagueDelta: LolMatchHistoryMatchHistoryPlayerLeagueDelta
-	champMastery: LolMatchHistoryMatchHistoryPlayerChampMasteryDelta
-}
-
-export interface LolMatchHistoryMatchHistoryPlayerLeagueDelta {
-	/** @format uint64 */
-	leaguePointDelta: number
-	reason: string
-	miniSeriesProgress: string[]
-	/** @format uint64 */
-	timestamp: number
-}
-
-export interface LolMatchHistoryMatchHistoryPlayerPlatformDelta {
-	/** @format uint64 */
-	xpDelta: number
-	/** @format uint64 */
-	ipDelta: number
-	compensationModeEnabled: boolean
-	/** @format uint64 */
-	timestamp: number
-}
-
 export interface LolMatchHistoryMatchHistoryPosition {
 	/** @format int16 */
 	x: number
@@ -14092,6 +14070,10 @@ export interface LolMatchHistoryRecentlyPlayedSummoner {
 }
 
 export interface LolMatchHistorySummoner {
+	/** @format uint64 */
+	summonerId: number
+	/** @format uint64 */
+	accountId: number
 	displayName: string
 	gameName: string
 	tagLine: string
@@ -14586,6 +14568,7 @@ export interface LolNachoBannerOddsInfo {
 	productId: string
 	rewardTables: LolNachoNachoRollRewardsTable[]
 	endDateMilis: string
+	bundledMythicEssence: boolean
 }
 
 export interface LolNachoBlessingTokenPurchaseRequest {
@@ -14607,6 +14590,7 @@ export interface LolNachoCapDropsDropTableDisplayMetadata {
 	version: number
 	oddsTree: LolNachoDropsOddsTreeNodeDTO
 	endDateMilis: string
+	bundledMythicEssence: boolean
 }
 
 export interface LolNachoCatalogItemPurchaseRequest {
@@ -15488,14 +15472,6 @@ export interface LolObjectivesObjectivesContainer {
 }
 
 export interface LolObjectivesObjectivesGroup {
-	id: string
-	backgroundImage: string
-	/** @format uint64 */
-	startDate: number
-	/** @format uint64 */
-	endDate: number
-	objectives: LolObjectivesObjectivesContainer[]
-	isActive: boolean
 	gameType: string
 }
 
@@ -15751,15 +15727,7 @@ export interface LolObjectivesUIObjectivesCategory {
 }
 
 export interface LolObjectivesUIObjectivesGroup {
-	uuid: string
-	backgroundImage: string
 	gameType: string
-	/** @format uint64 */
-	startDate: number
-	/** @format uint64 */
-	endDate: number
-	isActive: boolean
-	objectives: LolObjectivesUIObjectives[]
 	objectivesCategories: LolObjectivesUIObjectivesCategory[]
 }
 
@@ -17399,11 +17367,14 @@ export interface LolPurchaseWidgetCatalogPluginItem {
 	releaseDate: number
 	/** @format uint64 */
 	inactiveDate: number
+	/** @format int32 */
+	maxQuantity: number
 	prices: LolPurchaseWidgetCatalogPluginPrice[]
 	tags?: string[]
 	metadata?: LolPurchaseWidgetItemMetadataEntry[]
 	questSkinInfo?: LolPurchaseWidgetSkinLineInfo
 	active: boolean
+	sale?: LolPurchaseWidgetSale
 	ownershipType?: LolPurchaseWidgetInventoryOwnership
 }
 
@@ -17425,11 +17396,14 @@ export interface LolPurchaseWidgetCatalogPluginItemWithDetails {
 	minimumBundlePrices?: LolPurchaseWidgetCatalogPluginPrice[]
 	bundledDiscountPrices?: LolPurchaseWidgetCatalogPluginPrice[]
 	assets: LolPurchaseWidgetCatalogPluginItemAssets
+	/** @format int32 */
+	bundleFinalPrice: number
+	flexible: boolean
 }
 
 export interface LolPurchaseWidgetCatalogPluginPrice {
 	currency: string
-	/** @format int64 */
+	/** @format int32 */
 	cost: number
 	costType?: string
 	sale?: LolPurchaseWidgetCatalogPluginSale
@@ -17440,7 +17414,7 @@ export interface LolPurchaseWidgetCatalogPluginSale {
 	endDate: string
 	/** @format float */
 	discount?: number
-	/** @format int64 */
+	/** @format int32 */
 	cost: number
 }
 
@@ -17491,7 +17465,7 @@ export interface LolPurchaseWidgetItemChoices {
 
 export interface LolPurchaseWidgetItemCost {
 	currency: string
-	/** @format int64 */
+	/** @format int32 */
 	cost: number
 	/** @format float */
 	discount?: number
@@ -17533,6 +17507,18 @@ export interface LolPurchaseWidgetItemMetadataEntry {
 	value: string
 }
 
+export interface LolPurchaseWidgetItemOrderDTO {
+	inventoryType: string
+	/** @format int32 */
+	itemId: number
+	/** @format uint32 */
+	quantity: number
+	/** @format uint32 */
+	rpCost: number
+	/** @format uint32 */
+	ipCost: number
+}
+
 export interface LolPurchaseWidgetItemOwnership {
 	itemKey: LolPurchaseWidgetItemKey
 	/** @format int32 */
@@ -17541,7 +17527,7 @@ export interface LolPurchaseWidgetItemOwnership {
 
 export interface LolPurchaseWidgetItemPrice {
 	currencyType: string
-	/** @format int64 */
+	/** @format int32 */
 	price: number
 	purchasable: boolean
 }
@@ -17631,6 +17617,21 @@ export interface LolPurchaseWidgetPurchaseOption {
 	priceDetails: LolPurchaseWidgetPriceDetail[]
 }
 
+export interface LolPurchaseWidgetPurchaseOrderRequestDTO {
+	/** @format uint64 */
+	accountId: number
+	items: LolPurchaseWidgetItemOrderDTO[]
+}
+
+export interface LolPurchaseWidgetPurchaseOrderResponseDTO {
+	/** @format int64 */
+	rpBalance: number
+	/** @format int64 */
+	ipBalance: number
+	transactions: LolPurchaseWidgetTransactionResponseDTO[]
+	waitForRMS: boolean
+}
+
 export interface LolPurchaseWidgetPurchaseRequest {
 	items: LolPurchaseWidgetPurchaseItem[]
 }
@@ -17714,6 +17715,13 @@ export interface LolPurchaseWidgetTransaction {
 	itemKey: LolPurchaseWidgetItemKey
 	itemName: string
 	iconUrl: string
+}
+
+export interface LolPurchaseWidgetTransactionResponseDTO {
+	id: string
+	inventoryType: string
+	/** @format int32 */
+	itemId: number
 }
 
 export interface LolPurchaseWidgetValidateOfferError {
@@ -18131,6 +18139,10 @@ export interface LolRankedRankedQueueStats {
 	wins: number
 	/** @format int32 */
 	losses: number
+	/** @format int32 */
+	currentSeasonWinsForRewards: number
+	/** @format int32 */
+	previousSeasonWinsForRewards: number
 	highestTier: string
 	highestDivision: LolRankedLeagueDivision
 	previousSeasonEndTier: string
@@ -18158,6 +18170,10 @@ export interface LolRankedRankedQueueStatsDTO {
 	wins: number
 	/** @format int32 */
 	losses: number
+	/** @format int32 */
+	currentSeasonWinsForRewards: number
+	/** @format int32 */
+	previousSeasonWinsForRewards: number
 	highestTier: string
 	highestRank: string
 	previousSeasonEndTier: string
@@ -20516,6 +20532,8 @@ export interface LolStatstonesSummoner {
 	summonerId: number
 	puuid: string
 	displayName: string
+	/** @format uint32 */
+	summonerLevel: number
 }
 
 export interface LolStoreAccessTokenResource {
@@ -21086,6 +21104,24 @@ export type LolSummonerProfilePrivacyEnabledState = "DISABLED" | "ENABLED" | "UN
 
 export type LolSummonerProfilePrivacySetting = "PUBLIC" | "PRIVATE"
 
+export interface LolSummonerProfilesPuuidAndViews {
+	payload: Record<string, LolSummonerProfilesViews>
+}
+
+export interface LolSummonerProfilesSummonerLevel {
+	puuid: string
+	/** @format uint32 */
+	summonerLevel: number
+	/** @format uint32 */
+	xpSinceLastLevel: number
+	/** @format uint32 */
+	xpToNextLevel: number
+}
+
+export interface LolSummonerProfilesViews {
+	views: string[]
+}
+
 export interface LolSummonerRerollDataBagForClientV1 {
 	/** @format int32 */
 	queueId: number
@@ -21187,6 +21223,16 @@ export interface LolSummonerSummonerIdAndName {
 	summonerId: number
 	displayName: string
 	puuid: string
+}
+
+export interface LolSummonerSummonerLevelView {
+	puuid: string
+	/** @format uint32 */
+	level: number
+	/** @format uint32 */
+	xpSinceLastLevel: number
+	/** @format uint32 */
+	xpToNextLevel: number
 }
 
 export interface LolSummonerSummonerProfileUpdate {
@@ -21962,6 +22008,7 @@ export interface LolTftPassEventInfoUIData {
 	eventType: string
 	eventIcon: string
 	navBarIcon: string
+	battleExpIcon: string
 	eventTokenImage: string
 	startDate: string
 	progressEndDate: string
@@ -21990,6 +22037,7 @@ export interface LolTftPassEventShop {
 	localizedName: string
 	backgroundImage: string
 	navbarIconImage: string
+	battleExpIconImage: string
 	headerIconImage: string
 	startDate: string
 	progressEndDate: string
@@ -22063,6 +22111,7 @@ export interface LolTftPassHallOfLegends {
 	localizedName: string
 	navbarIconImage: string
 	headerIconImage: string
+	battleExpIconImage: string
 	headerTitleImage: string
 	startDate: string
 	progressEndDate: string
@@ -22665,6 +22714,7 @@ export interface LolTftPassSeasonPass {
 	localizedName: string
 	navbarIconImage: string
 	headerIconImage: string
+	battleExpIconImage: string
 	headerTitleImage: string
 	startDate: string
 	progressEndDate: string
@@ -22763,6 +22813,7 @@ export interface LolTftPassTFTPassClientConfig {
 	eventPassId: string
 	dailyLoginPassId: string
 	skillTreePassId: string
+	pmUltimateVictoryPassId: string
 }
 
 export interface LolTftPassTFTPassDTO {
@@ -25050,7 +25101,7 @@ export interface PaymentsFrontEndRequest {
 	usePmcSessions: boolean
 	game: string
 	openedFrom: string
-	/** @format int16 */
+	/** @format int32 */
 	minVirtualAmount: number
 	orderDetailsJSON: string
 }
@@ -25068,7 +25119,7 @@ export interface PaymentsPMCStartUrlRequest {
 	gifteeMessage: string
 	game: string
 	openedFrom: string
-	/** @format int16 */
+	/** @format int32 */
 	minVirtualAmount: number
 	orderDetailsJSON: string
 	machineId: string
@@ -26262,6 +26313,8 @@ export interface TeamBuilderDirect_ChampSelectSession {
 	id: string
 	/** @format uint64 */
 	gameId: number
+	/** @format int32 */
+	queueId: number
 	timer: TeamBuilderDirect_TeambuilderDirectTypes_ChampSelectTimer
 	chatDetails: TeamBuilderDirect_ChampSelectChatRoomDetails
 	myTeam: TeamBuilderDirect_ChampSelectPlayerSelection[]
@@ -26668,13 +26721,30 @@ export interface TeamBuilderDirect_InventoryDraft {
 }
 
 export interface TeamBuilderDirect_InventoryItem {
-	/** @format int64 */
+	/** @format int32 */
 	itemId: number
+	inventoryType: string
+}
+
+export interface TeamBuilderDirect_InventoryItemDTO {
+	/** @format int32 */
+	itemId: number
+	inventoryType: string
+	payload: unknown
+	"f2p": boolean
+	rental: boolean
+	loyalty: boolean
+	lsb: boolean
 }
 
 export interface TeamBuilderDirect_InventoryItemWithPayload {
-	/** @format int64 */
+	/** @format int32 */
 	itemId: number
+	inventoryType: string
+	"f2p": boolean
+	rental: boolean
+	loyalty: boolean
+	owned: boolean
 	payload: unknown
 }
 
@@ -26729,6 +26799,7 @@ export interface TeamBuilderDirect_MatchmakingReadyCheckResource {
 	/** @format float */
 	timer: number
 	declinerIds: number[]
+	autoAccept: boolean
 }
 
 export type TeamBuilderDirect_MatchmakingReadyCheckResponse = "Declined" | "Accepted" | "None"
@@ -26786,6 +26857,17 @@ export interface TeamBuilderDirect_MutedPlayerInfo {
 	obfuscatedPuuid: string
 	/** @format uint64 */
 	obfuscatedSummonerId: number
+}
+
+/** The container for all the operational queue configs */
+export interface TeamBuilderDirect_OperationalQueueConfig {
+	/** @format int32 */
+	queueId: number
+	isEnabled: boolean
+	mutators: string
+	isVisibleInClient: boolean
+	isSpectatable: boolean
+	"f2pRotations": string
 }
 
 export interface TeamBuilderDirect_PlayerStatus {
@@ -27589,6 +27671,12 @@ export interface TutorialMetadata {
 	displayRewards: Record<string, string>
 	useQuickSearchMatchmaking: boolean
 	useChosenChampion: boolean
+}
+
+export interface VelocityLimiter_VelocityDTO {
+	/** @format int64 */
+	availableTokens: number
+	refill: string
 }
 
 export interface VerboseLootOddsDTO {
