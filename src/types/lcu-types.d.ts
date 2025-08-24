@@ -2058,6 +2058,7 @@ export interface LolCapMissionsCapMissionSeriesMissionReward {
 	itemId: string
 	itemTypeId: string
 	typeId: string
+	currencyId: string
 	/** @format uint32 */
 	amount: number
 }
@@ -3060,6 +3061,11 @@ export interface LolChampionMasteryAllChampionMasterySetReward {
 	totalScore: number
 }
 
+export interface LolChampionMasteryChampMasteryView {
+	puuid: string
+	data: LolChampionMasteryChampionMasteryViewData[]
+}
+
 export interface LolChampionMasteryChampionMastery {
 	puuid: string
 	/** @format int32 */
@@ -3152,6 +3158,16 @@ export interface LolChampionMasteryChampionMasteryRewardGrantNotification {
 	championId: number
 	playerGrade: string
 	messageKey: string
+}
+
+export interface LolChampionMasteryChampionMasteryViewData {
+	/** @format int64 */
+	championId: number
+	/** @format int32 */
+	championLevel: number
+	/** @format int32 */
+	championPoints: number
+	highestGrade?: string
 }
 
 export interface LolChampionMasteryChampionSet {
@@ -9786,6 +9802,7 @@ export interface LolHonorV2HonorConfig {
 	HonorSuggestionsEnabled: boolean
 	"honorEndpointsV2Enabled": boolean
 	"ceremonyV3Enabled": boolean
+	useHonorInPostgamePlugin: boolean
 }
 
 export interface LolHonorV2HonorInteraction {
@@ -9809,6 +9826,12 @@ export interface LolHonorV2HonorSummoner {
 	displayName: string
 	/** @format uint64 */
 	summonerId: number
+}
+
+export interface LolHonorV2HonorView {
+	/** @format int32 */
+	honorLevel: number
+	redemptions: LolHonorV2Redemption[]
 }
 
 export interface LolHonorV2LoginSession {
@@ -14296,6 +14319,7 @@ export interface LolMissionsCapMissionSeriesMissionReward {
 	itemId: string
 	itemTypeId: string
 	typeId: string
+	currencyId: string
 	/** @format uint32 */
 	amount: number
 }
@@ -15284,6 +15308,7 @@ export interface LolObjectivesCapMissionSeriesMissionReward {
 	itemId: string
 	itemTypeId: string
 	typeId: string
+	currencyId: string
 	/** @format uint32 */
 	amount: number
 }
@@ -20959,7 +20984,7 @@ export type LolSuggestedPlayersSuggestedPlayersReason = "LegacyPlayAgain" | "Hon
 
 export interface LolSuggestedPlayersSuggestedPlayersReportedPlayer {
 	/** @format uint64 */
-	reportedSummonerId: number
+	offenderSummonerId: number
 }
 
 export interface LolSuggestedPlayersSuggestedPlayersSuggestedPlayer {
@@ -21104,8 +21129,42 @@ export type LolSummonerProfilePrivacyEnabledState = "DISABLED" | "ENABLED" | "UN
 
 export type LolSummonerProfilePrivacySetting = "PUBLIC" | "PRIVATE"
 
+export interface LolSummonerProfilesChampionMasteryData {
+	/** @format int64 */
+	championId: number
+	/** @format int32 */
+	championLevel: number
+	/** @format int32 */
+	championPoints: number
+	highestGrade?: string
+}
+
+export interface LolSummonerProfilesChampionMasteryPrivateView {
+	puuid: string
+	data: LolSummonerProfilesChampionMasteryData[]
+}
+
+export interface LolSummonerProfilesChampionMasteryPublicView {
+	puuid: string
+	data: LolSummonerProfilesChampionMasteryData[]
+}
+
+export interface LolSummonerProfilesHonorView {
+	/** @format int32 */
+	honorLevel: number
+	redemptions: LolSummonerProfilesRedemption[]
+}
+
 export interface LolSummonerProfilesPuuidAndViews {
 	payload: Record<string, LolSummonerProfilesViews>
+}
+
+export interface LolSummonerProfilesRedemption {
+	/** @format int32 */
+	required: number
+	/** @format int32 */
+	remaining: number
+	eventType: string
 }
 
 export interface LolSummonerProfilesSummonerLevel {
@@ -21374,6 +21433,7 @@ export interface LolTftEventCapMissionSeriesMissionReward {
 	itemId: string
 	itemTypeId: string
 	typeId: string
+	currencyId: string
 	/** @format uint32 */
 	amount: number
 }

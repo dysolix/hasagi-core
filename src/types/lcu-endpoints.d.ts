@@ -1700,6 +1700,9 @@ export interface LCUEndpoints {
 	"/lol-missions/v1/missions/seriesId": {
 		get: { path: never, params: { "missionId": string }, body: never, response: string }
 	},
+	"/lol-missions/v1/missions/seriesName": {
+		get: { path: never, params: { "missionId": string }, body: never, response: string }
+	},
 	"/lol-missions/v1/series": {
 		get: { path: never, params: never, body: never, response: LCUTypes.SeriesDTO[] }
 	},
@@ -2295,6 +2298,15 @@ export interface LCUEndpoints {
 	"/lol-suggested-players/v1/suggested-players": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolSuggestedPlayersSuggestedPlayersSuggestedPlayer[] }
 	},
+	"/lol-summoner-profiles/v1/get-champion-mastery-private-view": {
+		get: { path: never, params: never, body: never, response: LCUTypes.LolSummonerProfilesChampionMasteryPrivateView }
+	},
+	"/lol-summoner-profiles/v1/get-champion-mastery-public-view": {
+		get: { path: never, params: never, body: never, response: LCUTypes.LolSummonerProfilesChampionMasteryPublicView }
+	},
+	"/lol-summoner-profiles/v1/get-honor-view": {
+		get: { path: never, params: never, body: never, response: LCUTypes.LolSummonerProfilesHonorView }
+	},
 	"/lol-summoner-profiles/v1/get-summoner-level-view": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolSummonerProfilesSummonerLevel }
 	},
@@ -2518,7 +2530,7 @@ export interface LCUEndpoints {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolVanguardVanguardMachineSpecs }
 	},
 	"/lol-vanguard/v1/notification": {
-		get: { path: never, params: { "message": string }, body: never, response: {
+		get: { path: never, params: never, body: never, response: {
 	} }
 	},
 	"/lol-vanguard/v1/session": {
@@ -2773,7 +2785,7 @@ export interface LCUEndpoints {
 		post: { path: never, params: never, body: LCUTypes.LolAccountVerificationSendActivationPinRequest, response: void }
 	},
 	"/lol-account-verification/v1/sendDeactivationPin": {
-		post: { path: never, params: never, body: void, response: void }
+		post: { path: never, params: never, body: never, response: void }
 	},
 	"/lol-activity-center/v1/clear-cache": {
 		post: { path: never, params: never, body: never, response: void }
