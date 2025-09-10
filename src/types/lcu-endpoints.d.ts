@@ -77,6 +77,10 @@ export interface LCUEndpoints {
 		put: { path: never, params: never, body: number, response: unknown }
 		delete: { path: never, params: never, body: never, response: unknown }
 	},
+	"/lol-cosmetics/v1/selection/tft-augment-pillar": {
+		put: { path: never, params: never, body: number, response: unknown }
+		delete: { path: never, params: never, body: never, response: unknown }
+	},
 	"/lol-cosmetics/v1/selection/tft-damage-skin": {
 		put: { path: never, params: never, body: number, response: unknown }
 		delete: { path: never, params: never, body: never, response: unknown }
@@ -364,9 +368,6 @@ export interface LCUEndpoints {
 	"/deep-links/v1/settings": {
 		get: { path: never, params: never, body: never, response: LCUTypes.DeepLinksDeepLinksSettings }
 	},
-	"/dx11-upgrade/notification-type": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolDx9DeprecationDx9DeprecationNotificationType }
-	},
 	"/entitlements/v1/token": {
 		get: { path: never, params: never, body: never, response: LCUTypes.EntitlementsToken }
 	},
@@ -427,6 +428,9 @@ export interface LCUEndpoints {
 	},
 	"/lol-catalog/v1/items/{inventoryType}": {
 		get: { path: [inventoryType: string], params: never, body: never, response: LCUTypes.LolCatalogCatalogPluginItem[] }
+	},
+	"/lol-catalog/v1/items/get-related-skins": {
+		get: { path: never, params: { "itemId": number }, body: never, response: LCUTypes.LolCatalogCatalogPluginItemWithDetails[] }
 	},
 	"/lol-catalog/v1/items-list-details": {
 		get: { path: never, params: { "catalogItemsKeys": LCUTypes.LolCatalogItemKey[] }, body: never, response: LCUTypes.LolCatalogCatalogPluginItemWithDetails[] }
@@ -591,6 +595,9 @@ export interface LCUEndpoints {
 	},
 	"/lol-champion-mastery/v1/{puuid}/champion-mastery": {
 		get: { path: [puuid: string], params: never, body: never, response: LCUTypes.LolChampionMasteryChampionMastery[] }
+	},
+	"/lol-champion-mastery/v1/{puuid}/champion-mastery-view": {
+		get: { path: [puuid: string], params: never, body: never, response: LCUTypes.LolChampionMasteryChampionMasteryViewData[] }
 	},
 	"/lol-champion-mastery/v1/local-player/champion-mastery": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolChampionMasteryChampionMastery[] }
@@ -844,6 +851,9 @@ export interface LCUEndpoints {
 	"/lol-cosmetics/v1/favorites/tft/zoom-skins": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolCosmeticsTFTZoomSkinFavoritesViewModel }
 	},
+	"/lol-cosmetics/v1/inventories/{setName}/augment-pillars": {
+		get: { path: [setName: string], params: never, body: never, response: LCUTypes.LolCosmeticsTFTAugmentPillarGroupedViewModel }
+	},
 	"/lol-cosmetics/v1/inventories/{setName}/companions": {
 		get: { path: [setName: string], params: never, body: never, response: LCUTypes.LolCosmeticsCompanionsGroupedViewModel }
 	},
@@ -858,6 +868,12 @@ export interface LCUEndpoints {
 	},
 	"/lol-cosmetics/v1/inventories/{setName}/zoom-skins": {
 		get: { path: [setName: string], params: never, body: never, response: LCUTypes.LolCosmeticsTFTZoomSkinGroupedViewModel }
+	},
+	"/lol-directx-upgrade/needs-hardware-upgrade": {
+		get: { path: never, params: never, body: never, response: boolean }
+	},
+	"/lol-directx-upgrade/notification-type": {
+		get: { path: never, params: never, body: never, response: LCUTypes.LolDirectxUpgradeDirectXUpgradeNotificationType }
 	},
 	"/lol-drops/v1/drop-tables": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolDropsCapDropsDropTableWithPityDTO[] }
@@ -1783,8 +1799,8 @@ export interface LCUEndpoints {
 	"/lol-patch/v1/notifications": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolPatchNotification[] }
 	},
-	"/lol-patch/v1/product-integration/app-update/status": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolPatchCurrentUpdateStatus }
+	"/lol-patch/v1/product-integration/app-update/available": {
+		get: { path: never, params: never, body: never, response: boolean }
 	},
 	"/lol-patch/v1/products/league_of_legends/install-location": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolPatchInstallPaths }
@@ -1961,6 +1977,9 @@ export interface LCUEndpoints {
 	},
 	"/lol-purchase-widget/v1/configuration": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolPurchaseWidgetPurchaseWidgetConfig }
+	},
+	"/lol-purchase-widget/v1/get-related-skins": {
+		get: { path: never, params: { "itemId": number }, body: never, response: LCUTypes.LolPurchaseWidgetCatalogPluginItemWithDetails[] }
 	},
 	"/lol-purchase-widget/v1/order-notifications": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolPurchaseWidgetOrderNotificationResource[] }
@@ -2298,11 +2317,12 @@ export interface LCUEndpoints {
 	"/lol-suggested-players/v1/suggested-players": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolSuggestedPlayersSuggestedPlayersSuggestedPlayer[] }
 	},
-	"/lol-summoner-profiles/v1/get-champion-mastery-private-view": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolSummonerProfilesChampionMasteryPrivateView }
+	"/lol-summoner-profiles/v1/{puuid}/champion-mastery-view": {
+		get: { path: [puuid: string], params: never, body: never, response: {
+	} }
 	},
-	"/lol-summoner-profiles/v1/get-champion-mastery-public-view": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolSummonerProfilesChampionMasteryPublicView }
+	"/lol-summoner-profiles/v1/get-champion-mastery-view": {
+		get: { path: never, params: never, body: never, response: LCUTypes.LolSummonerProfilesChampionMasteryView }
 	},
 	"/lol-summoner-profiles/v1/get-honor-view": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolSummonerProfilesHonorView }
@@ -2471,6 +2491,9 @@ export interface LCUEndpoints {
 		get: { path: never, params: never, body: never, response: string[] }
 	},
 	"/lol-tft-troves/v1/banners": {
+		get: { path: never, params: never, body: never, response: LCUTypes.LolTftTrovesTrovesBanner[] }
+	},
+	"/lol-tft-troves/v1/catalog-banners": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolTftTrovesTrovesBanner[] }
 	},
 	"/lol-tft-troves/v1/config": {
@@ -2766,9 +2789,6 @@ export interface LCUEndpoints {
 	"/deep-links/v1/launch-lor-link": {
 		post: { path: never, params: never, body: never, response: string }
 	},
-	"/dx11-upgrade/notification-ack": {
-		post: { path: never, params: never, body: never, response: void }
-	},
 	"/error-monitor/v1/logs/batches": {
 		post: { path: never, params: never, body: never, response: LCUTypes.ErrorMonitorLogBatch[] }
 	},
@@ -3032,6 +3052,9 @@ export interface LCUEndpoints {
 	},
 	"/lol-clash/v1/update-logos": {
 		post: { path: never, params: never, body: never, response: unknown }
+	},
+	"/lol-directx-upgrade/notification-ack": {
+		post: { path: never, params: never, body: never, response: void }
 	},
 	"/lol-email-verification/v1/confirm-email": {
 		post: { path: never, params: never, body: never, response: unknown }
@@ -3545,6 +3568,9 @@ export interface LCUEndpoints {
 	},
 	"/lol-suggested-players/v1/victorious-comrade": {
 		post: { path: never, params: never, body: LCUTypes.LolSuggestedPlayersSuggestedPlayersVictoriousComrade, response: void }
+	},
+	"/lol-summoner-profiles/v1/pco/{category}": {
+		post: { path: [category: string], params: never, body: string, response: void }
 	},
 	"/lol-summoner/v1/current-summoner/name": {
 		post: { path: never, params: never, body: string, response: LCUTypes.LolSummonerSummoner }
