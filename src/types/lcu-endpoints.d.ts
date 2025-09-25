@@ -326,9 +326,6 @@ export interface LCUEndpoints {
 	"/Exit": {
 		post: { path: never, params: never, body: never, response: unknown }
 	},
-	"/anti-addiction/v1/policies/{policyType}/anti-addiction-state": {
-		get: { path: [policyType: LCUTypes.LolAntiAddictionPolicyType], params: never, body: never, response: LCUTypes.LolAntiAddictionAntiAddictionState }
-	},
 	"/{plugin}/assets/{+path}": {
 		get: { path: [plugin: string, path: string], params: { "if-none-match"?: string }, body: never, response: unknown }
 		head: { path: [plugin: string, path: string], params: { "if-none-match"?: string }, body: never, response: unknown }
@@ -397,9 +394,6 @@ export interface LCUEndpoints {
 	},
 	"/lol-activity-center/v1/ready": {
 		get: { path: never, params: never, body: never, response: boolean }
-	},
-	"/lol-anti-addiction/v1/anti-addiction-token": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolAntiAddictionAntiAddictionToken }
 	},
 	"/lol-banners/v1/current-summoner/flags": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolBannersBannerFlag[] }
@@ -596,8 +590,8 @@ export interface LCUEndpoints {
 	"/lol-champion-mastery/v1/{puuid}/champion-mastery": {
 		get: { path: [puuid: string], params: never, body: never, response: LCUTypes.LolChampionMasteryChampionMastery[] }
 	},
-	"/lol-champion-mastery/v1/{puuid}/champion-mastery-view": {
-		get: { path: [puuid: string], params: never, body: never, response: LCUTypes.LolChampionMasteryChampionMasteryViewData[] }
+	"/lol-champion-mastery/v1/champion-mastery-view-enabled": {
+		get: { path: never, params: never, body: never, response: boolean }
 	},
 	"/lol-champion-mastery/v1/local-player/champion-mastery": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolChampionMasteryChampionMastery[] }
@@ -613,6 +607,9 @@ export interface LCUEndpoints {
 	},
 	"/lol-champion-mastery/v1/reward-grants": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolChampionMasteryChampionMasteryRewardGrantNotification[] }
+	},
+	"/lol-champions/v1/inventories/{summonerId}/{queueId}/champions-minimal-per-queue": {
+		get: { path: [summonerId: number, queueId: number], params: never, body: never, response: LCUTypes.LolChampionsCollectionsChampionMinimal[] }
 	},
 	"/lol-champions/v1/inventories/{summonerId}/champions": {
 		get: { path: [summonerId: number], params: never, body: never, response: LCUTypes.LolChampionsCollectionsChampion[] }
@@ -2317,10 +2314,6 @@ export interface LCUEndpoints {
 	"/lol-suggested-players/v1/suggested-players": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolSuggestedPlayersSuggestedPlayersSuggestedPlayer[] }
 	},
-	"/lol-summoner-profiles/v1/{puuid}/champion-mastery-view": {
-		get: { path: [puuid: string], params: never, body: never, response: {
-	} }
-	},
 	"/lol-summoner-profiles/v1/get-champion-mastery-view": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolSummonerProfilesChampionMasteryView }
 	},
@@ -2416,6 +2409,30 @@ export interface LCUEndpoints {
 	},
 	"/lol-tastes/v1/tft-overview-model": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolTastesDataModelResponse }
+	},
+	"/lol-tft-event-pve/v1/buddies": {
+		get: { path: never, params: never, body: never, response: LCUTypes.LolTftEventPveTFTEventBuddy[] }
+	},
+	"/lol-tft-event-pve/v1/buddy": {
+		get: { path: never, params: never, body: never, response: LCUTypes.LolTftEventPveTFTEventBuddy }
+	},
+	"/lol-tft-event-pve/v1/difficulty": {
+		get: { path: never, params: never, body: never, response: LCUTypes.LolTftEventPveTFTEventPVELevel }
+	},
+	"/lol-tft-event-pve/v1/enabled": {
+		get: { path: never, params: never, body: never, response: boolean }
+	},
+	"/lol-tft-event-pve/v1/eogmissionrewards": {
+		get: { path: never, params: never, body: never, response: LCUTypes.LolTftEventPveTFTEventPVEEoGMissionReward[] }
+	},
+	"/lol-tft-event-pve/v1/eventpvehub": {
+		get: { path: never, params: never, body: never, response: LCUTypes.LolTftEventPveTFTEventPVEHub }
+	},
+	"/lol-tft-event-pve/v1/journeytrack/bonuses": {
+		get: { path: never, params: never, body: never, response: LCUTypes.LolTftEventPveTFTEventPVEJourneyTrackBonuses }
+	},
+	"/lol-tft-event-pve/v1/ready": {
+		get: { path: never, params: never, body: never, response: boolean }
 	},
 	"/lol-tft-pass/v1/active-passes": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolTftPassTftBattlepass[] }
@@ -2916,6 +2933,12 @@ export interface LCUEndpoints {
 		post: { path: never, params: never, body: LCUTypes.TeamBuilderDirect_MutedPlayerInfo, response: unknown }
 	},
 	"/lol-champion-mastery/v1/{puuid}/champion-mastery/top": {
+		post: { path: [puuid: string], params: never, body: number, response: LCUTypes.LolChampionMasteryTopChampionMasteries }
+	},
+	"/lol-champion-mastery/v1/{puuid}/champion-mastery-view": {
+		post: { path: [puuid: string], params: never, body: never, response: LCUTypes.LolChampionMasteryChampionMasteryViewData[] }
+	},
+	"/lol-champion-mastery/v1/{puuid}/champion-mastery-view/top": {
 		post: { path: [puuid: string], params: never, body: number, response: LCUTypes.LolChampionMasteryTopChampionMasteries }
 	},
 	"/lol-champion-mastery/v1/notifications/ack": {
@@ -3596,6 +3619,9 @@ export interface LCUEndpoints {
 	"/lol-summoner/v2/summoners/puuid": {
 		post: { path: never, params: never, body: string[], response: LCUTypes.LolSummonerSummoner[] }
 	},
+	"/lol-tft-event-pve/v1/eogmissionrewards/clear": {
+		post: { path: never, params: never, body: never, response: void }
+	},
 	"/lol-tft-pass/v1/pass/{id}": {
 		post: { path: [id: string], params: never, body: never, response: void }
 	},
@@ -3886,6 +3912,24 @@ export interface LCUEndpoints {
 	},
 	"/lol-summoner/v1/current-summoner/icon": {
 		put: { path: never, params: never, body: LCUTypes.LolSummonerSummonerIcon, response: LCUTypes.LolSummonerSummoner }
+	},
+	"/lol-tft-event-pve/v1/buddy/{id}/equip": {
+		put: { path: [id: number], params: never, body: never, response: void }
+	},
+	"/lol-tft-event-pve/v1/difficulty/{id}/equip": {
+		put: { path: [id: number], params: never, body: never, response: void }
+	},
+	"/lol-tft-event-pve/v1/seenBuddies": {
+		put: { path: never, params: never, body: never, response: void }
+	},
+	"/lol-tft-event-pve/v1/seenBuddies/{id}": {
+		put: { path: [id: number], params: never, body: never, response: void }
+	},
+	"/lol-tft-event-pve/v1/seenLevels": {
+		put: { path: never, params: never, body: never, response: void }
+	},
+	"/lol-tft-event-pve/v1/seenUltimateVictory": {
+		put: { path: never, params: never, body: never, response: void }
 	},
 	"/lol-tft-pass/v1/pass/{id}/milestone/{milestoneId}/reward": {
 		put: { path: [id: string, milestoneId: string], params: never, body: never, response: void }
