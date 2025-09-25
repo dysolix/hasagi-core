@@ -390,6 +390,8 @@ export interface ChampSelectSession {
 	allowSkinSelection: boolean
 	allowSubsetChampionPicks: boolean
 	allowDuplicatePicks: boolean
+	allowPlayerPickSameChampion: boolean
+	disallowBanningTeammateHoveredChampions: boolean
 	allowBattleBoost: boolean
 	/** @format int32 */
 	boostableSkinCount: number
@@ -1916,18 +1918,6 @@ export interface LolActivityCenterTencentOverrides {
 	activityCenterAlternativeExperienceUrl: string
 }
 
-export interface LolAntiAddictionAntiAddictionState {
-	policyType: LolAntiAddictionPolicyType
-	localizationKey: string
-	antiAddictionToken: string
-}
-
-export interface LolAntiAddictionAntiAddictionToken {
-	antiAddictionToken: string
-}
-
-export type LolAntiAddictionPolicyType = "antiAddictionHeartbeat" | "antiAddictionShutdown" | "antiAddictionWarning"
-
 export interface LolBannersBannerFlag {
 	/** @format int32 */
 	itemId: number
@@ -2061,6 +2051,8 @@ export interface LolCapMissionsCapMissionSeriesMissionReward {
 	currencyId: string
 	/** @format uint32 */
 	amount: number
+	/** @format uint32 */
+	quantity: number
 }
 
 export interface LolCapMissionsCapMissionSeriesMissionRewardsStatus {
@@ -3635,6 +3627,12 @@ export interface LolChampionsSummoner {
 	summonerLevel: number
 }
 
+export interface LolChampionsTeamBuilderDirect_MatchmakingQueue {
+	/** @format int64 */
+	id: number
+	viableChampionRoster: number[]
+}
+
 export type LolChatAccountState = "dnd" | "chat" | "away" | "mobile" | "offline"
 
 export interface LolChatActiveConversationResource {
@@ -4139,6 +4137,7 @@ export interface LolChatLobbyStatus {
 	isCustom: boolean
 	isPracticeTool: boolean
 	isLeader: boolean
+	isNoSpectateDelay: boolean
 	memberSummonerIds: number[]
 	customSpectatorPolicy: LolChatQueueCustomGameSpectatorPolicy
 }
@@ -4442,6 +4441,96 @@ export interface LolChatSocialPresencesSessionPlayer {
 
 export interface LolChatSocialPresencesStatusMessage {
 	statusMessage: string
+}
+
+export interface LolChatSocialV2FriendRequest {
+	gameName: string
+	note: string
+	platform: string
+	puuid: string
+	subscription: string
+	tagLine: string
+}
+
+export interface LolChatSocialV2FriendRequestCreate {
+	gameName: string
+	puuid: string
+	tagLine: string
+}
+
+export interface LolChatSocialV2FriendRequestList {
+	requests: LolChatSocialV2FriendRequest[]
+}
+
+export interface LolChatSocialV4CrossPlayPermissions {
+	hasPartyCrossPlayEnabled: boolean
+	hasPlayerCrossPlayEnabled: boolean
+	isInParty: boolean
+	partyMemberPlatforms: string[]
+}
+
+export interface LolChatSocialV4Friend {
+	activity?: string
+	crossPlayPermissions: LolChatSocialV4CrossPlayPermissions
+	displayGroup: string
+	gameName: string
+	gameTag: string
+	group: string
+	namesets: LolChatSocialV4Namesets
+	note: string
+	party?: string
+	patchline: string
+	pid: string
+	platform: string
+	platformShow: string
+	product: string
+	productBannerUrl: string
+	productData?: string
+	productFolderName: string
+	productIconUrl: string
+	productPresenceName: string
+	profileBanner: string
+	profileIcon: string
+	puuid: string
+	region: string
+	relationshipOnConsole: string
+	relationshipOnRiot: string
+	show: string
+	state: string
+	statusMessage: string
+}
+
+export interface LolChatSocialV4FriendList {
+	friends: LolChatSocialV4Friend[]
+}
+
+export interface LolChatSocialV4Nameset {
+	gameName: string
+	tagLine: string
+}
+
+export interface LolChatSocialV4Namesets {
+	alias: LolChatSocialV4Nameset
+	error: string
+	playstationNameset: LolChatSocialV4PlaystationNameset
+	providerId: string
+	puuid: string
+	switchNameset: LolChatSocialV4SwitchNameset
+	xboxNameset: LolChatSocialV4XboxNameset
+}
+
+export interface LolChatSocialV4PlaystationNameset {
+	onlineId: string
+}
+
+export interface LolChatSocialV4SwitchNameset {
+	nickname: string
+}
+
+export interface LolChatSocialV4XboxNameset {
+	classicGamertag: string
+	modernGamertag: string
+	modernSuffix: string
 }
 
 export interface LolChatSpectateGameInfoResource {
@@ -6533,6 +6622,10 @@ export interface LolCosmeticsStoresResponse {
 	errors: LolCosmeticsResponseError[]
 }
 
+export interface LolCosmeticsTFTAugmentPillarFavoritesViewModel {
+	favoriteItems: LolCosmeticsCosmeticsTFTAugmentPillarViewModel[]
+}
+
 export interface LolCosmeticsTFTAugmentPillarGroupViewModel {
 	groupName: string
 	/** @format uint32 */
@@ -6547,10 +6640,10 @@ export interface LolCosmeticsTFTAugmentPillarGroupViewModel {
 }
 
 export interface LolCosmeticsTFTAugmentPillarGroupedViewModel {
-	selectedLoadoutItem: LolCosmeticsCosmeticsTFTZoomSkinViewModel
+	selectedLoadoutItem: LolCosmeticsCosmeticsTFTAugmentPillarViewModel
 	/** @format int32 */
 	defaultItemId: number
-	groups: LolCosmeticsTFTZoomSkinGroupViewModel[]
+	groups: LolCosmeticsTFTAugmentPillarGroupViewModel[]
 }
 
 export interface LolCosmeticsTFTDamageSkinFavoritesViewModel {
@@ -8721,6 +8814,7 @@ export interface LolEventHubRewardTrackItemOption {
 	cardSize: string
 	rewardGroupId: string
 	celebrationType: LolEventHubCelebrationType
+	rewardInventoryTypes: string[]
 }
 
 export type LolEventHubRewardTrackItemStates = "Selected" | "Unselected" | "Unlocked" | "Locked"
@@ -9648,6 +9742,7 @@ export interface LolGameflowLobbyStatus {
 	isLeader: boolean
 	isSpectator: boolean
 	allowedPlayAgain: boolean
+	isNoSpectateDelay: boolean
 	memberSummonerIds: number[]
 	invitedSummonerIds: number[]
 	lobbyId?: string
@@ -11701,6 +11796,7 @@ export interface LolLobbyLobbyStatus {
 	isLeader: boolean
 	isSpectator: boolean
 	allowedPlayAgain: boolean
+	isNoSpectateDelay: boolean
 	memberSummonerIds: number[]
 	invitedSummonerIds: number[]
 	lobbyId?: string
@@ -14488,6 +14584,8 @@ export interface LolMissionsCapMissionSeriesMissionReward {
 	currencyId: string
 	/** @format uint32 */
 	amount: number
+	/** @format uint32 */
+	quantity: number
 }
 
 export interface LolMissionsCapMissionSeriesMissionRewardsStatus {
@@ -15477,6 +15575,8 @@ export interface LolObjectivesCapMissionSeriesMissionReward {
 	currencyId: string
 	/** @format uint32 */
 	amount: number
+	/** @format uint32 */
+	quantity: number
 }
 
 export interface LolObjectivesCapMissionSeriesMissionRewardsStatus {
@@ -19332,6 +19432,11 @@ export interface LolRewardTrackGroup {
 	milestones: LolRewardTrackMilestone[]
 }
 
+export interface LolRewardTrackLolInventoryType {
+	inventoryTypeId: string
+	capInventoryTypeId: string
+}
+
 export interface LolRewardTrackMilestone {
 	id: string
 	name: string
@@ -19492,6 +19597,7 @@ export interface LolRewardTrackRewardTrackItemOption {
 	cardSize: string
 	rewardGroupId: string
 	celebrationType: LolRewardTrackCelebrationType
+	rewardInventoryTypes: string[]
 }
 
 export type LolRewardTrackRewardTrackItemStates = "Selected" | "Unselected" | "Unlocked" | "Locked"
@@ -21322,6 +21428,7 @@ export interface LolSummonerProfilesHonorView {
 
 export interface LolSummonerProfilesPrivacyView {
 	anonymityEnabled: boolean
+	nameOnlyAnonymityEnabled: boolean
 }
 
 export interface LolSummonerProfilesPuuidAndViews {
@@ -21605,6 +21712,8 @@ export interface LolTftEventCapMissionSeriesMissionReward {
 	currencyId: string
 	/** @format uint32 */
 	amount: number
+	/** @format uint32 */
+	quantity: number
 }
 
 export interface LolTftEventCapMissionSeriesMissionRewardsStatus {
@@ -21834,6 +21943,673 @@ export interface LolTftEventPluginRegionLocaleChangedEvent {
 
 export interface LolTftEventPublishingSettings {
 	publishingLocale: string
+}
+
+export interface LolTftEventPveAccessTokenResource {
+	token: string
+	scopes: string[]
+	/** @format uint64 */
+	expiry: number
+}
+
+export interface LolTftEventPveCAPMission {
+	missionId: string
+	title: string
+	description: string
+	missionIconAsset: LolTftEventPveMissionAsset
+	rewards: LolTftEventPveCAPMissionReward[]
+	objectives: LolTftEventPveCAPMissionObjective[]
+}
+
+export interface LolTftEventPveCAPMissionObjective {
+	statId: string
+	description: string
+}
+
+export interface LolTftEventPveCAPMissionReward {
+	itemId: string
+	rewardName: string
+	/** @format uint32 */
+	quantity: number
+	rewardAsset: LolTftEventPveMissionAsset
+}
+
+export interface LolTftEventPveCatalogItem {
+	/** @format int32 */
+	itemId: number
+	inventoryType: string
+	itemInstanceId?: string
+}
+
+export interface LolTftEventPveClientCacheClearMessageDTO {
+	regions: string[]
+	clearAll: boolean
+	inventoryTypes: string[]
+}
+
+export interface LolTftEventPveCreateLoadoutDTO {
+	scope: string
+	/** @format uint32 */
+	itemId?: number
+	name: string
+	loadout: Record<string, LolTftEventPveItemKey>
+	refreshTime: string
+}
+
+export interface LolTftEventPveCreateLoadoutRequestDTO {
+	serviceToJwtsMap: Record<string, unknown>
+	loadout: LolTftEventPveCreateLoadoutDTO
+}
+
+export interface LolTftEventPveCreateOrUpdateItemsRequest {
+	/** @format uint32 */
+	id: number
+	items: Record<string, unknown>
+	inventoryJWTs: string[]
+}
+
+export interface LolTftEventPveCurrencyDTO {
+	/** @format int32 */
+	amount: number
+	subCurrencies: Record<string, number>
+}
+
+export interface LolTftEventPveEndOfGameXp {
+	/** @format uint32 */
+	PER_WIN: number
+}
+
+export interface LolTftEventPveEndOfGameXpNotification {
+	xp: LolTftEventPveEndOfGameXp
+}
+
+export type LolTftEventPveEventPVELevelState = "kError" | "kCleared" | "kUnlocked" | "kUnseenUnlocked" | "kLocked"
+
+export interface LolTftEventPveFrontendInventoryResponse {
+	entitlements: LolTftEventPveItemKey[]
+}
+
+export interface LolTftEventPveGameflowGameData {
+	queue: LolTftEventPveQueue
+}
+
+export type LolTftEventPveGameflowPhase = "TerminatedInError" | "EndOfGame" | "PreEndOfGame" | "WaitingForStats" | "Reconnect" | "InProgress" | "FailedToLaunch" | "GameStart" | "ChampSelect" | "ReadyCheck" | "CheckedIntoTournament" | "Matchmaking" | "Lobby" | "None"
+
+export interface LolTftEventPveGameflowSession {
+	phase: LolTftEventPveGameflowPhase
+	gameData: LolTftEventPveGameflowGameData
+}
+
+export interface LolTftEventPveGetItemsRequest {
+	/** @format uint32 */
+	id: number
+	inventoryTypes: string[]
+	inventoryJWTs: string[]
+}
+
+export interface LolTftEventPveIds {
+	missionIds: string[]
+	seriesIds: string[]
+}
+
+export interface LolTftEventPveInventoryCacheEntry {
+	signedInventoryJwt: string
+	/** @format uint64 */
+	expirationMS: number
+	/** @format uint64 */
+	issuedAtMS: number
+	/** @format uint64 */
+	receivedAtMS: number
+	valid: boolean
+}
+
+export interface LolTftEventPveInventoryDTO {
+	puuid: string
+	/** @format uint64 */
+	accountId: number
+	/** @format uint64 */
+	summonerId: number
+	items: Record<string, unknown>
+	expires: string
+	itemsJwt?: string
+}
+
+export interface LolTftEventPveInventoryItem {
+	uuid: string
+	/** @format int32 */
+	itemId: number
+	inventoryType: string
+	purchaseDate: string
+	/** @format uint64 */
+	quantity: number
+	ownershipType: LolTftEventPveItemOwnershipType
+	usedInGameDate: string
+	expirationDate: string
+	/** @format uint64 */
+	wins: number
+}
+
+export interface LolTftEventPveInventoryItemDTO {
+	/** @format int32 */
+	itemId: number
+	inventoryType: string
+	expirationDate: string
+	purchaseDate: string
+	/** @format uint64 */
+	quantity: number
+	usedInGameDate: string
+	entitlementId: string
+	entitlementTypeId: string
+	instanceId: string
+	instanceTypeId: string
+	"f2p": boolean
+	rental: boolean
+	lsb: boolean
+	/** @format uint64 */
+	wins: number
+}
+
+export interface LolTftEventPveInventoryItemWithPayload {
+	uuid: string
+	/** @format int32 */
+	itemId: number
+	inventoryType: string
+	purchaseDate: string
+	/** @format uint64 */
+	quantity: number
+	ownershipType: LolTftEventPveItemOwnershipType
+	usedInGameDate: string
+	expirationDate: string
+	"f2p": boolean
+	rental: boolean
+	loyalty: boolean
+	loyaltySources: string[]
+	owned: boolean
+	/** @format uint64 */
+	wins: number
+	payload: unknown
+}
+
+export interface LolTftEventPveInventoryNotification {
+	/** @format int64 */
+	id: number
+	/** @format int32 */
+	itemId: number
+	inventoryType: string
+	type: string
+	acknowledged: boolean
+}
+
+export interface LolTftEventPveInventoryResponseDTO {
+	data: LolTftEventPveInventoryDTO
+}
+
+export interface LolTftEventPveItemKey {
+	inventoryType: string
+	contentId: string
+	/** @format int32 */
+	itemId: number
+}
+
+export type LolTftEventPveItemOwnershipType = "F2P" | "LOYALTY" | "RENTED" | "OWNED"
+
+export interface LolTftEventPveLoadout {
+	/** @format uint32 */
+	id: number
+	name: string
+	items: Record<string, unknown>
+}
+
+export interface LolTftEventPveLoadoutRequestDTOBase {
+	serviceToJwtsMap: Record<string, unknown>
+}
+
+export interface LolTftEventPveLoginSession {
+	state: LolTftEventPveLoginSessionStates
+	/** @format uint64 */
+	summonerId: number
+	/** @format uint64 */
+	accountId: number
+	idToken: string
+	puuid: string
+}
+
+export type LolTftEventPveLoginSessionStates = "ERROR" | "LOGGING_OUT" | "SUCCEEDED" | "IN_PROGRESS"
+
+export interface LolTftEventPveLolInventoryType {
+	inventoryTypeId: string
+	capInventoryTypeId: string
+}
+
+export interface LolTftEventPveLoyaltyRewards {
+	/** @format int32 */
+	freeRewardedChampionsCount: number
+	championIds: number[]
+	/** @format int32 */
+	freeRewardedSkinsCount: number
+	skinIds: number[]
+	/** @format int32 */
+	ipBoost: number
+	xpBoost: Record<string, number>
+	/** @format int32 */
+	loyaltyTFTMapSkinCount: number
+	/** @format int32 */
+	loyaltyTFTCompanionCount: number
+	/** @format int32 */
+	loyaltyTFTDamageSkinCount: number
+	loyaltySources: Record<string, boolean>
+}
+
+export interface LolTftEventPveLoyaltyRewardsSimplified {
+	/** @format int32 */
+	freeRewardedChampionsCount: number
+	championIds: number[]
+	/** @format int32 */
+	freeRewardedSkinsCount: number
+	skinIds: number[]
+	/** @format int32 */
+	ipBoost: number
+	/** @format int32 */
+	xpBoost: number
+	/** @format int32 */
+	loyaltyTFTMapSkinCount: number
+	/** @format int32 */
+	loyaltyTFTCompanionCount: number
+	/** @format int32 */
+	loyaltyTFTDamageSkinCount: number
+	loyaltySources: Record<string, boolean>
+}
+
+export type LolTftEventPveLoyaltyStatus = "DISABLED" | "REVOKE" | "CHANGE" | "EXPIRY" | "REWARDS_GRANT" | "LEGACY"
+
+export interface LolTftEventPveLoyaltyStatusNotification {
+	status: LolTftEventPveLoyaltyStatus
+	rewards: LolTftEventPveLoyaltyRewardsSimplified
+	reloadInventory: boolean
+}
+
+export interface LolTftEventPveMission {
+	viewed: boolean
+	id: string
+	title: string
+	helperText: string
+	description: string
+	missionLineText: string
+	iconImageUrl: string
+	seriesName: string
+	rewards: LolTftEventPveReward[]
+	status: string
+	missionType: string
+	displayType: string
+	/** @format int64 */
+	completedDate: number
+	celebrationType: string
+}
+
+export interface LolTftEventPveMissionAsset {
+	internalName: string
+	path: string
+	iconNeedsFrame: boolean
+}
+
+export interface LolTftEventPvePlayerNotification {
+	critical: boolean
+	detailKey: string
+	source: string
+	state: string
+	titleKey: string
+	type: string
+	iconUrl: string
+}
+
+export interface LolTftEventPveQueue {
+	isTeamBuilderManaged: boolean
+}
+
+export interface LolTftEventPveReward {
+	rewardType: string
+	rewardGroup: string
+	description: string
+	iconUrl: string
+	smallIconUrl: string
+	itemId: string
+	itemTypeId: string
+	uniqueName: string
+	rewardFulfilled: boolean
+	rewardGroupSelected: boolean
+	/** @format int32 */
+	sequence: number
+	/** @format int32 */
+	quantity: number
+	isObjectiveBasedReward: boolean
+	media: Record<string, string>
+	iconNeedsFrame: boolean
+}
+
+export interface LolTftEventPveRiotMessagingServiceMessage {
+	resource: string
+	service: string
+	version: string
+	/** @format int64 */
+	timestamp: number
+	payload: string
+}
+
+export interface LolTftEventPveRmsEntitlementPayload {
+	itemId: string
+	itemTypeId: string
+	tiers: string
+	entitlementTypeId: string
+	resourceOperation: string
+}
+
+export interface LolTftEventPveRmsStoreEntitlementItem {
+	inventoryType: string
+	itemId: string
+}
+
+export interface LolTftEventPveRmsStoreEntitlementPayload {
+	transactionId: string
+	items: LolTftEventPveRmsStoreEntitlementItem[]
+}
+
+export interface LolTftEventPveRmsWalletPayload {
+	[key: string | number]: any
+}
+
+export interface LolTftEventPveRmsXboxSubscriptionChange {
+	puuid: string
+	subscriptionId: string
+	active: string
+	identityProvider: string[]
+}
+
+export interface LolTftEventPveScopedLoadout {
+	scope: string
+	/** @format uint32 */
+	itemId?: number
+	name: string
+	loadout: Record<string, LolTftEventPveItemKey>
+	refreshTime: string
+	id: string
+}
+
+export interface LolTftEventPveSignGCORequestDTO {
+	serviceToJwtsMap: Record<string, unknown>
+	loadout: Record<string, LolTftEventPveItemKey>
+}
+
+export interface LolTftEventPveSimpleInventoryDTO {
+	items: Record<string, unknown>
+	itemsJwt: string
+	expires: string
+}
+
+export interface LolTftEventPveSimpleInventoryResponseDTO {
+	data: LolTftEventPveSimpleInventoryDTO
+}
+
+export interface LolTftEventPveSummonerIcon {
+	/** @format int32 */
+	itemId: number
+}
+
+export interface LolTftEventPveTFTEventBuddiesData {
+	Buddies: LolTftEventPveTFTEventBuddyData[]
+}
+
+export interface LolTftEventPveTFTEventBuddy {
+	isPremium: boolean
+	completedSummit: boolean
+	completedPerfectRun: boolean
+	/** @format uint8 */
+	journeyTrackUnlockLevel: number
+	/** @format uint32 */
+	id: number
+	contentId: string
+	name: string
+	description: string
+	selectionVOKey: string
+	shortDescription: string
+	iconTexture: string
+	portraitTexture: string
+	hubTexture: string
+	summitMissionId: string
+	perfectRunMissionId: string
+	equipState: LolTftEventPveTFTEventBuddyEquipState
+}
+
+export interface LolTftEventPveTFTEventBuddyData {
+	IsPremium: boolean
+	/** @format uint8 */
+	JourneyTrackUnlockLevel: number
+	ContentId: string
+	/** @format uint32 */
+	ItemId: number
+	Name: string
+	Description: string
+	SelectionVOKey: string
+	ShortDescription: string
+	IconTexturePath: string
+	PortraitTexturePath: string
+	HubTexturePath: string
+	SummitMission: LolTftEventPveCAPMission
+	PerfectMission: LolTftEventPveCAPMission
+}
+
+export type LolTftEventPveTFTEventBuddyEquipState = "kEquipped" | "kUnlocked" | "kUnseenUnlocked" | "kLocked"
+
+export interface LolTftEventPveTFTEventDifficultyData {
+	/** @format uint8 */
+	ItemId: number
+	/** @format uint8 */
+	DifficultyLevel: number
+	Name: string
+	Description: string
+	IconTexture: string
+	ContentId: string
+}
+
+export interface LolTftEventPveTFTEventJourneyTrackCollectionData {
+	Bonuses: LolTftEventPveTFTEventJourneyTrackXPData[]
+}
+
+export interface LolTftEventPveTFTEventJourneyTrackXPData {
+	Name: string
+}
+
+export interface LolTftEventPveTFTEventPVEEoGMissionReward {
+	name: string
+	iconTexture: string
+	type: string
+	itemTypeId: string
+	/** @format uint16 */
+	quantity: number
+	firstCompletionLevelMission: boolean
+}
+
+export interface LolTftEventPveTFTEventPVEHub {
+	levels: LolTftEventPveTFTEventPVELevel[]
+	ultimateVictory: LolTftEventPveTFTEventPVEUltimateVictory
+}
+
+export interface LolTftEventPveTFTEventPVEHubData {
+	Levels: LolTftEventPveTFTEventPVELevelData[]
+}
+
+export interface LolTftEventPveTFTEventPVEJourneyTrackBonuses {
+	names: string[]
+}
+
+export interface LolTftEventPveTFTEventPVELevel {
+	status: LolTftEventPveEventPVELevelState
+	isSelected: boolean
+	/** @format uint8 */
+	difficultyLevel: number
+	/** @format uint8 */
+	id: number
+	contentId: string
+	name: string
+	recommended: string
+	description: string
+	descriptionUnlocked: string
+	descriptionCleared: string
+	missionId: string
+	lockedPortrait: string
+	unlockedPortrait: string
+	clearedPortrait: string
+	levelSymbol: string
+	rewards: LolTftEventPveTFTEventPVEReward[]
+}
+
+export interface LolTftEventPveTFTEventPVELevelData {
+	Name: string
+	Recommended: string
+	Description: string
+	DescriptionUnlocked: string
+	DescriptionCleared: string
+	LockedImagePath: string
+	UnlockedImagePath: string
+	ClearedImagePath: string
+	SymbolImagePath: string
+	Mission: LolTftEventPveCAPMission
+	Difficulty: LolTftEventPveTFTEventDifficultyData
+}
+
+export interface LolTftEventPveTFTEventPVELevelDetails {
+	/** @format uint8 */
+	mBossCost: number
+	/** @format uint8 */
+	mNumAffixes: number
+	/** @format uint8 */
+	mNumEnemyModifiers: number
+}
+
+export interface LolTftEventPveTFTEventPVEReward {
+	rewardName: string
+	rewardImage: string
+	/** @format uint32 */
+	rewardQuantity: number
+}
+
+export interface LolTftEventPveTFTEventPVEUltimateVictory {
+	name: string
+	description: string
+	reward: LolTftEventPveTFTEventPVEReward
+	achievedUltimateVictory: boolean
+	seenCelebration: boolean
+}
+
+export interface LolTftEventPveTftBattlepass {
+	/** @format int32 */
+	totalPointsEarned: number
+	milestones: LolTftEventPveTftBattlepassMilestone[]
+	bonuses: LolTftEventPveTftBattlepassMilestone[]
+	activeMilestone: LolTftEventPveTftBattlepassMilestone
+	info: LolTftEventPveTftBattlepassInfo
+	/** @format int32 */
+	lastViewedProgress: number
+	lastViewedMilestone: LolTftEventPveTftBattlepassMilestone
+	/** @format int32 */
+	currentLevel: number
+}
+
+export interface LolTftEventPveTftBattlepassInfo {
+	title: string
+	description: string
+	/** @format uint64 */
+	startDate: number
+	/** @format uint64 */
+	endDate: number
+	premium: boolean
+	premiumTitle: string
+	premiumEntitlementId: string
+	pcPurchaseRequirement: string
+	passId: string
+	hasLevelPurchasing: boolean
+	media: Record<string, string>
+	passType: LolTftEventPveTftPassType
+}
+
+export interface LolTftEventPveTftBattlepassMilestone {
+	milestoneId: string
+	title: string
+	description: string
+	status: string
+	/** @format int32 */
+	pointsNeededForMilestone: number
+	/** @format int32 */
+	pointsEarnedForMilestone: number
+	/** @format int32 */
+	totalPointsForMilestone: number
+	/** @format int32 */
+	level: number
+	iconImageUrl: string
+	iconNeedsFrame: boolean
+	rewards: LolTftEventPveTftBattlepassReward[]
+	isPaid: boolean
+	isLocked: boolean
+	isKeystone: boolean
+	isBonus: boolean
+	isClaimRequestPending: boolean
+}
+
+export interface LolTftEventPveTftBattlepassReward {
+	name: string
+	description: string
+	itemId: string
+	itemTypeId: string
+	iconUrl: string
+	iconNeedsFrame: boolean
+}
+
+export type LolTftEventPveTftPassType = "kUnknown" | "kSkillTreePass" | "kDailyLoginPass" | "kEventPass" | "kBattlePass"
+
+export interface LolTftEventPveUpdateLoadoutDTO {
+	id: string
+	name: string
+	loadout: Record<string, LolTftEventPveItemKey>
+}
+
+export interface LolTftEventPveUpdateLoadoutRequestDTO {
+	serviceToJwtsMap: Record<string, unknown>
+	loadout: LolTftEventPveUpdateLoadoutDTO
+}
+
+export interface LolTftEventPveWallet {
+	/** @format int64 */
+	ip: number
+	/** @format int64 */
+	rp: number
+}
+
+export interface LolTftEventPveWalletCacheEntry {
+	signedBalancesJwt: string
+	/** @format uint64 */
+	expirationMS: number
+	/** @format uint64 */
+	issuedAtMS: number
+	/** @format uint64 */
+	receivedAtMS: number
+	valid: boolean
+}
+
+export interface LolTftEventPveWalletDTO {
+	puuid: string
+	/** @format int64 */
+	accountId: number
+	expires: string
+	balances: Record<string, number>
+	balancesJwt: string
+}
+
+export interface LolTftEventPveWalletResponseDTO {
+	data: LolTftEventPveWalletDTO
+}
+
+export interface LolTftEventPveXboxSubscriptionStatus {
+	active: string
+	subscriptionId: string
 }
 
 export interface LolTftEventQueue {
@@ -22824,6 +23600,7 @@ export interface LolTftPassRewardTrackItemOption {
 	cardSize: string
 	rewardGroupId: string
 	celebrationType: LolTftPassCelebrationType
+	rewardInventoryTypes: string[]
 }
 
 export type LolTftPassRewardTrackItemStates = "Selected" | "Unselected" | "Unlocked" | "Locked"
@@ -25960,6 +26737,7 @@ export interface PlayerMissionRewardDTO {
 	iconUrl: string
 	smallIconUrl: string
 	itemId: string
+	itemTypeId: string
 	uniqueName: string
 	rewardFulfilled: boolean
 	rewardGroupSelected: boolean
@@ -26886,6 +27664,8 @@ export interface TeamBuilderDirect_ChampSelectSession {
 	allowSkinSelection: boolean
 	allowSubsetChampionPicks: boolean
 	allowDuplicatePicks: boolean
+	allowPlayerPickSameChampion: boolean
+	disallowBanningTeammateHoveredChampions: boolean
 	allowBattleBoost: boolean
 	/** @format int32 */
 	boostableSkinCount: number
@@ -27026,6 +27806,8 @@ export interface TeamBuilderDirect_ChampionSelectState {
 	allowOptingOutOfBanning: boolean
 	allowSkinSelection: boolean
 	allowDuplicatePicks: boolean
+	allowPlayerPickSameChampion: boolean
+	disallowBanningTeammateHoveredChampions: boolean
 	allowSubsetChampionPicks: boolean
 	rerollState: TeamBuilderDirect_RerollState
 	lockedEventsState: TeamBuilderDirect_LockedEventsState
@@ -27831,6 +28613,8 @@ export interface TeambuilderEdge_ChampionSelectStateV1 {
 	allowOptingOutOfBanning: boolean
 	allowSkinSelection: boolean
 	allowDuplicatePicks: boolean
+	allowPlayerPickSameChampion: boolean
+	disallowBanningTeammateHoveredChampions: boolean
 	rerollState: TeambuilderEdge_RerollStateV1
 	lockedEventsState: TeambuilderEdge_LockedEventsStateV1
 	battleBoostState: TeambuilderEdge_BattleBoostStateV1
@@ -27957,9 +28741,9 @@ export interface TeambuilderEdge_RerollDataBagForClientV1 {
 	/** @format int32 */
 	totalPoints: number
 	/** @format int32 */
-	maximumRerolls: number
-	/** @format int32 */
 	pointCostOfReroll: number
+	/** @format int32 */
+	maximumRerolls: number
 }
 
 export interface TeambuilderEdge_RerollStateV1 {
@@ -27990,7 +28774,7 @@ export interface TeambuilderEdge_TbdGameDtoV1 {
 	matchmakingState?: TeambuilderEdge_MatchmakingStateV1
 	afkCheckState?: TeambuilderEdge_AfkCheckStateV1
 	championSelectState?: TeambuilderEdge_ChampionSelectStateV1
-	requestGuid: string
+	requestGuid?: string
 }
 
 export interface TeambuilderEdge_TeambuilderLedgeGameloopResponse {
