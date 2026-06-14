@@ -7,8 +7,12 @@ import { LCUError, RequestError, NotConnectedError } from "./errors.js";
 import { default as RIOT_GAMES_CERTIFICATE } from "./riot-games-certificate.js";
 
 import type { LCUEndpoints, LCUEndpointBodyType, LCUEndpointResponseType, EndpointsWithMethod, HttpMethod } from "./types/lcu-endpoints";
-import type * as LCUTypes from "./types/lcu-types"
+import type * as LCUTypes from "./types/lcu-types";
 import type { LCUWebSocketEvents } from "./types/lcu-events";
 
-export type { ConnectionOptions, RequestRetryOptions, PollOptions, LCUEventListener, HasagiCoreEvents, LCURequestOptionsParameter, LCUEndpoints, LCUEndpointBodyType, LCUEndpointResponseType, EndpointsWithMethod, HttpMethod, LCUCredentials, LCUTypes, LCUWebSocketEvents };
-export { HasagiClient, getLeagueClientUxProcesses, getCredentialsByProcessId, getCredentials, request, LCUError, RequestError, NotConnectedError, RIOT_GAMES_CERTIFICATE };
+export type {
+  ConnectionOptions, RequestRetryOptions, PollOptions, LCUEventListener, HasagiCoreEvents, LCURequestOptionsParameter, LCUEndpoints, LCUEndpointBodyType, LCUEndpointResponseType, EndpointsWithMethod, HttpMethod, LCUCredentials, LCUTypes, LCUWebSocketEvents,
+};
+export {
+  HasagiClient, getLeagueClientUxProcesses, getCredentialsByProcessId, getCredentials, request, LCUError, RequestError, NotConnectedError, RIOT_GAMES_CERTIFICATE,
+};

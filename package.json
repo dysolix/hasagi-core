@@ -5,6 +5,12 @@
   "description": "A library that makes using the League of Legends client API (LCU) easy.",
   "scripts": {
     "build": "tsc && node scripts/postbuild.mjs",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "test": "vitest run",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:watch": "vitest",
     "publish": "npm run build && node scripts/prepublish.mjs && cd ./dist && npm publish --access public",
     "update-types": "hasagi schema --typescript ./src/types"
   },
@@ -20,9 +26,14 @@
   },
   "devDependencies": {
     "@hasagi/cli": "^0.9.9",
+    "@stylistic/eslint-plugin": "^5.10.0",
     "@types/ws": "^8.18.1",
+    "eslint": "^10.5.0",
     "prompt": "^1.3.0",
-    "typescript": "^5.8.3"
+    "tsx": "^4.22.4",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.61.0",
+    "vitest": "^4.1.8"
   },
   "exports": {
     ".": "./index.js"
