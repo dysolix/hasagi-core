@@ -16,7 +16,7 @@ export default defineConfig([
       'src/**/*.ts',
     ],
     linterOptions: {
-      reportUnusedDisableDirectives: false,
+      reportUnusedDisableDirectives: true,
     },
     languageOptions: {
       parser: tseslint.parser,

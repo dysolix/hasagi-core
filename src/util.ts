@@ -66,7 +66,7 @@ export function getLeagueClientUxProcesses(): Promise<number[]> {
       else if (stderr)
         return reject(new Error(`Could not retrieve LeagueClientUx process ids. ${stderr}`));
 
-      resolve(stdout.split(/\r?\n/).map(x => parseInt(x)).filter(x => !isNaN(x)));
+      resolve(stdout.split(/\r?\n/).map(x => parseInt(x, 10)).filter(x => !isNaN(x)));
     });
   });
 }
@@ -86,7 +86,7 @@ export async function getCredentialsByProcessId(processId: number): Promise<LCUC
   if (!commandLine)
     throw new Error(`Process with PID ${processId} not found.`);
 
-  const port = parseInt(commandLine.match("--app-port=([0-9]*)")?.[1] ?? "");
+  const port = parseInt(commandLine.match("--app-port=([0-9]*)")?.[1] ?? "", 10);
   const password = commandLine.match("--remoting-auth-token=([\\w-]*)")?.at(1);
 
   if (!port || !password)

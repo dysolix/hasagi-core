@@ -16,6 +16,9 @@
   },
   "author": "dysolix",
   "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
   "keywords": [
     "hasagi"
   ],

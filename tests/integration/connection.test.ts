@@ -10,6 +10,8 @@ beforeAll(async () => {
     await client.connect({
       authenticationStrategy: "process",
       useWebSocket: true,
+      // Connectivity is proven by the WebSocket handshake; skip the readiness GET to avoid a REST call.
+      readinessCheck: false,
       maxConnectionAttempts: 1,
     });
     connected = true;

@@ -24,14 +24,24 @@ Unit tests can run without external dependencies and cover isolated functionalit
   - JSON parsing with error handling
   - URL reconstruction with real-world LCU endpoints
 
+- **client.test.ts** — `HasagiClient` behavior with `axios`/`ws` mocked (no League client required)
+  - Request retry loop (success, retries, AggregateError, no-retry status codes, `defaultRetryOptions`)
+  - Error mapping (`LCUError` vs `RequestError`) and the ECONNREFUSED disconnect short-circuit
+  - `buildRequest` path/query/body handling and `transformParameters`/`transformResponse`
+  - LCU event listener filtering (string/RegExp path, type, name), removal/unsubscribe, and throwing-listener isolation
+  - `connect()` WebSocket open/error/timeout handling and fail-fast on non-transient errors
+  - `poll()` execution count, distinct-response detection, error handling, and no trailing delay
+
 ### Integration Tests (`/tests/integration/`)
 
-Integration tests require a running League of Legends client and test real API interactions:
+Integration tests require a running League of Legends client and test real API interactions.
+To respect Riot's unofficial API, the suite makes a **single** real REST request in total
+(`requests.test.ts`); the other files prove connectivity via the WebSocket handshake and never
+hit a REST endpoint. Detailed request/poll/error behavior is covered by the mocked unit tests above.
 
-- **connection.test.ts** — Connection establishment and credential validation
-- **requests.test.ts** — HTTP requests to LCU endpoints
-- **websocket.test.ts** — WebSocket event subscriptions and handling
-- **polling.test.ts** — Polling functionality with intervals and callbacks
+- **connection.test.ts** — Connection establishment and credential validation (no REST calls)
+- **requests.test.ts** — The single real authenticated round-trip to the LCU
+- **websocket.test.ts** — WebSocket connection and event listener handling (no REST calls)
 
 ## Running Tests
 
@@ -50,22 +60,6 @@ npm run test:unit
 npm run test:integration
 ```
 
-**Run tests in watch mode** (re-runs on file changes):
-```bash
-npm run test:watch
-```
-
-**Run specific test file**:
-```bash
-npm test -- errors.test.ts
-```
-
-## Test Execution Times
-
-- **Unit tests:** ~450ms (51 tests, no external dependencies)
-- **Integration tests:** ~1.6s (17 tests, requires running League client)
-- **All tests:** ~1.6s (68 tests total, integration tests may skip if client unavailable)
-
 ## Prerequisites
 
 ### Unit Tests
@@ -78,9 +72,7 @@ No external dependencies required. Run these to validate core logic without a Le
 
 ## Notes
 
-- Tests use [vitest](https://vitest.dev/) as the test runner
-- Unit tests are fast (~100ms) and deterministic
+- Tests use vitest as the test runner
 - Integration tests create their own `HasagiClient` instances
 - WebSocket tests subscribe to events but may not receive them during test execution depending on client activity
 - Each test file is independent and can be run in isolation
-
