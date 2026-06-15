@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { AxiosError } from "axios";
 import HasagiClient, { request } from "../../src/client";
-import { LCUError, RequestError } from "../../src/errors";
+import { LCUError, RequestError, NotConnectedError } from "../../src/errors";
 
 // Hoisted mock state: a single request fn shared by both the standalone `axios.request`
 // and the instance created via `axios.create(...).request`, plus the fake WebSocket behavior.
@@ -277,6 +277,18 @@ describe("HasagiClient - LCU event listeners", () => {
     expect(cb).not.toHaveBeenCalled();
   });
 
+  it("isolates a throwing 'lcu-event' emitter listener from path/name listeners", async () => {
+    const client = await createConnectedClient();
+    const pathCb = vi.fn();
+    client.on("lcu-event", () => { throw new Error("boom"); });
+    client.addLCUEventListener({ path: "/x", callback: pathCb });
+
+    expect(() =>
+      (client as any).handleLCUEvent([8, "OnJsonApiEvent", { uri: "/x", eventType: "Update", data: {} }]),
+    ).not.toThrow();
+    expect(pathCb).toHaveBeenCalledTimes(1);
+  });
+
   it("isolates a throwing listener so other listeners still run", async () => {
     const client = await createConnectedClient();
     const cb2 = vi.fn();
@@ -463,6 +475,41 @@ describe("HasagiClient.connect - WebSocket handling", () => {
     })).resolves.toBeUndefined();
 
     expect(client.isConnected).toBe(true);
+  });
+
+  it("re-runs onConnected (re-subscribe + emit) on a forced reconnect while still connected", async () => {
+    mocks.wsBehavior = "open";
+    const client = new HasagiClient();
+    const opts = { authenticationStrategy: "manual" as const, credentials: { port: 1, password: "x" }, readinessCheck: false as const };
+
+    await client.connect(opts);
+    expect(client.isConnected).toBe(true);
+
+    const onConnected = vi.fn();
+    client.on("connected", onConnected);
+
+    // connect() again without disconnecting first — onConnected must run again, not short-circuit.
+    await client.connect(opts);
+
+    expect(onConnected).toHaveBeenCalledTimes(1);
+    expect(client.isConnected).toBe(true);
+  });
+
+  it("leaves a clean disconnected state when the WebSocket fails", async () => {
+    mocks.wsBehavior = "error";
+    const client = new HasagiClient();
+
+    await expect(client.connect({
+      authenticationStrategy: "manual",
+      credentials: { port: 1, password: "x" },
+      readinessCheck: false,
+    })).rejects.toThrow();
+
+    expect(client.isConnected).toBe(false);
+    expect((client as any).lcuAxiosInstance).toBeNull();
+    expect((client as any).httpsAgent).toBeNull();
+    // request() must now correctly report not-connected rather than using a stale axios instance.
+    await expect(client.request({ url: "/x" })).rejects.toBeInstanceOf(NotConnectedError);
   });
 
   it("rejects (instead of hanging) when the WebSocket errors before opening", async () => {

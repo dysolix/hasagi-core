@@ -8,8 +8,13 @@ import { EndpointsWithMethod, HttpMethod, LCUEndpoint, LCUEndpointResponseType, 
 import { LCUError, NotConnectedError, RequestError } from "./errors.js";
 import { LCUWebSocketEvents } from "./types/lcu-events.js";
 
-/** Shared agent used by the standalone `request` function; disables certificate validation. Keep-alive reuses sockets across calls. */
-const HTTPS_AGENT = new Agent({ rejectUnauthorized: false, keepAlive: true });
+/**
+ * Shared agent for the standalone `request` function; disables certificate validation.
+ * No keep-alive: the standalone helper is for one-off calls, and a pooled socket would keep the
+ * process alive at exit. Repeated/high-frequency requests should use a HasagiClient instance, whose
+ * agent pools sockets (keep-alive) and is destroyed on disconnect.
+ */
+const HTTPS_AGENT = new Agent({ rejectUnauthorized: false });
 
 /**
  * Parses the two supported request argument shapes (a raw axios config, or method/path/options)
@@ -221,6 +226,11 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
     const authenticationStrategy = options?.authenticationStrategy ?? "process";
     const lockfile = options?.authenticationStrategy === "lockfile" ? options.lockfile : null;
 
+    // Deterministically tear down any existing connection. Setting isConnected = false here (rather
+    // than relying on the old socket's onclose, which the identity guard now ignores) ensures
+    // onConnected() re-subscribes events and emits "connected" on a forced reconnect. Done silently
+    // (no "disconnected" emit) to avoid re-entrancy if a "disconnected" handler calls connect().
+    this.isConnected = false;
     this.processId = null;
     this.port = null;
     this.basicAuthToken = null;
@@ -299,81 +309,97 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
       }
     }
 
-    // Waits for the client to be ready
-    if (options?.readinessCheck !== false) {
-      const endpoint = options?.readinessCheck?.endpoint ?? "/lol-summoner/v1/current-summoner";
-      const maxRetries = options?.readinessCheck?.maxRetries ?? 10;
-      const retryDelay = options?.readinessCheck?.retryDelay ?? 1000;
-      await this.request("get", endpoint as any, { retryOptions: { maxRetries, retryDelay } }).catch(err => {
-        throw new Error("Successfully retrieved credentials but could not connect to the League of Legends client.", { cause: err });
-      });
-    }
+    // Connection setup after credentials are acquired. If readiness or the WebSocket fails, tear down
+    // so the client is left cleanly disconnected: the keep-alive agent is destroyed (so it can't keep
+    // the process alive) and state is nulled (so request() correctly throws NotConnectedError).
+    try {
+      // Waits for the client to be ready
+      if (options?.readinessCheck !== false) {
+        const endpoint = options?.readinessCheck?.endpoint ?? "/lol-summoner/v1/current-summoner";
+        const maxRetries = options?.readinessCheck?.maxRetries ?? 10;
+        const retryDelay = options?.readinessCheck?.retryDelay ?? 1000;
+        await this.request("get", endpoint as any, { retryOptions: { maxRetries, retryDelay } }).catch(err => {
+          throw new Error("Successfully retrieved credentials but could not connect to the League of Legends client.", { cause: err });
+        });
+      }
 
-    if (useWebSocket) {
-      const webSocketTimeoutMs = options?.webSocketTimeoutMs ?? 10000;
+      if (useWebSocket) {
+        const webSocketTimeoutMs = options?.webSocketTimeoutMs ?? 10000;
 
-      await new Promise<void>((resolve, reject) => {
-        let settled = false;
+        await new Promise<void>((resolve, reject) => {
+          let settled = false;
 
-        const ws = new WebSocket("wss://127.0.0.1:" + this.port, undefined, { headers: { Authorization: "Basic " + this.basicAuthToken }, ...agent });
-        this.webSocket = ws;
+          const ws = new WebSocket("wss://127.0.0.1:" + this.port, undefined, { headers: { Authorization: "Basic " + this.basicAuthToken }, ...agent });
+          this.webSocket = ws;
 
-        const timeout = setTimeout(() => {
-          if (settled) return;
-          settled = true;
-          ws.close();
-          this.webSocket = null;
-          reject(new Error(`WebSocket connection to the League of Legends client timed out after ${webSocketTimeoutMs}ms.`));
-        }, webSocketTimeoutMs);
-
-        ws.onopen = () => {
-          if (settled) return;
-          settled = true;
-          clearTimeout(timeout);
-          resolve();
-        };
-
-        ws.onclose = () => {
-          if (!settled) {
+          const timeout = setTimeout(() => {
+            if (settled) return;
             settled = true;
-            clearTimeout(timeout);
-            if (this.webSocket === ws) this.webSocket = null;
-            reject(new Error("WebSocket connection to the League of Legends client closed before it opened."));
-            return;
-          }
-
-          // Ignore close events from a stale socket replaced by a newer connect() call.
-          if (this.webSocket === ws) this.onDisconnected();
-        };
-
-        ws.onmessage = (ev) => {
-          let data: unknown;
-          try {
-            data = JSON.parse(ev.data.toString("utf8"));
-          } catch {
-            // Ignore malformed WebSocket messages
-            return;
-          }
-
-          // LCU events are 3-element tuples: [opcode: 8, name: string, data: { eventType: string; uri: string; data: any; }]
-          if (Array.isArray(data) && data.length === 3)
-            this.handleLCUEvent(data as [opcode: number, name: keyof LCUWebSocketEvents, data: LCUWebSocketEvents[string]]);
-        };
-
-        ws.onerror = (ev) => {
-          if (!settled) {
-            settled = true;
-            clearTimeout(timeout);
             ws.close();
             if (this.webSocket === ws) this.webSocket = null;
-            reject(new Error("WebSocket connection to the League of Legends client failed.", { cause: ev.error }));
-            return;
-          }
+            reject(new Error(`WebSocket connection to the League of Legends client timed out after ${webSocketTimeoutMs}ms.`));
+          }, webSocketTimeoutMs);
 
-          // Ignore error events from a stale socket replaced by a newer connect() call.
-          if (this.webSocket === ws) this.emit("websocket-error", ev.error);
-        };
-      });
+          ws.onopen = () => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timeout);
+            resolve();
+          };
+
+          ws.onclose = () => {
+            if (!settled) {
+              settled = true;
+              clearTimeout(timeout);
+              if (this.webSocket === ws) this.webSocket = null;
+              reject(new Error("WebSocket connection to the League of Legends client closed before it opened."));
+              return;
+            }
+
+            // Ignore close events from a stale socket replaced by a newer connect() call.
+            if (this.webSocket === ws) this.onDisconnected();
+          };
+
+          ws.onmessage = (ev) => {
+            let data: unknown;
+            try {
+              data = JSON.parse(ev.data.toString("utf8"));
+            } catch {
+              // Ignore malformed WebSocket messages
+              return;
+            }
+
+            // LCU events are 3-element tuples: [opcode: 8, name: string, data: { eventType: string; uri: string; data: any; }]
+            if (Array.isArray(data) && data.length === 3)
+              this.handleLCUEvent(data as [opcode: number, name: keyof LCUWebSocketEvents, data: LCUWebSocketEvents[string]]);
+          };
+
+          ws.onerror = (ev) => {
+            if (!settled) {
+              settled = true;
+              clearTimeout(timeout);
+              ws.close();
+              if (this.webSocket === ws) this.webSocket = null;
+              reject(new Error("WebSocket connection to the League of Legends client failed.", { cause: ev.error }));
+              return;
+            }
+
+            // Ignore error events from a stale socket replaced by a newer connect() call.
+            if (this.webSocket === ws) this.emit("websocket-error", ev.error);
+          };
+        });
+      }
+    } catch (err) {
+      // Every failure path already closed the socket (or none was created), so just drop the reference.
+      this.webSocket = null;
+      this.httpsAgent?.destroy();
+      this.httpsAgent = null;
+      this.lcuAxiosInstance = null;
+      this.processId = null;
+      this.port = null;
+      this.password = null;
+      this.basicAuthToken = null;
+      throw err;
     }
 
     this.onConnected();
@@ -584,7 +610,13 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
   }
 
   private handleLCUEvent<EventName extends keyof LCUWebSocketEvents = "OnJsonApiEvent">(event: [opcode: number, name: EventName, data: LCUWebSocketEvents[EventName]]) {
-    this.emit("lcu-event", event);
+    // Isolate "lcu-event" emitter listeners (like the path/name listeners below) so a throwing
+    // handler can't propagate out of the WebSocket message handler or abort the dispatch.
+    try {
+      this.emit("lcu-event", event);
+    } catch {
+      // Listener errors are contained here and do not affect the path/name listeners.
+    }
 
     const payload = event[2] as any;
     const uri = payload?.uri;
