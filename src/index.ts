@@ -10,9 +10,43 @@ import type { LCUEndpoints, LCUEndpointBodyType, LCUEndpointResponseType, Endpoi
 import type * as LCUTypes from "./types/lcu-types";
 import type { LCUWebSocketEvents } from "./types/lcu-events";
 
+// Core API types — used directly when working with HasagiClient.
 export type {
-  ConnectionOptions, RequestRetryOptions, PollOptions, LCUEventListener, HasagiCoreEvents, LCURequestOptionsParameter, LCUEndpoints, LCUEndpointBodyType, LCUEndpointResponseType, EndpointsWithMethod, HttpMethod, LCUCredentials, LCUTypes, LCUWebSocketEvents,
+  ConnectionOptions, RequestRetryOptions, PollOptions, LCUEventListener, HasagiCoreEvents, LCURequestOptionsParameter, LCUCredentials,
 };
+
+// Namespace access to the generated LCU types. Kept at root as a convenience alongside the named
+// exports from "@hasagi/core/types" (which is the recommended way to import individual types).
+export type { LCUTypes };
+
+// Core API values.
 export {
-  HasagiClient, getLeagueClientUxProcesses, getCredentialsByProcessId, getCredentials, request, LCUError, RequestError, NotConnectedError, RIOT_GAMES_CERTIFICATE,
+  HasagiClient, getCredentials, request, LCUError, RequestError, NotConnectedError, RIOT_GAMES_CERTIFICATE,
+};
+
+/*
+ * Deprecated root re-exports. These remain available for backwards compatibility but will be
+ * removed from the root in v1. Import the generated LCU types from "@hasagi/core/types" and the
+ * low-level credential/process helpers from "@hasagi/core/credentials".
+ */
+export type {
+  /** @deprecated Import from `@hasagi/core/types` instead. Removed from the root in v1. */
+  LCUEndpoints,
+  /** @deprecated Import from `@hasagi/core/types` instead. Removed from the root in v1. */
+  LCUEndpointBodyType,
+  /** @deprecated Import from `@hasagi/core/types` instead. Removed from the root in v1. */
+  LCUEndpointResponseType,
+  /** @deprecated Import from `@hasagi/core/types` instead. Removed from the root in v1. */
+  EndpointsWithMethod,
+  /** @deprecated Import from `@hasagi/core/types` instead. Removed from the root in v1. */
+  HttpMethod,
+  /** @deprecated Import from `@hasagi/core/types` instead. Removed from the root in v1. */
+  LCUWebSocketEvents,
+};
+
+export {
+  /** @deprecated Import from `@hasagi/core/credentials` instead. Removed from the root in v1. */
+  getLeagueClientUxProcesses,
+  /** @deprecated Import from `@hasagi/core/credentials` instead. Removed from the root in v1. */
+  getCredentialsByProcessId,
 };
