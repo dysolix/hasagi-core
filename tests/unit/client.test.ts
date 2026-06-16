@@ -5,8 +5,15 @@ import { LCUError, RequestError, NotConnectedError } from "../../src/errors";
 
 // Hoisted mock state: a single request fn shared by both the standalone `axios.request`
 // and the instance created via `axios.create(...).request`, plus the fake WebSocket behavior.
-const mocks = vi.hoisted(() => ({ request: vi.fn(), wsBehavior: "open" as "open" | "error" | "hang" }));
+const mocks = vi.hoisted(() => ({ request: vi.fn(), wsBehavior: "open" as "open" | "error" | "hang", getCredentials: vi.fn() }));
 const mockRequest = mocks.request;
+
+// Mock only getCredentials so we can drive the process/lockfile credential-acquisition retry loop;
+// keep the real delay() (the loop awaits it — tests pass a tiny connectionAttemptDelay to stay fast).
+vi.mock("../../src/util", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../src/util")>();
+  return { ...actual, getCredentials: mocks.getCredentials };
+});
 
 vi.mock("axios", async (importOriginal) => {
   const actual = await importOriginal<typeof import("axios")>();
@@ -72,6 +79,7 @@ async function createConnectedClient(options?: { defaultRetryOptions?: any }) {
 
 beforeEach(() => {
   mockRequest.mockReset();
+  mocks.getCredentials.mockReset();
   mocks.wsBehavior = "open";
 });
 
@@ -493,6 +501,48 @@ describe("HasagiClient.connect - WebSocket handling", () => {
 
     expect(onConnected).toHaveBeenCalledTimes(1);
     expect(client.isConnected).toBe(true);
+  });
+
+  it("retries transient credential failures, then connects (emitting the right events)", async () => {
+    mocks.wsBehavior = "open";
+    mocks.getCredentials
+      .mockRejectedValueOnce(new Error("client not running"))
+      .mockRejectedValueOnce(new Error("client not running"))
+      .mockResolvedValueOnce({ port: 1234, password: "pw" });
+
+    const client = new HasagiClient();
+    const connecting = vi.fn();
+    const attemptFailed = vi.fn();
+    client.on("connecting", connecting);
+    client.on("connection-attempt-failed", attemptFailed);
+
+    await client.connect({
+      authenticationStrategy: "lockfile",
+      lockfile: "lockfile-content",
+      readinessCheck: false,
+      connectionAttemptDelay: 1,
+    });
+
+    expect(client.isConnected).toBe(true);
+    expect(mocks.getCredentials).toHaveBeenCalledTimes(3);
+    expect(connecting).toHaveBeenCalledTimes(3);
+    expect(attemptFailed).toHaveBeenCalledTimes(2);
+  });
+
+  it("throws after exhausting maxConnectionAttempts", async () => {
+    mocks.getCredentials.mockRejectedValue(new Error("client not running"));
+
+    const client = new HasagiClient();
+    await expect(client.connect({
+      authenticationStrategy: "lockfile",
+      lockfile: "lockfile-content",
+      maxConnectionAttempts: 2,
+      connectionAttemptDelay: 1,
+      readinessCheck: false,
+    })).rejects.toThrow(/Could not connect/);
+
+    expect(mocks.getCredentials).toHaveBeenCalledTimes(2);
+    expect(client.isConnected).toBe(false);
   });
 
   it("leaves a clean disconnected state when the WebSocket fails", async () => {

@@ -1,6 +1,20 @@
-node_modules
-dist
-/lcu-schema-gen/*.js
-/lcu-schema-gen/out/*
-!/lcu-schema-gen/out/.gitkeep
-!tsconfig.json
+# Dependencies
+node_modules/
+
+# Build output (published from a fresh build, not committed)
+dist/
+
+# Test coverage
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment
+.env
+.env.*
+
+# Editor / OS files
+.DS_Store
+Thumbs.db

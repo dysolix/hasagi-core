@@ -18,7 +18,9 @@ jobs:
         run: npm ci
       - name: Lint
         run: npm run lint
+      - name: Typecheck tests
+        run: npm run test:typecheck
       - name: Unit tests
         run: npm run test:unit
-      - name: Build
-        run: npm run build
+      - name: Check package (build + publint + arethetypeswrong)
+        run: npm run check:package

@@ -140,9 +140,23 @@ async function request() {
 
 export { request };
 
+/**
+ * Client for the League of Legends client API (LCU): connects (credentials + readiness + event
+ * WebSocket), sends authenticated HTTP requests with optional retries, polls endpoints, and dispatches
+ * LCU WebSocket events to listeners. Extends a typed event emitter (see {@link HasagiCoreEvents}).
+ */
 export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
+  /**
+   * The most recently constructed instance. Every `new HasagiClient()` overwrites it — see
+   * {@link HasagiClient.getInstance}. Holding only the latest is intentional (a convenience for
+   * single-client apps), so be deliberate about constructing more than one.
+   */
   private static Instance?: HasagiClient;
-  /** Returns the last created instance of the HasagiClient */
+  /**
+   * Returns the **most recently constructed** `HasagiClient`, or `undefined` if none exists.
+   * @note This is a convenience global, not a true singleton: constructing another client replaces
+   * what this returns. If your app uses multiple clients, pass references explicitly instead.
+   */
   public static getInstance = () => HasagiClient.Instance;
 
   public isConnected: boolean = false;
@@ -219,196 +233,72 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
   // #endregion
 
   // #region Connection
+  /**
+   * Connects to the League of Legends client: discovers credentials, waits until the client is ready,
+   * and (unless `useWebSocket` is disabled) opens the event WebSocket.
+   *
+   * Safe to call while already connected — it performs a clean reconnect, re-subscribing existing
+   * event listeners. If any step fails the client is left in a consistent disconnected state and the
+   * error is thrown (so a subsequent {@link HasagiClient.request} will throw {@link NotConnectedError}).
+   */
   public async connect(options?: ConnectionOptions): Promise<void> {
-    const maxConnectionAttempts = options?.maxConnectionAttempts ?? -1;
     const useWebSocket = options?.useWebSocket ?? true;
-    const connectionAttemptDelay = options?.connectionAttemptDelay ?? 5000;
-    const authenticationStrategy = options?.authenticationStrategy ?? "process";
-    const lockfile = options?.authenticationStrategy === "lockfile" ? options.lockfile : null;
 
-    // Deterministically tear down any existing connection. Setting isConnected = false here (rather
-    // than relying on the old socket's onclose, which the identity guard now ignores) ensures
+    // Deterministically tear down any existing connection first. Setting isConnected = false here
+    // (rather than relying on the old socket's onclose, which the identity guard ignores) ensures
     // onConnected() re-subscribes events and emits "connected" on a forced reconnect. Done silently
     // (no "disconnected" emit) to avoid re-entrancy if a "disconnected" handler calls connect().
     this.isConnected = false;
-    this.processId = null;
-    this.port = null;
-    this.basicAuthToken = null;
-    this.lcuAxiosInstance = null;
-    this.httpsAgent?.destroy();
-    this.httpsAgent = null;
-    this.webSocket?.close();
-    this.webSocket = null;
-    this.password = null;
+    this.resetConnectionState();
 
+    // TLS options shared by the request agent and the WebSocket. `certificate: null` disables
+    // validation; otherwise the provided (or built-in Riot) certificate is trusted.
     const agent = {
       rejectUnauthorized: options?.certificate !== null,
       ca: options?.certificate === null ? undefined : (options?.certificate ?? RIOT_GAMES_CERTIFICATE),
     };
-
-    // Reused across all requests for this connection; keep-alive pools sockets so each LCU call
-    // skips a fresh TCP + TLS handshake. Destroyed on disconnect/reconnect.
+    // Reused across every request for this connection; keep-alive pools sockets so each LCU call
+    // skips a fresh TCP + TLS handshake. Destroyed by resetConnectionState() on disconnect/reconnect.
     this.httpsAgent = new Agent({ ...agent, keepAlive: true });
 
-    if (options?.authenticationStrategy === "manual") {
-      const credentials = options.credentials;
-      if (!credentials)
-        throw new Error("No credentials provided for manual authentication strategy.");
-
-      this.processId = credentials.processId ?? null;
-      this.port = credentials.port;
-      this.password = credentials.password;
-      this.basicAuthToken = Buffer.from(`riot:${credentials.password}`).toString("base64");
-
-      this.lcuAxiosInstance = axios.create({
-        baseURL: "https://127.0.0.1:" + this.port,
-        httpsAgent: this.httpsAgent,
-        auth: {
-          username: "riot",
-          password: credentials.password,
-        },
-        adapter: "http",
-      });
-    } else {
-      // Fail fast on non-transient errors so the retry loop only retries "client not running yet".
-      if (authenticationStrategy === "process" && process.platform !== "win32" && process.platform !== "darwin")
-        throw new Error(`Authentication strategy 'process' is not supported on this platform. (${process.platform})`);
-      if (authenticationStrategy === "lockfile" && typeof lockfile !== "string")
-        throw new Error("Parameter 'lockfile' not provided or has an invalid type.");
-
-      let attempt = 0;
-      while (maxConnectionAttempts === -1 || attempt++ < maxConnectionAttempts) {
-        this.emit("connecting");
-
-        try {
-          const authData = authenticationStrategy === "process" ? await getCredentials("process") : await getCredentials("lockfile", lockfile!);
-
-          this.processId = authData.processId ?? null;
-          this.port = authData.port;
-          this.password = authData.password;
-          this.basicAuthToken = Buffer.from(`riot:${authData.password}`).toString("base64");
-
-          this.lcuAxiosInstance = axios.create({
-            baseURL: "https://127.0.0.1:" + this.port,
-            httpsAgent: this.httpsAgent,
-            auth: {
-              username: "riot",
-              password: authData.password,
-            },
-            adapter: "http",
-          });
-
-          break;
-        } catch (e) {
-          if (attempt >= maxConnectionAttempts && maxConnectionAttempts !== -1)
-            throw new Error("Could not connect to the League of Legends client.", { cause: e });
-
-          this.emit("connection-attempt-failed");
-          await delay(connectionAttemptDelay);
-        }
-      }
-    }
-
-    // Connection setup after credentials are acquired. If readiness or the WebSocket fails, tear down
-    // so the client is left cleanly disconnected: the keep-alive agent is destroyed (so it can't keep
-    // the process alive) and state is nulled (so request() correctly throws NotConnectedError).
     try {
-      // Waits for the client to be ready
-      if (options?.readinessCheck !== false) {
-        const endpoint = options?.readinessCheck?.endpoint ?? "/lol-summoner/v1/current-summoner";
-        const maxRetries = options?.readinessCheck?.maxRetries ?? 10;
-        const retryDelay = options?.readinessCheck?.retryDelay ?? 1000;
-        await this.request("get", endpoint as any, { retryOptions: { maxRetries, retryDelay } }).catch(err => {
-          throw new Error("Successfully retrieved credentials but could not connect to the League of Legends client.", { cause: err });
-        });
+      let credentials: LCUCredentials;
+      if (options?.authenticationStrategy === "manual") {
+        if (!options.credentials)
+          throw new Error("No credentials provided for manual authentication strategy.");
+        credentials = options.credentials;
+      } else {
+        const strategy = options?.authenticationStrategy ?? "process";
+        const lockfile = options?.authenticationStrategy === "lockfile" ? options.lockfile : null;
+        credentials = await this.acquireCredentials(strategy, lockfile, options?.maxConnectionAttempts ?? -1, options?.connectionAttemptDelay ?? 5000);
       }
+      this.applyCredentials(credentials);
 
-      if (useWebSocket) {
-        const webSocketTimeoutMs = options?.webSocketTimeoutMs ?? 10000;
+      if (options?.readinessCheck !== false)
+        await this.runReadinessCheck(options?.readinessCheck);
 
-        await new Promise<void>((resolve, reject) => {
-          let settled = false;
-
-          const ws = new WebSocket("wss://127.0.0.1:" + this.port, undefined, { headers: { Authorization: "Basic " + this.basicAuthToken }, ...agent });
-          this.webSocket = ws;
-
-          const timeout = setTimeout(() => {
-            if (settled) return;
-            settled = true;
-            ws.close();
-            if (this.webSocket === ws) this.webSocket = null;
-            reject(new Error(`WebSocket connection to the League of Legends client timed out after ${webSocketTimeoutMs}ms.`));
-          }, webSocketTimeoutMs);
-
-          ws.onopen = () => {
-            if (settled) return;
-            settled = true;
-            clearTimeout(timeout);
-            resolve();
-          };
-
-          ws.onclose = () => {
-            if (!settled) {
-              settled = true;
-              clearTimeout(timeout);
-              if (this.webSocket === ws) this.webSocket = null;
-              reject(new Error("WebSocket connection to the League of Legends client closed before it opened."));
-              return;
-            }
-
-            // Ignore close events from a stale socket replaced by a newer connect() call.
-            if (this.webSocket === ws) this.onDisconnected();
-          };
-
-          ws.onmessage = (ev) => {
-            let data: unknown;
-            try {
-              data = JSON.parse(ev.data.toString("utf8"));
-            } catch {
-              // Ignore malformed WebSocket messages
-              return;
-            }
-
-            // LCU events are 3-element tuples: [opcode: 8, name: string, data: { eventType: string; uri: string; data: any; }]
-            if (Array.isArray(data) && data.length === 3)
-              this.handleLCUEvent(data as [opcode: number, name: keyof LCUWebSocketEvents, data: LCUWebSocketEvents[string]]);
-          };
-
-          ws.onerror = (ev) => {
-            if (!settled) {
-              settled = true;
-              clearTimeout(timeout);
-              ws.close();
-              if (this.webSocket === ws) this.webSocket = null;
-              reject(new Error("WebSocket connection to the League of Legends client failed.", { cause: ev.error }));
-              return;
-            }
-
-            // Ignore error events from a stale socket replaced by a newer connect() call.
-            if (this.webSocket === ws) this.emit("websocket-error", ev.error);
-          };
-        });
-      }
+      if (useWebSocket)
+        await this.openWebSocket(agent, options?.webSocketTimeoutMs ?? 10000);
     } catch (err) {
-      // Every failure path already closed the socket (or none was created), so just drop the reference.
-      this.webSocket = null;
-      this.httpsAgent?.destroy();
-      this.httpsAgent = null;
-      this.lcuAxiosInstance = null;
-      this.processId = null;
-      this.port = null;
-      this.password = null;
-      this.basicAuthToken = null;
+      // Any failure after the agent was created — leave the client cleanly disconnected, then rethrow.
+      this.resetConnectionState();
       throw err;
     }
 
     this.onConnected();
   }
 
+  /** Closes the current connection. No-op if not connected. */
+  public disconnect(): void {
+    if (!this.isConnected) return;
+    this.onDisconnected();
+  }
+
   private onConnected() {
     if (this.isConnected)
       return;
 
+    // Re-send every queued / previously-subscribed event on the now-open socket.
     const previouslySubscribedEvents = this.subscribedEvents;
     this.subscribedEvents = new Set();
     previouslySubscribedEvents.forEach(event => this.subscribeWebSocketEvent(event));
@@ -422,23 +312,147 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
       return;
 
     this.isConnected = false;
-
-    this.processId = null;
-    this.port = null;
-    this.basicAuthToken = null;
-    this.lcuAxiosInstance = null;
-    this.httpsAgent?.destroy();
-    this.httpsAgent = null;
-    this.webSocket = null;
-    this.password = null;
-
+    this.resetConnectionState();
     this.emit("disconnected");
   }
 
-  public disconnect(): void {
-    if (!this.isConnected) return;
+  /** Closes the socket, destroys the keep-alive agent, and clears all per-connection credentials/state. */
+  private resetConnectionState() {
     this.webSocket?.close();
-    this.onDisconnected();
+    this.webSocket = null;
+    this.httpsAgent?.destroy();
+    this.httpsAgent = null;
+    this.lcuAxiosInstance = null;
+    this.processId = null;
+    this.port = null;
+    this.password = null;
+    this.basicAuthToken = null;
+  }
+
+  /**
+   * Acquires credentials via the `process`/`lockfile` strategy, retrying transient failures (e.g. the
+   * client not running yet) up to `maxAttempts` (`-1` = infinite). Fails fast on non-transient errors
+   * (unsupported platform, missing lockfile path) so they aren't retried.
+   */
+  private async acquireCredentials(strategy: "process" | "lockfile", lockfile: string | null, maxAttempts: number, attemptDelay: number): Promise<LCUCredentials> {
+    if (strategy === "process" && process.platform !== "win32" && process.platform !== "darwin")
+      throw new Error(`Authentication strategy 'process' is not supported on this platform. (${process.platform})`);
+    if (strategy === "lockfile" && typeof lockfile !== "string")
+      throw new Error("Parameter 'lockfile' not provided or has an invalid type.");
+
+    let attempt = 0;
+    while (maxAttempts === -1 || attempt++ < maxAttempts) {
+      this.emit("connecting");
+
+      try {
+        return strategy === "process" ? await getCredentials("process") : await getCredentials("lockfile", lockfile!);
+      } catch (e) {
+        if (maxAttempts !== -1 && attempt >= maxAttempts)
+          throw new Error("Could not connect to the League of Legends client.", { cause: e });
+
+        this.emit("connection-attempt-failed");
+        await delay(attemptDelay);
+      }
+    }
+
+    // Only reached when maxAttempts < 1 (the loop never ran).
+    throw new Error("Could not connect to the League of Legends client.");
+  }
+
+  /** Stores the connection identity and creates the authenticated, base-URL'd axios instance. */
+  private applyCredentials(credentials: LCUCredentials) {
+    this.processId = credentials.processId ?? null;
+    this.port = credentials.port;
+    this.password = credentials.password;
+    this.basicAuthToken = Buffer.from(`riot:${credentials.password}`).toString("base64");
+
+    this.lcuAxiosInstance = axios.create({
+      baseURL: "https://127.0.0.1:" + this.port,
+      httpsAgent: this.httpsAgent,
+      auth: { username: "riot", password: credentials.password },
+      adapter: "http",
+    });
+  }
+
+  /** Waits for the client to start responding on the readiness endpoint before requests are issued. */
+  private async runReadinessCheck(readinessCheck?: { endpoint?: string; maxRetries?: number; retryDelay?: number }): Promise<void> {
+    const endpoint = readinessCheck?.endpoint ?? "/lol-summoner/v1/current-summoner";
+    const maxRetries = readinessCheck?.maxRetries ?? 10;
+    const retryDelay = readinessCheck?.retryDelay ?? 1000;
+    await this.request("get", endpoint as any, { retryOptions: { maxRetries, retryDelay } }).catch(err => {
+      throw new Error("Successfully retrieved credentials but could not connect to the League of Legends client.", { cause: err });
+    });
+  }
+
+  /**
+   * Opens the LCU event WebSocket, resolving once it's open and rejecting (with a clear error) on an
+   * early error/close or after `timeoutMs`. Once open, a later close drives onDisconnected() and
+   * runtime errors surface via the "websocket-error" event. A stale socket (replaced by a newer
+   * connect() call) is ignored via an identity check so it can't mutate the current connection.
+   */
+  private openWebSocket(agent: { rejectUnauthorized: boolean; ca: string | undefined }, timeoutMs: number): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      let settled = false;
+
+      const ws = new WebSocket("wss://127.0.0.1:" + this.port, undefined, { headers: { Authorization: "Basic " + this.basicAuthToken }, ...agent });
+      this.webSocket = ws;
+
+      const timeout = setTimeout(() => {
+        if (settled) return;
+        settled = true;
+        ws.close();
+        if (this.webSocket === ws) this.webSocket = null;
+        reject(new Error(`WebSocket connection to the League of Legends client timed out after ${timeoutMs}ms.`));
+      }, timeoutMs);
+
+      ws.onopen = () => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timeout);
+        resolve();
+      };
+
+      ws.onclose = () => {
+        if (!settled) {
+          settled = true;
+          clearTimeout(timeout);
+          if (this.webSocket === ws) this.webSocket = null;
+          reject(new Error("WebSocket connection to the League of Legends client closed before it opened."));
+          return;
+        }
+
+        // Ignore close events from a stale socket replaced by a newer connect() call.
+        if (this.webSocket === ws) this.onDisconnected();
+      };
+
+      ws.onmessage = (ev) => {
+        let data: unknown;
+        try {
+          data = JSON.parse(ev.data.toString("utf8"));
+        } catch {
+          // Ignore malformed WebSocket messages
+          return;
+        }
+
+        // LCU events are 3-element tuples: [opcode: 8, name: string, data: { eventType: string; uri: string; data: any; }]
+        if (Array.isArray(data) && data.length === 3)
+          this.handleLCUEvent(data as [opcode: number, name: keyof LCUWebSocketEvents, data: LCUWebSocketEvents[string]]);
+      };
+
+      ws.onerror = (ev) => {
+        if (!settled) {
+          settled = true;
+          clearTimeout(timeout);
+          ws.close();
+          if (this.webSocket === ws) this.webSocket = null;
+          reject(new Error("WebSocket connection to the League of Legends client failed.", { cause: ev.error }));
+          return;
+        }
+
+        // Ignore error events from a stale socket replaced by a newer connect() call.
+        if (this.webSocket === ws) this.emit("websocket-error", ev.error);
+      };
+    });
   }
 
   // #endregion
@@ -446,8 +460,15 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
   // #region Requests
 
   /**
-     * Send a request to the League of Legends client (LCU). Authentication is automatically included and the base url is already set.
-     */
+   * Sends a request to the League of Legends client (LCU). Authentication and the base URL are added
+   * automatically. Call it either with a raw axios config, or with a typed `method` + `path` (+ options)
+   * for full request/response typing on known endpoints.
+   *
+   * Failures are wrapped: a response with a non-success status becomes an {@link LCUError}, a transport
+   * failure becomes a {@link RequestError}, and (with retries configured) repeated failures become an
+   * `AggregateError`. Throws {@link NotConnectedError} if the client isn't connected.
+   * @throws {NotConnectedError} when called before a successful `connect()`.
+   */
   public async request<ReturnAxiosResponse extends boolean = false>(config: AxiosRequestConfig & { returnAxiosResponse?: ReturnAxiosResponse; retryOptions?: RequestRetryOptions }): Promise<ReturnAxiosResponse extends true ? AxiosResponse<unknown> : unknown>;
   public async request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(method: Method, path: Path, ...options: LCURequestOptionsParameter<Method, Path>): Promise<LCUEndpointResponseType<Method, Path>>;
   public async request() {
@@ -472,8 +493,10 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
   }
 
   /**
-     * Polls an endpoint with a specific interval and executes callbacks on response, distinct response and error
-     */
+   * Repeatedly requests an endpoint on an interval, invoking callbacks for each response, each response
+   * that differs from the previous one, and each error. Per-request retries are disabled. Stops when a
+   * callback returns `true` or after `maxExecutions` (default: unlimited). Resolves once polling stops.
+   */
   public async poll<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(method: Method, path: Path, pollOptions: PollOptions<Method, Path>, ...options: LCURequestOptionsParameter<Method, Path>): Promise<void> {
     const maxExecutions = pollOptions.maxExecutions ?? Number.MAX_SAFE_INTEGER;
     let lastResponseJson: string | undefined;
@@ -568,36 +591,24 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
     this.lcuEventListeners.push(listenerToPush);
   }
   /**
-     * Removes the first listener that matches the provided listener parameter.
-     * @argument listener Can be the callback function, the event name, the event path or the entire LCUEventListener object
-     * @returns true, if the listener was found and removed
-     */
+   * Removes the first listener matching the given parameter — a callback function, an event name, an
+   * event path, or the entire {@link LCUEventListener} object. If no remaining listener subscribes to
+   * the removed listener's event name, that event is also unsubscribed from the WebSocket.
+   * @returns `true` if a listener was found and removed, otherwise `false`.
+   */
   public removeLCUEventListener(listener: LCUEventListener | LCUEventListener["callback"] | string) {
-    if (typeof listener === "function") {
-      const index = this.lcuEventListeners.findIndex(registeredListener => registeredListener.callback === listener);
-      if (index === -1)
-        return false;
+    const index = typeof listener === "function"
+      ? this.lcuEventListeners.findIndex(l => l.callback === listener)
+      : typeof listener === "string"
+        ? this.lcuEventListeners.findIndex(l => l.name === listener || l.path === listener)
+        : this.lcuEventListeners.indexOf(listener);
 
-      const removedListeners = this.lcuEventListeners.splice(index, 1);
-      if (removedListeners[0].name && !this.lcuEventListeners.some(listener => listener.name === removedListeners[0].name))
-        this.unsubscribeWebSocketEvent(removedListeners[0].name);
-    } else if (typeof listener === "string") {
-      const index = this.lcuEventListeners.findIndex(registeredListener => registeredListener.name === listener || registeredListener.path === listener);
-      if (index === -1)
-        return false;
+    if (index === -1)
+      return false;
 
-      const removedListeners = this.lcuEventListeners.splice(index, 1);
-      if (removedListeners[0].name && !this.lcuEventListeners.some(listener => listener.name === removedListeners[0].name))
-        this.unsubscribeWebSocketEvent(removedListeners[0].name);
-    } else {
-      const index = this.lcuEventListeners.indexOf(listener);
-      if (index === -1)
-        return false;
-
-      const removedListeners = this.lcuEventListeners.splice(index, 1);
-      if (removedListeners[0].name && !this.lcuEventListeners.some(listener => listener.name === removedListeners[0].name))
-        this.unsubscribeWebSocketEvent(removedListeners[0].name);
-    }
+    const [removed] = this.lcuEventListeners.splice(index, 1);
+    if (removed.name && !this.lcuEventListeners.some(l => l.name === removed.name))
+      this.unsubscribeWebSocketEvent(removed.name);
 
     return true;
   }

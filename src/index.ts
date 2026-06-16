@@ -7,7 +7,6 @@ import { LCUError, RequestError, NotConnectedError } from "./errors.js";
 import { default as RIOT_GAMES_CERTIFICATE } from "./riot-games-certificate.js";
 
 import type { LCUEndpoints, LCUEndpointBodyType, LCUEndpointResponseType, EndpointsWithMethod, HttpMethod } from "./types/lcu-endpoints";
-import type * as LCUTypes from "./types/lcu-types";
 import type { LCUWebSocketEvents } from "./types/lcu-events";
 
 // Core API types — used directly when working with HasagiClient.
@@ -15,9 +14,7 @@ export type {
   ConnectionOptions, RequestRetryOptions, PollOptions, LCUEventListener, HasagiCoreEvents, LCURequestOptionsParameter, LCUCredentials,
 };
 
-// Namespace access to the generated LCU types. Kept at root as a convenience alongside the named
-// exports from "@hasagi/core/types" (which is the recommended way to import individual types).
-export type { LCUTypes };
+export type { LCUTypes } from "./types";
 
 // Core API values.
 export {
