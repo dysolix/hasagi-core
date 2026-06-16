@@ -171,6 +171,12 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
   private webSocket: WebSocket | null = null;
   private lcuEventListeners: LCUEventListener[] = [];
   private defaultRetryOptions: RequestRetryOptions | null = null;
+  /**
+   * Monotonic token identifying the in-flight {@link HasagiClient.connect} call. Every connect()
+   * bumps it; an older call whose token no longer matches has been superseded by a newer connect()
+   * and bails out without mutating shared state (generalizes the `this.webSocket === ws` guards).
+   */
+  private connectGeneration = 0;
 
   /**
    * Creates a new HasagiClient instance.
@@ -239,11 +245,17 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
    * and (unless `useWebSocket` is disabled) opens the event WebSocket.
    *
    * Safe to call while already connected — it performs a clean reconnect, re-subscribing existing
-   * event listeners. If any step fails the client is left in a consistent disconnected state and the
-   * error is thrown (so a subsequent {@link HasagiClient.request} will throw {@link NotConnectedError}).
+   * event listeners. Also safe to call concurrently: the latest call wins and any earlier in-flight
+   * call bails out (via {@link HasagiClient.connectGeneration}) without touching shared state. If any
+   * step fails the client is left in a consistent disconnected state and the error is thrown (so a
+   * subsequent {@link HasagiClient.request} will throw {@link NotConnectedError}).
    */
   public async connect(options?: ConnectionOptions): Promise<void> {
     const useWebSocket = options?.useWebSocket ?? true;
+
+    // Claim this connect() as the current one. A later connect() bumps the token, after which the
+    // checks below short-circuit this (now superseded) call so it can't clobber the newer state.
+    const myGen = ++this.connectGeneration;
 
     // Deterministically tear down any existing connection first. Setting isConnected = false here
     // (rather than relying on the old socket's onclose, which the identity guard ignores) ensures
@@ -271,16 +283,28 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
       } else {
         const strategy = options?.authenticationStrategy ?? "process";
         const lockfile = options?.authenticationStrategy === "lockfile" ? options.lockfile : null;
-        credentials = await this.acquireCredentials(strategy, lockfile, options?.maxConnectionAttempts ?? -1, options?.connectionAttemptDelay ?? 5000);
+        credentials = await this.acquireCredentials(strategy, lockfile, options?.maxConnectionAttempts ?? -1, options?.connectionAttemptDelay ?? 5000, myGen);
       }
+      // Superseded by a newer connect() while acquiring credentials — the newer call owns the state.
+      if (this.connectGeneration !== myGen)
+        return;
       this.applyCredentials(credentials);
 
-      if (options?.readinessCheck !== false)
+      if (options?.readinessCheck !== false) {
         await this.runReadinessCheck(options?.readinessCheck);
+        if (this.connectGeneration !== myGen)
+          return;
+      }
 
-      if (useWebSocket)
+      if (useWebSocket) {
         await this.openWebSocket(agent, options?.webSocketTimeoutMs ?? 10000);
+        if (this.connectGeneration !== myGen)
+          return;
+      }
     } catch (err) {
+      // Superseded mid-connect: a newer connect() already reset/rebuilt the state, so leave it alone.
+      if (this.connectGeneration !== myGen)
+        return;
       // Any failure after the agent was created — leave the client cleanly disconnected, then rethrow.
       this.resetConnectionState();
       throw err;
@@ -335,7 +359,7 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
    * client not running yet) up to `maxAttempts` (`-1` = infinite). Fails fast on non-transient errors
    * (unsupported platform, missing lockfile path) so they aren't retried.
    */
-  private async acquireCredentials(strategy: "process" | "lockfile", lockfile: string | null, maxAttempts: number, attemptDelay: number): Promise<LCUCredentials> {
+  private async acquireCredentials(strategy: "process" | "lockfile", lockfile: string | null, maxAttempts: number, attemptDelay: number, generation: number): Promise<LCUCredentials> {
     if (strategy === "process" && process.platform !== "win32" && process.platform !== "darwin")
       throw new Error(`Authentication strategy 'process' is not supported on this platform. (${process.platform})`);
     if (strategy === "lockfile" && typeof lockfile !== "string")
@@ -343,6 +367,11 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
 
     let attempt = 0;
     while (maxAttempts === -1 || attempt++ < maxAttempts) {
+      // Stop a superseded connect() from retrying forever (maxAttempts === -1). connect() discards
+      // this throw via its generation check, so the message is never surfaced to the caller.
+      if (this.connectGeneration !== generation)
+        throw new Error("connect() superseded by a newer connection attempt.");
+
       this.emit("connecting");
 
       try {

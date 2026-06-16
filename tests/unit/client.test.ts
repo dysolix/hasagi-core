@@ -584,6 +584,45 @@ describe("HasagiClient.connect - WebSocket handling", () => {
       webSocketTimeoutMs: 50,
     })).rejects.toThrow(/timed out after 50ms/);
   });
+
+  it("a newer connect() supersedes an in-flight older one without clobbering state", async () => {
+    // The older call parks on a never-resolving credential acquisition; the newer call wins with
+    // manual credentials. When the older acquisition finally resolves it must bail out, leaving the
+    // newer connection (port/password) intact.
+    let resolveOlder!: (creds: { port: number; password: string }) => void;
+    mocks.getCredentials.mockImplementationOnce(() => new Promise(res => { resolveOlder = res; }));
+
+    const client = new HasagiClient();
+
+    const olderConnect = client.connect({
+      authenticationStrategy: "lockfile",
+      lockfile: "older-lockfile",
+      readinessCheck: false,
+      useWebSocket: false,
+      connectionAttemptDelay: 1,
+    });
+
+    // Let the older connect() reach the (hanging) credential await before superseding it.
+    await Promise.resolve();
+
+    await client.connect({
+      authenticationStrategy: "manual",
+      credentials: { port: 9999, password: "newer" },
+      readinessCheck: false,
+      useWebSocket: false,
+    });
+
+    expect(client.isConnected).toBe(true);
+    expect(client.getPort()).toBe(9999);
+
+    // The superseded older call resolves now — it must not overwrite the newer connection.
+    resolveOlder({ port: 1111, password: "older" });
+    await olderConnect;
+
+    expect(client.isConnected).toBe(true);
+    expect(client.getPort()).toBe(9999);
+    expect(client.getPassword()).toBe("newer");
+  });
 });
 
 describe("standalone request()", () => {
