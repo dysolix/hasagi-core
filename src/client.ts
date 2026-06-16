@@ -39,9 +39,12 @@ function parseRequestArgs(args: any[], defaultRetryOptions?: RequestRetryOptions
     const configCopy = { ...config };
     delete configCopy.returnAxiosResponse;
     delete configCopy.retryOptions;
+    // Copy headers too (not just the top-level object) so the caller's headers object is never
+    // mutated downstream; inject the JSON Content-Type only when there's a body.
+    configCopy.headers = config.data !== undefined
+      ? { "Content-Type": "application/json", ...config.headers }
+      : { ...config.headers };
     axiosConfig = configCopy;
-    if (config.data !== undefined)
-      axiosConfig.headers = { "Content-Type": "application/json", ...config.headers };
 
     if (config.returnAxiosResponse)
       returnAxiosResponse = true;
