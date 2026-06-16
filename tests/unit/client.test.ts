@@ -608,4 +608,14 @@ describe("standalone request()", () => {
 
     expect(mockRequest.mock.calls[0][0].httpsAgent).toBe(customAgent);
   });
+
+  it("does not mutate the caller's config object", async () => {
+    mockRequest.mockResolvedValueOnce(lcuResponse("ok"));
+    const config = { method: "post", url: "/x", data: { a: 1 } } as any;
+
+    await request({ port: 1, password: "p" } as any, config);
+
+    // The Content-Type header is injected on an internal copy, not the caller's object.
+    expect(config.headers).toBeUndefined();
+  });
 });

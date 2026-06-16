@@ -34,7 +34,8 @@ function parseRequestArgs(args: any[], defaultRetryOptions?: RequestRetryOptions
   if (typeof args[0] !== "string") {
     // Raw axios config overload
     const config = args[0] as AxiosRequestConfig & { returnAxiosResponse?: boolean; retryOptions?: RequestRetryOptions };
-    axiosConfig = config;
+    // Shallow-copy so we never mutate the caller's config object (e.g. injecting Content-Type below).
+    axiosConfig = { ...config };
     if (config.data !== undefined)
       axiosConfig.headers = { "Content-Type": "application/json", ...config.headers };
 
