@@ -60,11 +60,11 @@ export function getCredentialsFromLockfileContent(lockfileContent: string): LCUC
 export function getLeagueClientUxProcesses(): Promise<number[]> {
   const command = process.platform !== "darwin" ? "(Get-CimInstance Win32_Process -Filter \"Name='LeagueClientUx.exe'\").ProcessId" : "ps -A | grep LeagueClientUx | awk '{print $1}'";
   return new Promise<number[]>((resolve, reject) => {
-    exec(command, { shell, windowsHide: true }, (err, stdout, stderr) => {
+    // Only a non-zero exit (err) is fatal. PowerShell can write non-fatal warnings/progress to
+    // stderr, so we don't reject on stderr alone — an empty result simply means none are running.
+    exec(command, { shell, windowsHide: true }, (err, stdout) => {
       if (err)
         return reject(new Error("Could not retrieve LeagueClientUx process ids.", { cause: err }));
-      else if (stderr)
-        return reject(new Error(`Could not retrieve LeagueClientUx process ids. ${stderr}`));
 
       resolve(stdout.split(/\r?\n/).map(x => parseInt(x, 10)).filter(x => !isNaN(x)));
     });
@@ -74,17 +74,18 @@ export function getLeagueClientUxProcesses(): Promise<number[]> {
 export async function getCredentialsByProcessId(processId: number): Promise<LCUCredentials> {
   const command = process.platform !== "darwin" ? `(Get-CimInstance Win32_Process -Filter "ProcessId=${processId}").CommandLine` : `ps -p ${processId} -o command=`;
   const commandLine = await new Promise<string>((resolve, reject) => {
+    // Only a non-zero exit (err) is fatal. PowerShell can write non-fatal warnings to stderr, so we
+    // don't reject on stderr alone; we only surface it when the command produced no usable output.
     exec(command, { shell, windowsHide: true }, (err, stdout, stderr) => {
       if (err)
-        return reject(new Error(`Could not retrieve command line of process with PID ${processId}.`, { cause: err }));
-      else if (stderr)
-        return reject(new Error(`Could not retrieve command line of process with PID ${processId}. ${stderr}`));
+        return reject(new Error(`Could not retrieve command line of process with PID ${processId}.${stderr ? ` ${stderr}` : ""}`, { cause: err }));
+
+      if (!stdout)
+        return reject(new Error(`Process with PID ${processId} not found.${stderr ? ` ${stderr}` : ""}`));
 
       resolve(stdout);
     });
   });
-  if (!commandLine)
-    throw new Error(`Process with PID ${processId} not found.`);
 
   const port = parseInt(commandLine.match("--app-port=([0-9]*)")?.[1] ?? "", 10);
   const password = commandLine.match("--remoting-auth-token=([\\w-]*)")?.at(1);
