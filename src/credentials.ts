@@ -6,6 +6,7 @@
  * module root focused on the primary API.
  */
 export {
+  getCredentials,
   getLeagueClientUxProcesses,
   getCredentialsByProcessId,
   getCredentialsFromLockfileContent,
