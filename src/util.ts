@@ -72,6 +72,11 @@ export function getLeagueClientUxProcesses(): Promise<number[]> {
 }
 
 export async function getCredentialsByProcessId(processId: number): Promise<LCUCredentials> {
+  // Guard the shell-command interpolation below: this is a public API, so a non-integer value from
+  // an untyped (JS) caller must not be able to inject into the PowerShell/ps command string.
+  if (!Number.isInteger(processId))
+    throw new Error(`Invalid process id: ${String(processId)}. Expected an integer.`);
+
   const command = process.platform !== "darwin" ? `(Get-CimInstance Win32_Process -Filter "ProcessId=${processId}").CommandLine` : `ps -p ${processId} -o command=`;
   const commandLine = await new Promise<string>((resolve, reject) => {
     // Only a non-zero exit (err) is fatal. PowerShell can write non-fatal warnings to stderr, so we

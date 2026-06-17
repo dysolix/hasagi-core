@@ -150,6 +150,28 @@ describe("HasagiClient.request - retry loop", () => {
     await expect(client.request({ url: "/x" })).rejects.toBeInstanceOf(AggregateError);
     expect(mockRequest).toHaveBeenCalledTimes(3);
   });
+
+  it("merges a per-call retryOptions over defaultRetryOptions instead of replacing it", async () => {
+    // Client default sets noRetryStatusCodes; the per-call override only changes maxRetries/retryDelay.
+    // The merge must keep the default's noRetryStatusCodes, so a 404 still short-circuits (1 call).
+    const client = await createConnectedClient({ defaultRetryOptions: { noRetryStatusCodes: [404] } });
+    mockRequest.mockRejectedValue(lcuError(404, {}));
+
+    await expect(client.request({ url: "/x", retryOptions: { maxRetries: 5, retryDelay: 1 } }))
+      .rejects.toBeInstanceOf(LCUError);
+    expect(mockRequest).toHaveBeenCalledTimes(1);
+  });
+
+  it("treats an explicit undefined in retryOptions as 'use the default', not as a clobber", async () => {
+    // Partial overrides allow an explicit `undefined`; it must fall back to the built-in default
+    // rather than poison maxRetries (which would make the attempt count NaN and skip the request).
+    const client = await createConnectedClient();
+    mockRequest.mockRejectedValue(networkError());
+
+    await expect(client.request({ url: "/x", retryOptions: { maxRetries: undefined, retryDelay: undefined } as any }))
+      .rejects.toBeInstanceOf(RequestError);
+    expect(mockRequest).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe("HasagiClient.request - error mapping", () => {

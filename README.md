@@ -102,6 +102,17 @@ await client.request("get", "/lol-summoner/v1/current-summoner", {
 });
 ```
 
+`retryOptions` resolve as a last-wins merge — built-in defaults, then the client-wide
+`defaultRetryOptions`, then the per-call `retryOptions` — so a per-call override only changes the
+fields you set and keeps the rest of the client default:
+
+```ts
+const client = new HasagiClient({ defaultRetryOptions: { maxRetries: 3, retryDelay: 1000, noRetryStatusCodes: [400, 404] } });
+
+// Only maxRetries changes; retryDelay and noRetryStatusCodes are inherited from the client default.
+await client.request("get", "/lol-summoner/v1/current-summoner", { retryOptions: { maxRetries: 1 } });
+```
+
 ### Prepared requests
 
 `buildRequest` returns a reusable, typed function, and can transform the parameters and/or the

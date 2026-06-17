@@ -20,7 +20,10 @@ const HTTPS_AGENT = new Agent({ rejectUnauthorized: false });
  * Parses the two supported request argument shapes (a raw axios config, or method/path/options)
  * into a normalized form shared by both the standalone `request` function and `HasagiClient.request`.
  */
-function parseRequestArgs(args: any[], defaultRetryOptions?: RequestRetryOptions | null): { axiosConfig: AxiosRequestConfig; returnAxiosResponse: boolean; retryOptions: RequestRetryOptions } {
+function parseRequestArgs(args: any[], defaultRetryOptions?: Partial<RequestRetryOptions> | null): { axiosConfig: AxiosRequestConfig; returnAxiosResponse: boolean; retryOptions: RequestRetryOptions } {
+  // Layered, last-wins merge: built-in defaults < client-wide default < per-call override (applied
+  // below). Each layer overrides only the fields it sets, so a per-call override of one field keeps
+  // the rest of the client default intact.
   let retryOptions: RequestRetryOptions = {
     maxRetries: 0,
     retryDelay: 1000,
@@ -33,7 +36,7 @@ function parseRequestArgs(args: any[], defaultRetryOptions?: RequestRetryOptions
 
   if (typeof args[0] !== "string") {
     // Raw axios config overload
-    const config = args[0] as AxiosRequestConfig & { returnAxiosResponse?: boolean; retryOptions?: RequestRetryOptions };
+    const config = args[0] as AxiosRequestConfig & { returnAxiosResponse?: boolean; retryOptions?: Partial<RequestRetryOptions> };
     // Shallow-copy so we never mutate the caller's config object (e.g. injecting Content-Type below),
     // and strip our own non-axios keys so they aren't forwarded into the axios request config.
     const configCopy = { ...config };
@@ -49,8 +52,9 @@ function parseRequestArgs(args: any[], defaultRetryOptions?: RequestRetryOptions
     if (config.returnAxiosResponse)
       returnAxiosResponse = true;
 
+    // Per-call override: merge over the resolved default so omitted fields keep the client default.
     if (config.retryOptions)
-      retryOptions = config.retryOptions;
+      retryOptions = { ...retryOptions, ...config.retryOptions };
   } else {
     // method/path/options overload
     const method = args[0] as string;
@@ -75,11 +79,23 @@ function parseRequestArgs(args: any[], defaultRetryOptions?: RequestRetryOptions
       },
     };
 
+    // Per-call override: merge over the resolved default (see the config-overload note above).
     if (_config?.retryOptions)
-      retryOptions = _config.retryOptions;
+      retryOptions = { ...retryOptions, ..._config.retryOptions };
   }
 
-  return { axiosConfig, returnAxiosResponse, retryOptions };
+  // Re-assert the required fields: now that overrides are Partial, an explicit `undefined` in a
+  // default or per-call override would clobber a built-in default during the spreads above (and a
+  // `undefined` maxRetries would make runWithRetry's attempt count NaN). Fall back, don't clobber.
+  return {
+    axiosConfig,
+    returnAxiosResponse,
+    retryOptions: {
+      maxRetries: retryOptions.maxRetries ?? 0,
+      retryDelay: retryOptions.retryDelay ?? 1000,
+      noRetryStatusCodes: retryOptions.noRetryStatusCodes ?? [400],
+    },
+  };
 }
 
 /**
@@ -90,7 +106,8 @@ function parseRequestArgs(args: any[], defaultRetryOptions?: RequestRetryOptions
 async function runWithRetry(send: () => Promise<AxiosResponse<unknown>>, returnAxiosResponse: boolean, retryOptions: RequestRetryOptions, onExhausted?: (err: unknown) => void): Promise<unknown> {
   const maxAttempts = retryOptions.maxRetries + 1;
   const retryDelay = retryOptions.retryDelay;
-  const noRetryStatusCodes = retryOptions.noRetryStatusCodes ?? [400];
+  // parseRequestArgs (the only caller path) always populates this, defaulting to [400].
+  const noRetryStatusCodes = retryOptions.noRetryStatusCodes!;
 
   const errors: unknown[] = [];
   while (errors.length < maxAttempts) {
@@ -125,7 +142,7 @@ async function runWithRetry(send: () => Promise<AxiosResponse<unknown>>, returnA
  * Authorization and port will automatically be set using the provided credentials. Certificate validation is disabled.
  * @param credentials Port and password. You can use the `getCredentials` function to get them.
  */
-async function request<ReturnAxiosResponse extends boolean = false>(credentials: LCUCredentials, config: AxiosRequestConfig & { returnAxiosResponse?: ReturnAxiosResponse; retryOptions?: RequestRetryOptions }): Promise<ReturnAxiosResponse extends true ? AxiosResponse<unknown> : unknown>;
+async function request<ReturnAxiosResponse extends boolean = false>(credentials: LCUCredentials, config: AxiosRequestConfig & { returnAxiosResponse?: ReturnAxiosResponse; retryOptions?: Partial<RequestRetryOptions> }): Promise<ReturnAxiosResponse extends true ? AxiosResponse<unknown> : unknown>;
 async function request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(credentials: LCUCredentials, method: Method, path: Path, ...options: LCURequestOptionsParameter<Method, Path>): Promise<LCUEndpointResponseType<Method, Path>>;
 async function request() {
   const credentials: LCUCredentials = arguments[0];
@@ -177,7 +194,7 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
   private httpsAgent: Agent | null = null;
   private webSocket: WebSocket | null = null;
   private lcuEventListeners: LCUEventListener[] = [];
-  private defaultRetryOptions: RequestRetryOptions | null = null;
+  private defaultRetryOptions: Partial<RequestRetryOptions> | null = null;
   /**
    * Monotonic token identifying the in-flight {@link HasagiClient.connect} call. Every connect()
    * bumps it; an older call whose token no longer matches has been superseded by a newer connect()
@@ -189,7 +206,7 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
    * Creates a new HasagiClient instance.
    * @note Each instantiation overwrites `HasagiClient.Instance`. If multiple instances are created, `HasagiClient.getInstance()` will return the most recently constructed one.
    */
-  constructor(options?: { defaultRetryOptions?: RequestRetryOptions }) {
+  constructor(options?: { defaultRetryOptions?: Partial<RequestRetryOptions> }) {
     super();
 
     this.defaultRetryOptions = options?.defaultRetryOptions ?? null;
@@ -206,7 +223,7 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
   /** e.g. riot:123456789@127.0.0.1:12345 */
   public readonly getHostWithAuthentication = () => this.password && this.port ? `riot:${encodeURIComponent(this.password)}@127.0.0.1:${this.port}` : null;
 
-  public readonly setDefaultRetryOptions = (options: RequestRetryOptions) => this.defaultRetryOptions = options;
+  public readonly setDefaultRetryOptions = (options: Partial<RequestRetryOptions>) => this.defaultRetryOptions = options;
 
   // #region WebSocket
 
@@ -504,9 +521,13 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
    * Failures are wrapped: a response with a non-success status becomes an {@link LCUError}, a transport
    * failure becomes a {@link RequestError}, and (with retries configured) repeated failures become an
    * `AggregateError`. Throws {@link NotConnectedError} if the client isn't connected.
+   *
+   * @note `retryOptions` resolve as a last-wins merge: built-in defaults, then the client-wide
+   * `defaultRetryOptions` (constructor), then this per-call `retryOptions`. A per-call override only
+   * changes the fields it sets; omitted fields keep the client default (or the built-in default).
    * @throws {NotConnectedError} when called before a successful `connect()`.
    */
-  public async request<ReturnAxiosResponse extends boolean = false>(config: AxiosRequestConfig & { returnAxiosResponse?: ReturnAxiosResponse; retryOptions?: RequestRetryOptions }): Promise<ReturnAxiosResponse extends true ? AxiosResponse<unknown> : unknown>;
+  public async request<ReturnAxiosResponse extends boolean = false>(config: AxiosRequestConfig & { returnAxiosResponse?: ReturnAxiosResponse; retryOptions?: Partial<RequestRetryOptions> }): Promise<ReturnAxiosResponse extends true ? AxiosResponse<unknown> : unknown>;
   public async request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(method: Method, path: Path, ...options: LCURequestOptionsParameter<Method, Path>): Promise<LCUEndpointResponseType<Method, Path>>;
   public async request() {
     if (this.lcuAxiosInstance === null)
@@ -541,7 +562,7 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
 
     while (executions++ < maxExecutions) {
       try {
-        const response = await this.request(method, path, { ...(options as any)[0], retryOptions: { maxRetries: 0 } }); // Disable retries for poll requests
+        const response = await this.request(method, path, { ...(options as any)[0], retryOptions: { maxRetries: 0, retryDelay: 0 } }); // Disable retries for poll requests
 
         if (pollOptions.onResponse && await pollOptions.onResponse(response))
           return;
@@ -570,7 +591,7 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
      * @param path The path the request should use
      * @returns A function that takes all of the endpoint's parameters that returns a Promise resolving to the response data including full auto-generated types for most endpoints
     */
-  public buildRequest<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>, ParameterTypes extends any[] = Parameters<LCUEndpoint<Method, Path>>, ResponseType = LCUEndpointResponseType<Method, Path>>(method: Method, path: Path, options?: { retryOptions?: RequestRetryOptions; transformResponse?: (response: Awaited<ReturnType<LCUEndpoint<Method, Path>>>) => ResponseType; transformParameters?: (...args: ParameterTypes) => Readonly<Parameters<LCUEndpoint<Method, Path>>> | Promise<Readonly<Parameters<LCUEndpoint<Method, Path>>>> }): (...args: ParameterTypes) => Promise<ResponseType> {
+  public buildRequest<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>, ParameterTypes extends any[] = Parameters<LCUEndpoint<Method, Path>>, ResponseType = LCUEndpointResponseType<Method, Path>>(method: Method, path: Path, options?: { retryOptions?: Partial<RequestRetryOptions>; transformResponse?: (response: Awaited<ReturnType<LCUEndpoint<Method, Path>>>) => ResponseType; transformParameters?: (...args: ParameterTypes) => Readonly<Parameters<LCUEndpoint<Method, Path>>> | Promise<Readonly<Parameters<LCUEndpoint<Method, Path>>>> }): (...args: ParameterTypes) => Promise<ResponseType> {
     const callableEndpoint = async (...args: any) => {
       if (options?.transformParameters)
         args = await options.transformParameters(...args);
@@ -759,7 +780,7 @@ export type PollOptions<Method extends string, Path extends string> = {
   onError?: (error: any) => MaybePromise<boolean | void>;
 };
 
-type LCURequestOptions<Method extends string, Path extends string> = { headers?: Record<string, any>; retryOptions?: RequestRetryOptions } &
+type LCURequestOptions<Method extends string, Path extends string> = { headers?: Record<string, any>; retryOptions?: Partial<RequestRetryOptions> } &
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     (PathParameters<Path> extends never ? {} : string extends PathParameters<Path> ? {} : { path: { [K in PathParameters<Path>]: string } }) &
     (Path extends keyof LCUEndpoints ? Method extends keyof LCUEndpoints[Path] ? LCUEndpoints[Path][Method] extends { path: any; params: any; body: any; response: any } ? (
