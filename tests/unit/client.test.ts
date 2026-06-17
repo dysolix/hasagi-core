@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { AxiosError } from "axios";
 import HasagiClient, { request } from "../../src/client";
 import { LCUError, RequestError, NotConnectedError } from "../../src/errors";
+import RIOT_GAMES_CERTIFICATE from "../../src/riot-games-certificate";
 
 // Hoisted mock state: a single request fn shared by both the standalone `axios.request`
 // and the instance created via `axios.create(...).request`, plus the fake WebSocket behavior.
@@ -317,6 +318,18 @@ describe("HasagiClient - LCU event listeners", () => {
       (client as any).handleLCUEvent([8, "OnJsonApiEvent", { uri: "/x", eventType: "Update", data: {} }]),
     ).not.toThrow();
     expect(pathCb).toHaveBeenCalledTimes(1);
+  });
+
+  it("isolates a throwing 'lcu-event' listener so other 'lcu-event' listeners still run", async () => {
+    const client = await createConnectedClient();
+    const second = vi.fn();
+    client.on("lcu-event", () => { throw new Error("boom"); });
+    client.on("lcu-event", second);
+
+    expect(() =>
+      (client as any).handleLCUEvent([8, "OnJsonApiEvent", { uri: "/x", eventType: "Update", data: {} }]),
+    ).not.toThrow();
+    expect(second).toHaveBeenCalledTimes(1);
   });
 
   it("isolates a throwing listener so other listeners still run", async () => {
@@ -659,6 +672,68 @@ describe("standalone request()", () => {
     expect(cfg.auth).toEqual({ username: "riot", password: "p" });
     expect(cfg.adapter).toBe("http");
     expect(cfg.httpsAgent).toBeDefined();
+  });
+
+  it("substitutes every occurrence of a repeated path parameter (path record form)", async () => {
+    mockRequest.mockResolvedValueOnce(lcuResponse("ok"));
+
+    // The same {a} appears twice; both must be substituted (regression guard for first-occurrence-only replace).
+    await request({ port: 1, password: "p" } as any, "get", "/lol-x/{a}/copy/{a}" as any, { path: { a: "1" } } as any);
+
+    expect(mockRequest.mock.calls[0][0].url).toBe("/lol-x/1/copy/1");
+  });
+
+  it("validates against the built-in certificate when no certificate is provided", async () => {
+    mockRequest.mockResolvedValueOnce(lcuResponse("ok"));
+
+    await request({ port: 1, password: "p" } as any, { method: "get", url: "/x" });
+
+    const agent = mockRequest.mock.calls[0][0].httpsAgent;
+    expect(agent.options.rejectUnauthorized).toBe(true);
+    expect(agent.options.ca).toBe(RIOT_GAMES_CERTIFICATE);
+  });
+
+  it("builds a validating agent from a string certificate", async () => {
+    mockRequest.mockResolvedValueOnce(lcuResponse("ok"));
+
+    await request({ port: 1, password: "p" } as any, { method: "get", url: "/x", certificate: "CERT" });
+
+    const agent = mockRequest.mock.calls[0][0].httpsAgent;
+    expect(agent.options.rejectUnauthorized).toBe(true);
+    expect(agent.options.ca).toBe("CERT");
+  });
+
+  it("builds a non-validating agent when certificate is null", async () => {
+    mockRequest.mockResolvedValueOnce(lcuResponse("ok"));
+
+    await request({ port: 1, password: "p" } as any, { method: "get", url: "/x", certificate: null });
+
+    expect(mockRequest.mock.calls[0][0].httpsAgent.options.rejectUnauthorized).toBe(false);
+  });
+
+  it("honors a certificate passed via the method/path options overload", async () => {
+    mockRequest.mockResolvedValueOnce(lcuResponse("ok"));
+
+    await request({ port: 1, password: "p" } as any, "get", "/x" as any, { certificate: "CERT" });
+
+    expect(mockRequest.mock.calls[0][0].httpsAgent.options.ca).toBe("CERT");
+  });
+
+  it("does not forward the certificate option to axios", async () => {
+    mockRequest.mockResolvedValueOnce(lcuResponse("ok"));
+
+    await request({ port: 1, password: "p" } as any, { method: "get", url: "/x", certificate: "CERT" });
+
+    expect(mockRequest.mock.calls[0][0]).not.toHaveProperty("certificate");
+  });
+
+  it("prefers a caller-supplied httpsAgent over the certificate option", async () => {
+    mockRequest.mockResolvedValueOnce(lcuResponse("ok"));
+    const customAgent = { custom: true } as any;
+
+    await request({ port: 1, password: "p" } as any, { method: "get", url: "/x", httpsAgent: customAgent, certificate: "CERT" });
+
+    expect(mockRequest.mock.calls[0][0].httpsAgent).toBe(customAgent);
   });
 
   it("honors a caller-supplied httpsAgent", async () => {

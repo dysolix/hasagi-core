@@ -13,6 +13,10 @@ export type LCUCredentials = {
 /**
  * Easiest way to retrieve credentials
  * @param lockfile Required if source="lockfile". Can either be the absolute path to the lockfile or it's content.
+ * @note With `source="process"` and multiple `LeagueClientUx` processes running (e.g. a second client
+ * starting up before the first has fully exited), the first one reported by the OS is used. Use the
+ * `lockfile` source, or {@link getCredentialsByProcessId} with a process id you select yourself, if you
+ * need to target a specific client.
  */
 export async function getCredentials(source: "process" | "lockfile" = "process", lockfile?: string): Promise<LCUCredentials> {
   if (source === "process") {

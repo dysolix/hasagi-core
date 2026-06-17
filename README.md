@@ -113,6 +113,37 @@ const client = new HasagiClient({ defaultRetryOptions: { maxRetries: 3, retryDel
 await client.request("get", "/lol-summoner/v1/current-summoner", { retryOptions: { maxRetries: 1 } });
 ```
 
+### One-off requests
+
+For a single call without setting up (and connecting) a `HasagiClient`, use the standalone `request`
+function. Pass credentials explicitly — e.g. from `getCredentials` — then either the typed
+`method` + `path` form or a raw axios config, with the same `retryOptions` and `returnAxiosResponse`
+options as `client.request`.
+
+```ts
+import { request, getCredentials } from "@hasagi/core";
+
+const credentials = await getCredentials();
+
+// Typed method + path
+const summoner = await request(credentials, "get", "/lol-summoner/v1/current-summoner");
+
+// Raw axios config
+await request(credentials, { method: "get", url: "/lol-summoner/v1/current-summoner" });
+```
+
+By default the connection is validated against Hasagi's bundled Riot certificate (just like
+`connect()`). Override it with the `certificate` option in either form — a string to trust a
+different cert, or `null` to disable validation:
+
+```ts
+await request(credentials, "get", "/lol-summoner/v1/current-summoner", { certificate: null });
+await request(credentials, { method: "get", url: "/lol-summoner/v1/current-summoner", certificate: myCert });
+```
+
+For repeated or high-frequency calls, prefer a `HasagiClient` instance instead: its agent pools
+sockets via keep-alive, whereas the standalone helper opens a fresh connection each time.
+
 ### Prepared requests
 
 `buildRequest` returns a reusable, typed function, and can transform the parameters and/or the

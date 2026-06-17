@@ -9,18 +9,41 @@ import { LCUError, NotConnectedError, RequestError } from "./errors.js";
 import { LCUWebSocketEvents } from "./types/lcu-events.js";
 
 /**
- * Shared agent for the standalone `request` function; disables certificate validation.
+ * Shared agent for the standalone `request` function's default path: validates the LCU's TLS
+ * certificate against the built-in Riot Games certificate, matching {@link HasagiClient}'s default.
  * No keep-alive: the standalone helper is for one-off calls, and a pooled socket would keep the
  * process alive at exit. Repeated/high-frequency requests should use a HasagiClient instance, whose
  * agent pools sockets (keep-alive) and is destroyed on disconnect.
  */
-const HTTPS_AGENT = new Agent({ rejectUnauthorized: false });
+const DEFAULT_STANDALONE_AGENT = new Agent({ rejectUnauthorized: true, ca: RIOT_GAMES_CERTIFICATE });
+
+/**
+ * Resolves the TLS agent for a standalone `request` call from its optional `certificate` option:
+ * `undefined` reuses the shared {@link DEFAULT_STANDALONE_AGENT} (validates against the built-in Riot
+ * certificate); `null` builds a fresh non-validating agent; a string builds an agent that trusts that
+ * certificate as its CA. Like the default agent, the per-call agents don't keep-alive, so they hold no
+ * sockets open at exit.
+ */
+function resolveStandaloneAgent(certificate: string | null | undefined): Agent {
+  if (certificate === undefined)
+    return DEFAULT_STANDALONE_AGENT;
+  return new Agent({ rejectUnauthorized: certificate !== null, ca: certificate ?? undefined });
+}
+
+/**
+ * Substitutes every `{name}` placeholder in a path with the matching value from `params`, replacing
+ * all occurrences in a single pass. A placeholder with no matching key is left intact. Uses a
+ * replacer callback so `$`-sequences in the values aren't treated as replacement patterns.
+ */
+function substitutePathParameters(path: string, params: Record<string, string>): string {
+  return path.replace(/{(.*?)}/g, (match, name: string) => name in params ? params[name] : match);
+}
 
 /**
  * Parses the two supported request argument shapes (a raw axios config, or method/path/options)
  * into a normalized form shared by both the standalone `request` function and `HasagiClient.request`.
  */
-function parseRequestArgs(args: any[], defaultRetryOptions?: Partial<RequestRetryOptions> | null): { axiosConfig: AxiosRequestConfig; returnAxiosResponse: boolean; retryOptions: RequestRetryOptions } {
+function parseRequestArgs(args: any[], defaultRetryOptions?: Partial<RequestRetryOptions> | null): { axiosConfig: AxiosRequestConfig; returnAxiosResponse: boolean; retryOptions: RequestRetryOptions; certificate: string | null | undefined } {
   // Layered, last-wins merge: built-in defaults < client-wide default < per-call override (applied
   // below). Each layer overrides only the fields it sets, so a per-call override of one field keeps
   // the rest of the client default intact.
@@ -33,21 +56,26 @@ function parseRequestArgs(args: any[], defaultRetryOptions?: Partial<RequestRetr
 
   let axiosConfig: AxiosRequestConfig;
   let returnAxiosResponse = false;
+  // Extracted here (the only place that knows which arg holds the options) so callers don't have to
+  // re-derive the arg shape. Only the standalone `request` consumes it; HasagiClient.request ignores it.
+  let certificate: string | null | undefined;
 
   if (typeof args[0] !== "string") {
     // Raw axios config overload
-    const config = args[0] as AxiosRequestConfig & { returnAxiosResponse?: boolean; retryOptions?: Partial<RequestRetryOptions> };
+    const config = args[0] as AxiosRequestConfig & { returnAxiosResponse?: boolean; retryOptions?: Partial<RequestRetryOptions>; certificate?: string | null };
     // Shallow-copy so we never mutate the caller's config object (e.g. injecting Content-Type below),
     // and strip our own non-axios keys so they aren't forwarded into the axios request config.
     const configCopy = { ...config };
     delete configCopy.returnAxiosResponse;
     delete configCopy.retryOptions;
+    delete configCopy.certificate;
     // Copy headers too (not just the top-level object) so the caller's headers object is never
     // mutated downstream; inject the JSON Content-Type only when there's a body.
     configCopy.headers = config.data !== undefined
       ? { "Content-Type": "application/json", ...config.headers }
       : { ...config.headers };
     axiosConfig = configCopy;
+    certificate = config.certificate;
 
     if (config.returnAxiosResponse)
       returnAxiosResponse = true;
@@ -58,13 +86,10 @@ function parseRequestArgs(args: any[], defaultRetryOptions?: Partial<RequestRetr
     // method/path/options overload
     const method = args[0] as string;
     let path = args[1] as string;
-    const _config = args[2] as LCURequestOptions<string, string> | undefined;
+    const _config = args[2] as (LCURequestOptions<string, string> & { certificate?: string | null }) | undefined;
 
-    if (_config && "path" in _config) {
-      Object.entries(_config.path as Record<string, string>).forEach(([key, value]) => {
-        path = path.replace(`{${key}}`, value);
-      });
-    }
+    if (_config && "path" in _config)
+      path = substitutePathParameters(path, _config.path as Record<string, string>);
 
     axiosConfig = {
       method,
@@ -76,6 +101,7 @@ function parseRequestArgs(args: any[], defaultRetryOptions?: Partial<RequestRetr
         ..._config?.headers,
       },
     };
+    certificate = _config?.certificate;
 
     if (_config?.retryOptions)
       retryOptions = { ...retryOptions, ..._config.retryOptions };
@@ -87,6 +113,7 @@ function parseRequestArgs(args: any[], defaultRetryOptions?: Partial<RequestRetr
   return {
     axiosConfig,
     returnAxiosResponse,
+    certificate,
     retryOptions: {
       maxRetries: retryOptions.maxRetries ?? 0,
       retryDelay: retryOptions.retryDelay ?? 1000,
@@ -137,10 +164,14 @@ async function runWithRetry(send: () => Promise<AxiosResponse<unknown>>, returnA
 
 /**
  * Sends a one-off request to the League of Legends client (LCU) using the given credentials.
- * Authentication and the base URL are added automatically, and certificate validation is disabled
- * (a non-validating, non-pooling agent is used unless you pass your own via the axios config). Call it
- * either with a raw axios config, or with a typed `method` + `path` (+ options) for full
- * request/response typing on known endpoints.
+ * Authentication and the base URL are added automatically, and the connection is validated against the
+ * built-in Riot Games certificate by default (matching {@link HasagiClient}). Call it either with a raw
+ * axios config, or with a typed `method` + `path` (+ options) for full request/response typing on known
+ * endpoints.
+ *
+ * Override validation with the `certificate` option (in either form): pass your own certificate in
+ * string form to validate against it, or `null` to disable validation; omit it to use the built-in
+ * certificate. A caller-supplied `httpsAgent` (raw axios config overload) takes precedence over `certificate`.
  *
  * Failures are wrapped: a response with a non-success status becomes an {@link LCUError}, a transport
  * failure becomes a {@link RequestError}, and (with retries configured) repeated failures become an
@@ -150,11 +181,12 @@ async function runWithRetry(send: () => Promise<AxiosResponse<unknown>>, returnA
  * sockets via keep-alive.
  * @param credentials Port and password. You can use the `getCredentials` function to get them.
  */
-async function request<ReturnAxiosResponse extends boolean = false>(credentials: LCUCredentials, config: AxiosRequestConfig & { returnAxiosResponse?: ReturnAxiosResponse; retryOptions?: Partial<RequestRetryOptions> }): Promise<ReturnAxiosResponse extends true ? AxiosResponse<unknown> : unknown>;
-async function request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(credentials: LCUCredentials, method: Method, path: Path, ...options: LCURequestOptionsParameter<Method, Path>): Promise<LCUEndpointResponseType<Method, Path>>;
+async function request<ReturnAxiosResponse extends boolean = false>(credentials: LCUCredentials, config: AxiosRequestConfig & { returnAxiosResponse?: ReturnAxiosResponse; retryOptions?: Partial<RequestRetryOptions>; certificate?: string | null }): Promise<ReturnAxiosResponse extends true ? AxiosResponse<unknown> : unknown>;
+async function request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(credentials: LCUCredentials, method: Method, path: Path, ...options: LCURequestOptionsParameter<Method, Path, { certificate?: string | null }>): Promise<LCUEndpointResponseType<Method, Path>>;
 async function request() {
   const credentials: LCUCredentials = arguments[0];
-  const { axiosConfig, returnAxiosResponse, retryOptions } = parseRequestArgs(Array.prototype.slice.call(arguments, 1));
+  // parseRequestArgs extracts the optional `certificate` (and strips it before it reaches axios).
+  const { axiosConfig, returnAxiosResponse, retryOptions, certificate } = parseRequestArgs(Array.prototype.slice.call(arguments, 1));
 
   const finalAxiosConfig: AxiosRequestConfig = {
     ...axiosConfig,
@@ -163,8 +195,9 @@ async function request() {
       username: "riot",
       password: credentials.password,
     },
-    // Honor a caller-supplied agent (passed via the axios config overload); fall back to the shared, non-validating agent.
-    httpsAgent: axiosConfig.httpsAgent ?? HTTPS_AGENT,
+    // A caller-supplied agent (raw axios config overload) wins; otherwise resolve one from `certificate`,
+    // falling back to the shared built-in-certificate-validating agent when `certificate` is omitted.
+    httpsAgent: axiosConfig.httpsAgent ?? resolveStandaloneAgent(certificate),
     adapter: "http",
   };
 
@@ -603,11 +636,16 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
       if (options?.transformParameters)
         args = await options.transformParameters(...args);
 
+      // Map each path placeholder, in order, to the leading positional args; the next arg is the body.
+      // Assumes distinct placeholder names (true for all generated endpoint types) — a name repeated
+      // in the path collapses to a single record key, so every occurrence takes the last positional
+      // arg given for that name (while i still advances once per occurrence).
       const pathParams = path.match(/{(.*?)}/g)?.map(str => str.substring(1, str.length - 1)) ?? [];
       let i = 0;
-      let requestPath = path;
+      const pathParamValues: Record<string, string> = {};
       for (const param of pathParams)
-        requestPath = requestPath.replace(`{${param}}`, args[i++]) as any;
+        pathParamValues[param] = args[i++];
+      const requestPath = substitutePathParameters(path, pathParamValues);
 
       const body = args[i];
 
@@ -686,12 +724,16 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
   }
 
   private handleLCUEvent<EventName extends keyof LCUWebSocketEvents = "OnJsonApiEvent">(event: [opcode: number, name: EventName, data: LCUWebSocketEvents[EventName]]) {
-    // Isolate "lcu-event" emitter listeners (like the path/name listeners below) so a throwing
-    // handler can't propagate out of the WebSocket message handler or abort the dispatch.
-    try {
-      this.emit("lcu-event", event);
-    } catch {
-      // Listener errors are contained here and do not affect the path/name listeners.
+    // Dispatch "lcu-event" with the same per-listener isolation as the path/name listeners below.
+    // emit() invokes listeners synchronously, so an early throwing one would abort the rest; instead
+    // we invoke a snapshot (rawListeners() returns a fresh array, and the once-wrappers it contains
+    // still self-remove when called) and contain each listener's errors individually.
+    for (const listener of this.rawListeners("lcu-event")) {
+      try {
+        (listener as (e: typeof event) => void)(event);
+      } catch {
+        // Listener errors are contained here and do not affect other listeners.
+      }
     }
 
     const payload = event[2] as any;
