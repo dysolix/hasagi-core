@@ -52,7 +52,6 @@ function parseRequestArgs(args: any[], defaultRetryOptions?: Partial<RequestRetr
     if (config.returnAxiosResponse)
       returnAxiosResponse = true;
 
-    // Per-call override: merge over the resolved default so omitted fields keep the client default.
     if (config.retryOptions)
       retryOptions = { ...retryOptions, ...config.retryOptions };
   } else {
@@ -61,7 +60,6 @@ function parseRequestArgs(args: any[], defaultRetryOptions?: Partial<RequestRetr
     let path = args[1] as string;
     const _config = args[2] as LCURequestOptions<string, string> | undefined;
 
-    // Replace path parameters
     if (_config && "path" in _config) {
       Object.entries(_config.path as Record<string, string>).forEach(([key, value]) => {
         path = path.replace(`{${key}}`, value);
@@ -79,7 +77,6 @@ function parseRequestArgs(args: any[], defaultRetryOptions?: Partial<RequestRetr
       },
     };
 
-    // Per-call override: merge over the resolved default (see the config-overload note above).
     if (_config?.retryOptions)
       retryOptions = { ...retryOptions, ..._config.retryOptions };
   }
@@ -139,7 +136,18 @@ async function runWithRetry(send: () => Promise<AxiosResponse<unknown>>, returnA
 }
 
 /**
- * Authorization and port will automatically be set using the provided credentials. Certificate validation is disabled.
+ * Sends a one-off request to the League of Legends client (LCU) using the given credentials.
+ * Authentication and the base URL are added automatically, and certificate validation is disabled
+ * (a non-validating, non-pooling agent is used unless you pass your own via the axios config). Call it
+ * either with a raw axios config, or with a typed `method` + `path` (+ options) for full
+ * request/response typing on known endpoints.
+ *
+ * Failures are wrapped: a response with a non-success status becomes an {@link LCUError}, a transport
+ * failure becomes a {@link RequestError}, and (with retries configured) repeated failures become an
+ * `AggregateError`.
+ *
+ * For repeated or high-frequency requests, prefer a {@link HasagiClient} instance, whose agent pools
+ * sockets via keep-alive.
  * @param credentials Port and password. You can use the `getCredentials` function to get them.
  */
 async function request<ReturnAxiosResponse extends boolean = false>(credentials: LCUCredentials, config: AxiosRequestConfig & { returnAxiosResponse?: ReturnAxiosResponse; retryOptions?: Partial<RequestRetryOptions> }): Promise<ReturnAxiosResponse extends true ? AxiosResponse<unknown> : unknown>;
@@ -567,7 +575,6 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
         if (pollOptions.onResponse && await pollOptions.onResponse(response))
           return;
 
-        // Serialize the new response once and compare against the previously cached string.
         const responseJson = JSON.stringify(response);
         if (lastResponseJson === undefined || lastResponseJson !== responseJson) {
           lastResponseJson = responseJson;
@@ -586,11 +593,11 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
   }
 
   /**
-     * Builds a request function that calls a specific endpoint with full type support for parameter and response types
-     * @param method The http method the request should use
-     * @param path The path the request should use
-     * @returns A function that takes all of the endpoint's parameters that returns a Promise resolving to the response data including full auto-generated types for most endpoints
-    */
+   * Builds a request function that calls a specific endpoint with full type support for parameter and response types
+   * @param method The http method the request should use
+   * @param path The path the request should use
+   * @returns A function that takes all of the endpoint's parameters that returns a Promise resolving to the response data including full auto-generated types for most endpoints
+   */
   public buildRequest<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>, ParameterTypes extends any[] = Parameters<LCUEndpoint<Method, Path>>, ResponseType = LCUEndpointResponseType<Method, Path>>(method: Method, path: Path, options?: { retryOptions?: Partial<RequestRetryOptions>; transformResponse?: (response: Awaited<ReturnType<LCUEndpoint<Method, Path>>>) => ResponseType; transformParameters?: (...args: ParameterTypes) => Readonly<Parameters<LCUEndpoint<Method, Path>>> | Promise<Readonly<Parameters<LCUEndpoint<Method, Path>>>> }): (...args: ParameterTypes) => Promise<ResponseType> {
     const callableEndpoint = async (...args: any) => {
       if (options?.transformParameters)
@@ -625,8 +632,8 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
 
   // #region LCU Events
   /**
-     * Adds a LCU event listener. If only a path is provided then OnJsonApiEvent will automatically be subscribed.
-     */
+   * Adds a LCU event listener. If only a path is provided then OnJsonApiEvent will automatically be subscribed.
+   */
   public addLCUEventListener<EventName extends keyof LCUWebSocketEvents = "OnJsonApiEvent">(listener: {
     /** If present, the callback will only be called if the event's path matches. OnJsonApiEvent will be subscribed to if you only use the path. */
     path?: string | RegExp;
