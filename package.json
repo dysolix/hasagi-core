@@ -64,6 +64,7 @@
       "default": "./credentials.js"
     }
   },
+  "main": "./index.js",
   "types": "./index.d.ts",
   "typesVersions": {
     "*": {
