@@ -1,0 +1,4 @@
+# Normalize line endings: store text as LF in the repo and check it out as LF
+# on every platform, so a Windows checkout can't introduce CRLF that would
+# conflict with the eslint `@stylistic/linebreak-style: unix` rule.
+* text=auto eol=lf

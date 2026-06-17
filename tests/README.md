@@ -16,13 +16,8 @@ Unit tests can run without external dependencies and cover isolated functionalit
 - **util.test.ts** — Utility functions and regex patterns
   - `delay()` function timing and promise behavior
   - Lockfile format validation and parsing regex
-  - Port and auth token extraction from command lines
-  
-- **client-utils.test.ts** — Client-side utility functions
-  - Path parameter extraction (`{id}` → `["id"]`)
-  - Path parameter replacement in URLs
-  - JSON parsing with error handling
-  - URL reconstruction with real-world LCU endpoints
+  - Port and auth token extraction from command lines (with `exec` mocked)
+  - Path parameter extraction (`{id}` → `["id"]`) and replacement in URLs
 
 - **client.test.ts** — `HasagiClient` behavior with `axios`/`ws` mocked (no League client required)
   - Request retry loop (success, retries, AggregateError, no-retry status codes, `defaultRetryOptions`)
@@ -47,7 +42,7 @@ hit a REST endpoint. Detailed request/poll/error behavior is covered by the mock
 
 **Run all tests** (unit + integration):
 ```bash
-npm test
+npm run test:all
 ```
 
 **Run only unit tests** (no League client required):

@@ -80,5 +80,9 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/dysolix/hasagi-core.git"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/dysolix/hasagi-core/issues"
+  },
+  "homepage": "https://github.com/dysolix/hasagi-core#readme"
 }
