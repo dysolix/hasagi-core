@@ -1,7 +1,7 @@
 {
   "name": "@hasagi/core",
   "private": true,
-  "version": "0.6.11",
+  "version": "0.7.0",
   "description": "A library that makes using the League of Legends client API (LCU) easy.",
   "scripts": {
     "build": "node scripts/prebuild.mjs && tsc && node scripts/postbuild.mjs",
