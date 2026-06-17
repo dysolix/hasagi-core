@@ -657,4 +657,30 @@ describe("standalone request()", () => {
     // The Content-Type header is injected on an internal copy, not the caller's object.
     expect(config.headers).toBeUndefined();
   });
+
+  it("strips non-axios keys (returnAxiosResponse/retryOptions) from the sent config", async () => {
+    mockRequest.mockResolvedValueOnce(lcuResponse("ok"));
+
+    await request(
+      { port: 1, password: "p" } as any,
+      { method: "get", url: "/x", returnAxiosResponse: false, retryOptions: { maxRetries: 0, retryDelay: 0 } } as any,
+    );
+
+    const cfg = mockRequest.mock.calls[0][0];
+    expect(cfg).not.toHaveProperty("returnAxiosResponse");
+    expect(cfg).not.toHaveProperty("retryOptions");
+  });
+});
+
+describe("HasagiClient - accessors while disconnected", () => {
+  it("port/password/auth/host accessors return null before connecting", () => {
+    const client = new HasagiClient();
+
+    expect(client.isConnected).toBe(false);
+    expect(client.getPort()).toBeNull();
+    expect(client.getPassword()).toBeNull();
+    expect(client.getBasicAuthToken()).toBeNull();
+    expect(client.getProcessId()).toBeNull();
+    expect(client.getHostWithAuthentication()).toBeNull();
+  });
 });

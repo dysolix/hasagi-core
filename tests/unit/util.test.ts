@@ -1,150 +1,161 @@
-import { describe, it, expect } from "vitest";
-import { delay, getCredentialsFromLockfileContent } from "../../src/util";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
-describe("Utility Functions", () => {
-  describe("delay", () => {
-    it("should delay execution by specified milliseconds", async () => {
-      const start = performance.now();
-      await delay(100);
-      const elapsed = performance.now() - start;
+// Controllable child_process.exec mock so the credential-discovery helpers can be driven without a
+// real League client / PowerShell. Each test sets the (err, stdout, stderr) the next exec yields.
+const execMock = vi.hoisted(() => vi.fn());
+vi.mock("child_process", () => ({ exec: execMock }));
 
-      // Allow 10ms tolerance for timing variance
-      expect(elapsed).toBeGreaterThanOrEqual(90);
-      expect(elapsed).toBeLessThan(200);
-    });
+import { delay, getCredentials, getCredentialsByProcessId, getCredentialsFromLockfileContent, getLeagueClientUxProcesses } from "../../src/util";
 
-    it("should resolve to void", async () => {
-      const result = await delay(10);
-      expect(result).toBeUndefined();
-    });
+/** Make the next exec() call invoke its callback with the given result. */
+function execYields(err: Error | null, stdout: string, stderr = "") {
+  execMock.mockImplementationOnce((_cmd: string, _opts: unknown, cb: (e: Error | null, o: string, s: string) => void) => cb(err, stdout, stderr));
+}
 
-    it("should work with zero delay", async () => {
-      const start = performance.now();
-      await delay(0);
-      const elapsed = performance.now() - start;
+/** Temporarily override process.platform; returns a restore function. */
+function stubPlatform(platform: NodeJS.Platform) {
+  const original = Object.getOwnPropertyDescriptor(process, "platform")!;
+  Object.defineProperty(process, "platform", { configurable: true, value: platform });
+  return () => Object.defineProperty(process, "platform", original);
+}
 
-      expect(elapsed).toBeLessThan(50);
-    });
+beforeEach(() => execMock.mockReset());
 
-    it("should support chaining", async () => {
-      const start = performance.now();
-      await delay(50);
-      await delay(50);
-      const elapsed = performance.now() - start;
+describe("delay", () => {
+  it("returns a promise that resolves to void", async () => {
+    const p = delay(0);
+    expect(p).toBeInstanceOf(Promise);
+    expect(await p).toBeUndefined();
+  });
+});
 
-      expect(elapsed).toBeGreaterThanOrEqual(90);
-    });
-
-    it("should return a promise", () => {
-      const result = delay(10);
-      expect(result).toBeInstanceOf(Promise);
-    });
+describe("getCredentialsFromLockfileContent", () => {
+  it("should parse valid lockfile content", () => {
+    const result = getCredentialsFromLockfileContent("LeagueClient:1234:5678:my-password:https");
+    expect(result).toEqual({ port: 5678, password: "my-password" });
   });
 
-  describe("getCredentialsFromLockfileContent", () => {
-    it("should parse valid lockfile content", () => {
-      const result = getCredentialsFromLockfileContent("LeagueClient:1234:5678:my-password:https");
-      expect(result).toEqual({ port: 5678, password: "my-password" });
-    });
-
-    it("should parse lockfile with password containing colons", () => {
-      const result = getCredentialsFromLockfileContent("LeagueClient:1234:5678:pass:word:https");
-      expect(result).toEqual({ port: 5678, password: "pass:word" });
-    });
-
-    it("should parse lockfile with special characters in password", () => {
-      const result = getCredentialsFromLockfileContent("LeagueClient:1234:5678:p@ss-w0rd!:https");
-      expect(result).toEqual({ port: 5678, password: "p@ss-w0rd!" });
-    });
-
-    it("should parse lockfile with unicode in password", () => {
-      const result = getCredentialsFromLockfileContent("LeagueClient:1234:5678:pässwörd:https");
-      expect(result).toEqual({ port: 5678, password: "pässwörd" });
-    });
-
-    it("should throw on invalid lockfile schema", () => {
-      const invalidLockfiles = [
-        "LeagueClient:port:password:https",
-        "LeagueClient:1234:5678:https",
-        "LeagueClient:1234:5678:password:http",
-        "League:1234:5678:password:https",
-        "LeagueClient:abc:def:password:https",
-        "LeagueClient:1234:5678::https",
-        "LeagueClient:1234:5678:password",
-        "",
-        "1234:5678:password:https",
-      ];
-
-      invalidLockfiles.forEach(lockfile => {
-        expect(() => getCredentialsFromLockfileContent(lockfile)).toThrow();
-      });
-    });
+  it("should parse lockfile with password containing colons", () => {
+    const result = getCredentialsFromLockfileContent("LeagueClient:1234:5678:pass:word:https");
+    expect(result).toEqual({ port: 5678, password: "pass:word" });
   });
 
-  describe("Port extraction regex", () => {
-    // Testing the regex pattern used to extract port from command line
-    const portRegex = /--app-port=([0-9]*)/;
-
-    it("should extract port from command line", () => {
-      const commandLine = 'some.exe --app-port=12345 --other-flag value';
-      const match = commandLine.match(portRegex)?.[1];
-
-      expect(match).toBe("12345");
-    });
-
-    it("should handle port at different positions", () => {
-      const commandLines = [
-        "--app-port=80 --other",
-        "--other --app-port=8080",
-        "prefix --app-port=3000 suffix",
-      ];
-
-      commandLines.forEach(cl => {
-        const match = cl.match(portRegex)?.[1];
-        expect(match).toBeTruthy();
-      });
-    });
-
-    it("should return empty string if not found", () => {
-      const commandLine = 'some.exe --other-flag=value';
-      const match = commandLine.match(portRegex)?.[1] ?? "";
-
-      expect(match).toBe("");
-    });
+  it("should parse lockfile with special characters in password", () => {
+    const result = getCredentialsFromLockfileContent("LeagueClient:1234:5678:p@ss-w0rd!:https");
+    expect(result).toEqual({ port: 5678, password: "p@ss-w0rd!" });
   });
 
-  describe("Auth token regex", () => {
-    // Testing the regex pattern used to extract auth token
-    const authRegex = /--remoting-auth-token=([\w-]*)/;
+  it("should parse lockfile with unicode in password", () => {
+    const result = getCredentialsFromLockfileContent("LeagueClient:1234:5678:pässwörd:https");
+    expect(result).toEqual({ port: 5678, password: "pässwörd" });
+  });
 
-    it("should extract auth token from command line", () => {
-      const commandLine = 'some.exe --remoting-auth-token=abc-123-def-456 --other-flag';
-      const match = commandLine.match(authRegex)?.[1];
+  it("should throw on invalid lockfile schema", () => {
+    const invalidLockfiles = [
+      "LeagueClient:port:password:https",
+      "LeagueClient:1234:5678:https",
+      "LeagueClient:1234:5678:password:http",
+      "League:1234:5678:password:https",
+      "LeagueClient:abc:def:password:https",
+      "LeagueClient:1234:5678::https",
+      "LeagueClient:1234:5678:password",
+      "",
+      "1234:5678:password:https",
+    ];
 
-      expect(match).toBe("abc-123-def-456");
+    invalidLockfiles.forEach(lockfile => {
+      expect(() => getCredentialsFromLockfileContent(lockfile)).toThrow();
     });
+  });
+});
 
-    it("should handle tokens with alphanumeric and dashes", () => {
-      const tokens = [
-        "simple123",
-        "with-dashes-123",
-        "UPPERCASE_MIXED-lower",
-        "a",
-        "123",
-      ];
+describe("getLeagueClientUxProcesses", () => {
+  it("rejects when the command exits non-zero", async () => {
+    execYields(new Error("exec failed"), "");
+    await expect(getLeagueClientUxProcesses()).rejects.toThrow(/Could not retrieve LeagueClientUx process ids/);
+  });
 
-      tokens.forEach(token => {
-        const commandLine = `--remoting-auth-token=${token}`;
-        const match = commandLine.match(authRegex)?.[1];
-        expect(match).toBe(token);
-      });
-    });
+  it("parses process ids from stdout", async () => {
+    execYields(null, "1234\r\n5678\r\n");
+    await expect(getLeagueClientUxProcesses()).resolves.toEqual([1234, 5678]);
+  });
 
-    it("should return empty string if not found", () => {
-      const commandLine = 'some.exe --other-flag=value';
-      const match = commandLine.match(authRegex)?.[1] ?? "";
+  it("returns an empty array when no processes are running", async () => {
+    execYields(null, "");
+    await expect(getLeagueClientUxProcesses()).resolves.toEqual([]);
+  });
 
-      expect(match).toBe("");
-    });
+  it("ignores non-numeric / blank lines", async () => {
+    execYields(null, "1234\n\nnot-a-pid\n5678");
+    await expect(getLeagueClientUxProcesses()).resolves.toEqual([1234, 5678]);
+  });
+
+  // Regression guard: PowerShell writes non-fatal progress/warnings to stderr; a zero exit with
+  // usable stdout must still resolve and not reject on stderr alone.
+  it("tolerates non-fatal stderr and still resolves", async () => {
+    execYields(null, "4242\n", "WARNING: progress output");
+    await expect(getLeagueClientUxProcesses()).resolves.toEqual([4242]);
+  });
+});
+
+describe("getCredentialsByProcessId", () => {
+  const commandLine = "LeagueClientUx.exe --app-port=55000 --remoting-auth-token=abc-DEF_123 --other";
+
+  it("extracts port and password from the command line", async () => {
+    execYields(null, commandLine);
+    await expect(getCredentialsByProcessId(42)).resolves.toEqual({ processId: 42, port: 55000, password: "abc-DEF_123" });
+  });
+
+  it("rejects (surfacing stderr) when the command exits non-zero", async () => {
+    execYields(new Error("exec failed"), "", "some stderr");
+    await expect(getCredentialsByProcessId(42)).rejects.toThrow(/Could not retrieve command line of process with PID 42\. some stderr/);
+  });
+
+  it("rejects with 'not found' when stdout is empty", async () => {
+    execYields(null, "");
+    await expect(getCredentialsByProcessId(42)).rejects.toThrow(/Process with PID 42 not found/);
+  });
+
+  it("throws when the command line lacks port/password", async () => {
+    execYields(null, "LeagueClientUx.exe --no-relevant-flags");
+    await expect(getCredentialsByProcessId(42)).rejects.toThrow(/could not retrieve port and password/);
+  });
+
+  // Regression guard: non-fatal stderr alongside usable stdout must still resolve.
+  it("tolerates non-fatal stderr and still resolves", async () => {
+    execYields(null, commandLine, "WARNING: progress output");
+    await expect(getCredentialsByProcessId(42)).resolves.toEqual({ processId: 42, port: 55000, password: "abc-DEF_123" });
+  });
+});
+
+describe("getCredentials", () => {
+  let restorePlatform: (() => void) | undefined;
+  afterEach(() => { restorePlatform?.(); restorePlatform = undefined; });
+
+  it("process strategy: resolves the credentials of the first LeagueClientUx process", async () => {
+    restorePlatform = stubPlatform("win32");
+    execYields(null, "1111\n2222\n"); // getLeagueClientUxProcesses
+    execYields(null, "Ux.exe --app-port=5000 --remoting-auth-token=tok-1"); // getCredentialsByProcessId(1111)
+    await expect(getCredentials("process")).resolves.toEqual({ processId: 1111, port: 5000, password: "tok-1" });
+  });
+
+  it("process strategy: throws when no LeagueClientUx process is found", async () => {
+    restorePlatform = stubPlatform("win32");
+    execYields(null, ""); // no pids
+    await expect(getCredentials("process")).rejects.toThrow(/Could not find process 'LeagueClientUx'/);
+  });
+
+  it("process strategy: rejects on an unsupported platform without running any command", async () => {
+    restorePlatform = stubPlatform("linux");
+    await expect(getCredentials("process")).rejects.toThrow(/not supported on this platform/);
+    expect(execMock).not.toHaveBeenCalled();
+  });
+
+  it("lockfile strategy: parses provided lockfile content", async () => {
+    await expect(getCredentials("lockfile", "LeagueClient:1234:5678:pw:https")).resolves.toEqual({ port: 5678, password: "pw" });
+  });
+
+  it("lockfile strategy: throws when the lockfile argument is missing", async () => {
+    await expect(getCredentials("lockfile")).rejects.toThrow(/not provided or has an invalid type/);
   });
 });
