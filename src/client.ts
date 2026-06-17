@@ -344,6 +344,9 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
       if (options?.authenticationStrategy === "manual") {
         if (!options.credentials)
           throw new Error("No credentials provided for manual authentication strategy.");
+        // Emit "connecting" once here too: the process/lockfile path emits it per attempt inside
+        // acquireCredentials, which the manual path skips — without this it would never fire for manual.
+        this.emit("connecting");
         credentials = options.credentials;
       } else {
         const strategy = options?.authenticationStrategy ?? "process";

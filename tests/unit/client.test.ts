@@ -538,6 +538,22 @@ describe("HasagiClient.connect - WebSocket handling", () => {
     expect(client.isConnected).toBe(true);
   });
 
+  it("emits 'connecting' once for the manual strategy", async () => {
+    mocks.wsBehavior = "open";
+    const client = new HasagiClient();
+    const connecting = vi.fn();
+    client.on("connecting", connecting);
+
+    await client.connect({
+      authenticationStrategy: "manual",
+      credentials: { port: 1, password: "x" },
+      readinessCheck: false,
+    });
+
+    expect(client.isConnected).toBe(true);
+    expect(connecting).toHaveBeenCalledTimes(1);
+  });
+
   it("retries transient credential failures, then connects (emitting the right events)", async () => {
     mocks.wsBehavior = "open";
     mocks.getCredentials

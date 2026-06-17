@@ -50,6 +50,15 @@ describe("getCredentialsFromLockfileContent", () => {
     expect(result).toEqual({ port: 5678, password: "pässwörd" });
   });
 
+  it("does not leak the lockfile content (password) in the error message", () => {
+    // Port 0 passes the regex but is falsy, hitting the port/password failure branch. The thrown
+    // message must not echo the lockfile content, which carries the password.
+    expect(() => getCredentialsFromLockfileContent("LeagueClient:1234:0:s3cret-pw:https"))
+      .toThrow(/Could not retrieve port and password from lockfile\.$/);
+    expect(() => getCredentialsFromLockfileContent("LeagueClient:1234:0:s3cret-pw:https"))
+      .not.toThrow(/s3cret-pw/);
+  });
+
   it("should throw on invalid lockfile schema", () => {
     const invalidLockfiles = [
       "LeagueClient:port:password:https",

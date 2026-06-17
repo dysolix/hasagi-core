@@ -57,7 +57,8 @@ export function getCredentialsFromLockfileContent(lockfileContent: string): LCUC
     return { port, password };
   }
 
-  throw new Error("Could not retrieve port and password from lockfile. (lockfile: " + lockfileContent + ")");
+  // Don't include the lockfile content in the message — it carries the password, which has no place in logs.
+  throw new Error("Could not retrieve port and password from lockfile.");
 }
 
 /** Returns the process ids of all LeagueClientUx processes */
