@@ -5,6 +5,24 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2026-06-18
+
+### Added
+
+- **Generic event map on `HasagiClient`.** The class now takes an optional event-map type parameter
+  (`HasagiClient<Events extends HasagiCoreEvents & ListenerSignature<Events>>`, defaulting to
+  `HasagiCoreEvents`), so it can be subclassed with a widened set of typed events. `new HasagiClient()`
+  and the bare `HasagiClient` type are unchanged.
+- **`HasagiClient.setInstance(instance?)`.** Sets the instance returned by `getInstance()`, or releases
+  the global reference when passed `undefined`/`null` so a no-longer-used client can be garbage
+  collected — the static otherwise retains the most recently constructed instance for the life of the
+  process, even after `disconnect()`.
+
+### Changed
+
+- **`HasagiClient.getInstance()` is now generic.** It defaults to `HasagiCoreEvents` typing instead of
+  returning an untyped instance, and accepts an event-map type argument to type a subclass's events.
+
 ## [0.7.0] - 2026-06-17
 
 ### Added
