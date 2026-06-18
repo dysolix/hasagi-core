@@ -17,7 +17,8 @@
     "test:integration": "npm run test:typecheck && vitest run tests/integration",
     "test:typecheck": "tsc -p tsconfig.test.json",
     "release": "npm run check:src && npm run build && npm run check:release && cd ./dist && npm publish --access public",
-    "update-types": "hasagi schema --typescript ./src/types"
+    "update-types": "hasagi schema --typescript ./src/types",
+    "changelog": "node scripts/changelog-stub.mjs"
   },
   "author": "dysolix",
   "license": "MIT",
