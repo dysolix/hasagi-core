@@ -2,7 +2,7 @@ import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } f
 import { Agent } from "https";
 import { WebSocket } from "ws";
 import { LCUCredentials, MaybePromise, delay, getCredentials } from "./util.js";
-import { TypedEmitter } from "tiny-typed-emitter";
+import { TypedEmitter, type ListenerSignature } from "tiny-typed-emitter";
 import RIOT_GAMES_CERTIFICATE from "./riot-games-certificate.js";
 import { EndpointsWithMethod, HttpMethod, LCUEndpoint, LCUEndpointResponseType, LCUEndpoints } from "./types/lcu-endpoints.js";
 import { LCUError, NotConnectedError, RequestError } from "./errors.js";
@@ -211,13 +211,13 @@ export { request };
  * WebSocket), sends authenticated HTTP requests with optional retries, polls endpoints, and dispatches
  * LCU WebSocket events to listeners. Extends a typed event emitter (see {@link HasagiCoreEvents}).
  */
-export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
+export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSignature<Events> = HasagiCoreEvents> extends TypedEmitter<Events> {
   /**
    * The most recently constructed instance. Every `new HasagiClient()` overwrites it — see
    * {@link HasagiClient.getInstance}. Holding only the latest is intentional (a convenience for
    * single-client apps), so be deliberate about constructing more than one.
    */
-  private static Instance?: HasagiClient;
+  private static Instance?: HasagiClient<any>;
   /**
    * Returns the **most recently constructed** `HasagiClient`, or `undefined` if none exists.
    * @note This is a convenience global, not a true singleton: constructing another client replaces
@@ -265,6 +265,16 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
   public readonly getHostWithAuthentication = () => this.password && this.port ? `riot:${encodeURIComponent(this.password)}@127.0.0.1:${this.port}` : null;
 
   public readonly setDefaultRetryOptions = (options: Partial<RequestRetryOptions>) => this.defaultRetryOptions = options;
+
+  /**
+   * Emits a built-in core event. Internal emits go through this helper (typed to
+   * {@link HasagiCoreEvents}) because, from inside the generic class, `Parameters<Events[U]>` of the
+   * public {@link emit} is unresolvable — `this.emit("connected")` would not typecheck. Subclasses may
+   * widen `Events`, but core only ever emits the keys it declares, so casting to the base emitter is sound.
+   */
+  private emitCore<U extends keyof HasagiCoreEvents>(event: U, ...args: Parameters<HasagiCoreEvents[U]>): boolean {
+    return (this as unknown as TypedEmitter<HasagiCoreEvents>).emit(event, ...args);
+  }
 
   // #region WebSocket
 
@@ -346,7 +356,7 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
           throw new Error("No credentials provided for manual authentication strategy.");
         // Emit "connecting" once here too: the process/lockfile path emits it per attempt inside
         // acquireCredentials, which the manual path skips — without this it would never fire for manual.
-        this.emit("connecting");
+        this.emitCore("connecting");
         credentials = options.credentials;
       } else {
         const strategy = options?.authenticationStrategy ?? "process";
@@ -397,7 +407,7 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
     previouslySubscribedEvents.forEach(event => this.subscribeWebSocketEvent(event));
 
     this.isConnected = true;
-    this.emit("connected");
+    this.emitCore("connected");
   }
 
   private onDisconnected() {
@@ -406,7 +416,7 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
 
     this.isConnected = false;
     this.resetConnectionState();
-    this.emit("disconnected");
+    this.emitCore("disconnected");
   }
 
   /** Closes the socket, destroys the keep-alive agent, and clears all per-connection credentials/state. */
@@ -440,7 +450,7 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
       if (this.connectGeneration !== generation)
         throw new Error("connect() superseded by a newer connection attempt.");
 
-      this.emit("connecting");
+      this.emitCore("connecting");
 
       try {
         return strategy === "process" ? await getCredentials("process") : await getCredentials("lockfile", lockfile!);
@@ -448,7 +458,7 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
         if (maxAttempts !== -1 && attempt >= maxAttempts)
           throw new Error("Could not connect to the League of Legends client.", { cause: e });
 
-        this.emit("connection-attempt-failed");
+        this.emitCore("connection-attempt-failed");
         await delay(attemptDelay);
       }
     }
@@ -548,7 +558,7 @@ export default class HasagiClient extends TypedEmitter<HasagiCoreEvents> {
         }
 
         // Ignore error events from a stale socket replaced by a newer connect() call.
-        if (this.webSocket === ws) this.emit("websocket-error", ev.error);
+        if (this.webSocket === ws) this.emitCore("websocket-error", ev.error);
       };
     });
   }
