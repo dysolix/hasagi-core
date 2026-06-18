@@ -1,0 +1,50 @@
+name: Publish Wiki
+
+# Publishes the in-repo docs (core/docs/) to this repository's GitHub Wiki, so the wiki is a
+# generated mirror reviewed alongside code instead of a separately-maintained repo that drifts.
+# Requires "Read and write permissions" for Actions (Settings -> Actions -> General -> Workflow
+# permissions); the built-in GITHUB_TOKEN can then push to <repo>.wiki.git.
+
+on:
+  push:
+    branches: [main]
+    paths: ["docs/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Avoid overlapping wiki pushes if several doc commits land in quick succession.
+concurrency:
+  group: publish-wiki
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Mirror docs/ to the GitHub Wiki
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          tmp="$(mktemp -d)"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git clone "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.wiki.git" "$tmp"
+
+          # Mirror docs/ into the wiki working tree: copy current docs and delete any wiki page no
+          # longer present in docs/. The wiki's own .git is preserved by the exclude.
+          rsync -a --delete --exclude '.git' docs/ "$tmp/"
+
+          cd "$tmp"
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "Wiki already up to date."
+            exit 0
+          fi
+          git add -A
+          git commit -m "docs: sync from ${{ github.repository }}@${{ github.sha }}"
+          git push
