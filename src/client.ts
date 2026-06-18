@@ -219,11 +219,25 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
    */
   private static Instance?: HasagiClient<any>;
   /**
-   * Returns the **most recently constructed** `HasagiClient`, or `undefined` if none exists.
+   * Returns the **most recently constructed** `HasagiClient`, or `undefined` if none exists. Defaults
+   * to {@link HasagiCoreEvents} typing; pass the event-map type argument (e.g. a subclass's widened
+   * events) to type the result accordingly — the static field can't infer it from construction.
    * @note This is a convenience global, not a true singleton: constructing another client replaces
    * what this returns. If your app uses multiple clients, pass references explicitly instead.
    */
-  public static getInstance = () => HasagiClient.Instance;
+  public static getInstance = <Events extends HasagiCoreEvents & ListenerSignature<Events> = HasagiCoreEvents>(): HasagiClient<Events> | undefined =>
+    HasagiClient.Instance as HasagiClient<Events> | undefined;
+
+  /**
+   * Overrides what {@link HasagiClient.getInstance} returns, or clears it (pass `undefined`/`null`).
+   * Constructing a client sets this to the new instance automatically; call it to designate a preferred
+   * instance, or to release the global reference so a no-longer-used client can be garbage collected —
+   * the static otherwise retains the most recently constructed instance for the life of the process,
+   * even after {@link HasagiClient.disconnect}.
+   */
+  public static setInstance = (instance?: HasagiClient<any> | null): void => {
+    HasagiClient.Instance = instance ?? undefined;
+  };
 
   public isConnected: boolean = false;
   /** Will always be null if lockfile authentication is used */
@@ -251,7 +265,7 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
     super();
 
     this.defaultRetryOptions = options?.defaultRetryOptions ?? null;
-    HasagiClient.Instance = this;
+    HasagiClient.setInstance(this);
   }
 
   /** Will always be null if lockfile authentication is used */
