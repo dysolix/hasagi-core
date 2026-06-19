@@ -18,7 +18,11 @@
     "test:typecheck": "tsc -p tsconfig.test.json",
     "release": "npm run check:src && npm run build && npm run check:release && cd ./dist && npm publish --access public",
     "update-types": "hasagi schema --typescript ./src/types",
-    "changelog": "node scripts/changelog-stub.mjs"
+    "changelog": "node scripts/changelog-stub.mjs",
+    "postversion": "npm run changelog",
+    "version:patch": "npm version patch --ignore-scripts=false",
+    "version:minor": "npm version minor --ignore-scripts=false",
+    "version:major": "npm version major --ignore-scripts=false"
   },
   "author": "dysolix",
   "license": "MIT",
