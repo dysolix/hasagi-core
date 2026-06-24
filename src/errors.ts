@@ -31,7 +31,12 @@ export class LCUError extends Error {
   public readonly statusCode: number;
   /** The error code returned by the API */
   public readonly errorCode: string | null;
-  /** Additional data provided by the API, often empty */
+  /**
+   * Additional data provided by the API, often empty.
+   *
+   * @remarks Typed as `any` for now. Planned to be narrowed to `unknown` in v1.0.0 — a breaking
+   * change for consumers that read this field without narrowing it first.
+   */
   public readonly implementationDetails: any;
 
   constructor(error: AxiosError) {
