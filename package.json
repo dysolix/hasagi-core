@@ -40,9 +40,9 @@
     "typescript"
   ],
   "dependencies": {
-    "axios": "^1.17.0",
+    "axios": "^1.6.0",
     "tiny-typed-emitter": "^2.1.0",
-    "ws": "^8.21.0"
+    "ws": "^8.0.0"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.3",
