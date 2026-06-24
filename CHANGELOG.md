@@ -5,6 +5,18 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.1] - 2026-06-24
+
+### Changed
+
+- Regenerated the bundled LCU types against client patch **16.13**.
+- Lowered dependency floors back to `axios` `^1.6.0` and `ws` `^8.0.0` (relaxing the `^1.17.0` /
+  `^8.21.0` floors raised in 0.7.0) so consumers on older but still-compatible releases aren't
+  forced to upgrade.
+- Documented in JSDoc that `LCUError.implementationDetails` is typed `any` for now and is planned
+  to narrow to `unknown` in v1.0.0 — a breaking change for code that reads the field without
+  narrowing it first.
+
 ## [0.8.0] - 2026-06-18
 
 ### Added
@@ -69,4 +81,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Credential discovery tolerates non-fatal PowerShell warnings written to `stderr` instead of
   treating them as failures.
 
+[0.8.1]: https://github.com/dysolix/hasagi-core/releases/tag/v0.8.1
+[0.8.0]: https://github.com/dysolix/hasagi-core/releases/tag/v0.8.0
 [0.7.0]: https://github.com/dysolix/hasagi-core/releases/tag/v0.7.0
