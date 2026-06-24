@@ -37,5 +37,20 @@ content = idx === -1
   ? `${content.trimEnd()}\n\n${entry}`
   : content.slice(0, idx + 1) + entry + content.slice(idx + 1);
 
+// Add the matching link reference (e.g. "[0.8.1]: https://…/releases/tag/v0.8.1"), deriving the
+// repo URL from package.json so it isn't hardcoded. The refs sit at the bottom in reverse-
+// chronological order, so insert above the most recent one, or start the block if none exist yet.
+const pkg = JSON.parse(await fs.readFile("./package.json", "utf8"));
+const repoUrl = (pkg.repository?.url ?? "").replace(/^git\+/, "").replace(/\.git$/, "");
+if (repoUrl) {
+  const linkRef = `[${version}]: ${repoUrl}/releases/tag/v${version}\n`;
+  const linkIdx = content.search(/^\[[^\]]+\]:\s/m);
+  content = linkIdx === -1
+    ? `${content.trimEnd()}\n\n${linkRef}`
+    : content.slice(0, linkIdx) + linkRef + content.slice(linkIdx);
+} else {
+  console.warn("changelog-stub: no repository.url in package.json — skipping link reference.");
+}
+
 await fs.writeFile(path, content);
 console.log(`changelog-stub: ${created ? "created CHANGELOG.md and added" : "added"} a placeholder entry for ${version} — fill it in before pushing.`);
