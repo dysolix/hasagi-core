@@ -626,6 +626,9 @@ export interface LCUEndpoints {
 	"/lol-champions/v1/inventories/{summonerId}/{queueId}/champions-minimal-per-queue": {
 		get: { path: [summonerId: number, queueId: number], params: never, body: never, response: LCUTypes.LolChampionsCollectionsChampionMinimal[] }
 	},
+	"/lol-champions/v1/inventories/{summonerId}/{queueId}/champions-per-queue": {
+		get: { path: [summonerId: number, queueId: number], params: never, body: never, response: LCUTypes.LolChampionsCollectionsChampion[] }
+	},
 	"/lol-champions/v1/inventories/{summonerId}/champions": {
 		get: { path: [summonerId: number], params: never, body: never, response: LCUTypes.LolChampionsCollectionsChampion[] }
 	},
@@ -3969,8 +3972,8 @@ export interface LCUEndpoints {
 	"/lol-perks/v1/perks/ack-gameplay-updated": {
 		put: { path: never, params: never, body: number[], response: unknown }
 	},
-	"/lol-perks/v1/validate-page-name/{pageName}": {
-		put: { path: [pageName: string], params: never, body: never, response: LCUTypes.LolPerksValidateItemSetNameResponse }
+	"/lol-perks/v1/validate-page-name/{pageName}/{context}": {
+		put: { path: [pageName: string, context: LCUTypes.LolPerksNamecheckValidationContext], params: never, body: never, response: LCUTypes.LolPerksValidateItemSetNameResponse }
 	},
 	"/lol-player-behavior/v1/ack-credibility-behavior-warning/{mailId}": {
 		put: { path: [mailId: string], params: never, body: never, response: void }

@@ -1382,11 +1382,6 @@ export interface CollectionsLcdsChampionSkinDTO {
 	stillObtainable: boolean
 }
 
-export interface CollectionsLcdsClientDynamicConfigurationNotification {
-	configs: string
-	delta: boolean
-}
-
 export interface CollectionsLcdsRentalUpdateNotification {
 	inventoryType: string
 	data: unknown
@@ -2068,11 +2063,6 @@ export interface LcdsSwitchTeamsRequestDto {
 	/** @format uint64 */
 	gameId: number
 	playerGcoTokens: LcdsPlayerGcoTokens
-}
-
-export interface LobbyClientDynamicConfigurationNotification {
-	configs: string
-	delta: boolean
 }
 
 export interface LogEntry {
@@ -3699,6 +3689,7 @@ export interface LolChampionsCollectionsChampionChroma {
 	lastSelected: boolean
 	skinAugments: LolChampionsCollectionsChampionSkinAugments
 	colors: string[]
+	relatedPrimeContentId: string
 }
 
 export interface LolChampionsCollectionsChampionMinimal {
@@ -3905,6 +3896,7 @@ export interface LolChampionsGameDataChampionChroma {
 	name: string
 	colors: string[]
 	chromaPath: string
+	relatedPrimeContentId: string
 	skinAugments: LolChampionsCollectionsChampionSkinAugments
 }
 
@@ -4555,7 +4547,7 @@ export interface LolChatLcuSocialConfig {
 
 export type LolChatLeagueDivision = "NA" | "V" | "IV" | "III" | "II" | "I"
 
-export type LolChatLeagueQueueType = "RANKED_TFT_DOUBLE_UP" | "RANKED_TFT_PAIRS" | "RANKED_TFT_TURBO" | "RANKED_TFT" | "RANKED_FLEX_TT" | "CHERRY" | "RANKED_FLEX_SR" | "RANKED_SOLO_5x5" | "NONE"
+export type LolChatLeagueQueueType = "RANKED_PREMADE_5x5" | "RANKED_TFT_DOUBLE_UP" | "RANKED_TFT_PAIRS" | "RANKED_TFT_TURBO" | "RANKED_TFT" | "RANKED_FLEX_TT" | "CHERRY" | "RANKED_FLEX_SR" | "RANKED_SOLO_5x5" | "NONE"
 
 export interface LolChatLobbyMember {
 	/** @format uint64 */
@@ -7494,6 +7486,17 @@ export interface LolEndOfGameChampionMasteryUpdate {
 	score: number
 	levelUpList: LolEndOfGameChampionMasteryMini[]
 	memberGrades: LolEndOfGameChampionMasteryGrade[]
+}
+
+export interface LolEndOfGameEndOfGameLifeTimeStatsRmsPayload {
+	/** @format uint64 */
+	gameId: number
+	/** @format int32 */
+	queueId: number
+	/** @format uint32 */
+	wins: number
+	/** @format uint32 */
+	losses: number
 }
 
 export interface LolEndOfGameEndOfGamePlayer {
@@ -11953,7 +11956,7 @@ export interface LolLobbyEligibilityRestriction {
 	puuidsString: string
 }
 
-export type LolLobbyEligibilityRestrictionCode = "FullPartyUnranked" | "PlayerNoRankedUpdatesDueToRankDisparity" | "MmrStandardDeviationTooLarge" | "UserInfoNotAvailable" | "InventoryQueuesInfoNotAvailable" | "InventoryChampsInfoNotAvailable" | "LeaguesInfoNotAvailable" | "SummonerInfoNotAvailable" | "MinorInfoNotAvailable" | "BanInfoNotAvailable" | "TooManyIncompleteSubteamsRestriction" | "QPInsufficientPlayerChampionCoveragePopularChampion" | "QPScarcePositionsNotAvailableRestriction" | "QPNonUniquePrimarySlotPositionRestriction" | "QPNonUniquePrimarySlotChampionRestriction" | "QPNonUniquePrimarySlotRestriction" | "QPInvalidChampionSelectionRestriction" | "QPInvalidPositionSelectionRestriction" | "QPInvalidNumberOfPlayerSlotsRestriction" | "QPPlayerChampionCoverageRestriction" | "QPPartyChampionCoverageRestriction" | "QPPlayerPositionCoverageRestriction" | "QPPartyPositionCoverageRestriction" | "QPPlayerScarcePositionCoverageRestriction" | "UnknownRestriction" | "PlayerQueueSuspendedRestriction" | "SeasonVersionLockout" | "MinNormalGamesForRankedRestriction" | "LOLNewPlayerRestriction" | "TFTNewPlayerRestriction" | "GameVersionNotSupported" | "GameVersionMissing" | "GameVersionMismatch" | "PrerequisiteQueuesNotPlayedRestriction" | "TeamSizeRestriction" | "TeamHighMMRMaxSizeRestriction" | "PlayerRankedSuspensionRestriction" | "PlayerRankSoloOnlyRestriction" | "PlayerTimePlayedRestriction" | "PlayerMinorRestriction" | "PlayerMinLevelRestriction" | "PlayerMaxLevelRestriction" | "PlayerTimeBasedRankRestriction" | "PlayerGameBasedRankRestriction" | "PlayerLeaverTaintedWarningRestriction" | "PlayerLeaverQueueLockoutRestriction" | "PlayerLeaverBustedRestriction" | "PlayerInGameRestriction" | "PlayerDisruptiveGameplayLockoutRestriction" | "PlayerReadyCheckFailRestriction" | "PlayerDodgeRestriction" | "PlayerBingeRestriction" | "TeamMinSizeRestriction" | "TeamMaxSizeRestriction" | "TeamSkillRestriction" | "TeamDivisionRestriction" | "PlayerAvailableChampionRestriction" | "PlayerBannedRestriction" | "PlayerTimedRestriction" | "PlayerLevelRestriction" | "QueueUnsupported" | "QueueDisabled"
+export type LolLobbyEligibilityRestrictionCode = "FullPartyUnranked" | "PlayerNoRankedUpdatesDueToRankDisparity" | "MmrStandardDeviationTooLarge" | "UserInfoNotAvailable" | "InventoryQueuesInfoNotAvailable" | "InventoryChampsInfoNotAvailable" | "LeaguesInfoNotAvailable" | "SummonerInfoNotAvailable" | "MinorInfoNotAvailable" | "BanInfoNotAvailable" | "TooManyIncompleteSubteamsRestriction" | "QPInsufficientPlayerChampionCoveragePopularChampion" | "QPScarcePositionsNotAvailableRestriction" | "QPNonUniquePrimarySlotPositionRestriction" | "QPNonUniquePrimarySlotChampionRestriction" | "QPNonUniquePrimarySlotRestriction" | "QPInvalidChampionSelectionRestriction" | "QPInvalidPositionSelectionRestriction" | "QPInvalidNumberOfPlayerSlotsRestriction" | "QPPlayerChampionCoverageRestriction" | "QPPartyChampionCoverageRestriction" | "QPPlayerPositionCoverageRestriction" | "QPPartyPositionCoverageRestriction" | "QPPlayerScarcePositionCoverageRestriction" | "UnknownRestriction" | "PlayerQueueSuspendedRestriction" | "SeasonVersionLockout" | "MinNormalGamesForRankedRestriction" | "LOLNewPlayerRestriction" | "TFTNewPlayerRestriction" | "GameVersionNotSupported" | "GameVersionMissing" | "GameVersionMismatch" | "PrerequisiteQueuesNotPlayedRestriction" | "TeamSizeRestriction" | "TeamHighMMRMaxSizeRestriction" | "PlayerRankedSuspensionRestriction" | "PlayerRankSoloOnlyRestriction" | "PlayerTimePlayedRestriction" | "PlayerMinorRestriction" | "PlayerMinLevelRestriction" | "PlayerMaxLevelRestriction" | "PlayerTimeBasedRankRestriction" | "PlayerGameBasedRankRestriction" | "PlayerLeaverTaintedWarningRestriction" | "PlayerLeaverQueueLockoutRestriction" | "PlayerLeaverBustedRestriction" | "PlayerInGameRestriction" | "PlayerDisruptiveVoiceTeamMuteWarning" | "PlayerDisruptiveGameplayLockoutRestriction" | "PlayerReadyCheckFailRestriction" | "PlayerDodgeRestriction" | "PlayerBingeRestriction" | "TeamMinSizeRestriction" | "TeamMaxSizeRestriction" | "TeamSkillRestriction" | "TeamDivisionRestriction" | "PlayerAvailableChampionRestriction" | "PlayerBannedRestriction" | "PlayerTimedRestriction" | "PlayerLevelRestriction" | "QueueUnsupported" | "QueueDisabled"
 
 export interface LolLobbyEntitlementsTokenResource {
 	accessToken: string
@@ -17249,6 +17252,8 @@ export interface LolPerksNamecheckResponse {
 	errors: string[]
 }
 
+export type LolPerksNamecheckValidationContext = "TFT_PLANNER" | "RUNE_PAGE" | "ITEM_PAGE"
+
 export interface LolPerksPerkBook {
 	/** @format int32 */
 	currentPageId: number
@@ -18203,6 +18208,7 @@ export interface LolPremadeVoiceLocalSettingsCategoryDataResource {
 	inputVolume: number
 	/** @format uint32 */
 	vadSensitivity: number
+	vadAuto: boolean
 }
 
 export interface LolPremadeVoiceLocalSettingsCategoryResource {
@@ -18311,6 +18317,7 @@ export interface LolPremadeVoiceSettingsResource {
 	muteOnConnect: boolean
 	vadActive: boolean
 	pttActive: boolean
+	vadAuto: boolean
 	inputMode: LolPremadeVoiceInputMode
 	pttKey?: string
 	pushToTalkTeamKey: string
@@ -19300,7 +19307,7 @@ export interface LolRankedLeagueNotifications {
 	rewardNotifications: LolRankedRewardNotification[]
 }
 
-export type LolRankedLeagueQueueType = "RANKED_TFT_DOUBLE_UP" | "RANKED_TFT_PAIRS" | "RANKED_TFT_TURBO" | "RANKED_TFT" | "RANKED_FLEX_TT" | "CHERRY" | "RANKED_FLEX_SR" | "RANKED_SOLO_5x5" | "NONE"
+export type LolRankedLeagueQueueType = "RANKED_PREMADE_5x5" | "RANKED_TFT_DOUBLE_UP" | "RANKED_TFT_PAIRS" | "RANKED_TFT_TURBO" | "RANKED_TFT" | "RANKED_FLEX_TT" | "CHERRY" | "RANKED_FLEX_SR" | "RANKED_SOLO_5x5" | "NONE"
 
 export interface LolRankedLeagueStanding {
 	/** @format uint64 */
@@ -19711,7 +19718,7 @@ export interface LolRegaliaItemKey {
 
 export type LolRegaliaLeagueDivision = "NA" | "V" | "IV" | "III" | "II" | "I"
 
-export type LolRegaliaLeagueQueueType = "RANKED_TFT_DOUBLE_UP" | "RANKED_TFT_PAIRS" | "RANKED_TFT_TURBO" | "RANKED_TFT" | "RANKED_FLEX_TT" | "CHERRY" | "RANKED_FLEX_SR" | "RANKED_SOLO_5x5" | "NONE"
+export type LolRegaliaLeagueQueueType = "RANKED_PREMADE_5x5" | "RANKED_TFT_DOUBLE_UP" | "RANKED_TFT_PAIRS" | "RANKED_TFT_TURBO" | "RANKED_TFT" | "RANKED_FLEX_TT" | "CHERRY" | "RANKED_FLEX_SR" | "RANKED_SOLO_5x5" | "NONE"
 
 export interface LolRegaliaLoadout {
 	id: string
@@ -21552,7 +21559,7 @@ export interface LolSocialLeaderboardGiftingFriend {
 
 export type LolSocialLeaderboardLeagueDivision = "NA" | "V" | "IV" | "III" | "II" | "I"
 
-export type LolSocialLeaderboardLeagueQueueType = "RANKED_TFT_DOUBLE_UP" | "RANKED_TFT_PAIRS" | "RANKED_TFT_TURBO" | "RANKED_TFT" | "RANKED_FLEX_TT" | "RANKED_FLEX_SR" | "RANKED_SOLO_5x5" | "NONE"
+export type LolSocialLeaderboardLeagueQueueType = "RANKED_PREMADE_5x5" | "RANKED_TFT_DOUBLE_UP" | "RANKED_TFT_PAIRS" | "RANKED_TFT_TURBO" | "RANKED_TFT" | "RANKED_FLEX_TT" | "RANKED_FLEX_SR" | "RANKED_SOLO_5x5" | "NONE"
 
 export type LolSocialLeaderboardLeagueTierNumValue = "CHALLENGER" | "GRANDMASTER" | "MASTER" | "DIAMOND" | "EMERALD" | "PLATINUM" | "GOLD" | "SILVER" | "BRONZE" | "IRON" | "NONE"
 
@@ -22133,6 +22140,12 @@ export interface LolStoreFeaturedPageDTO {
 	Player: LolStorePlayer
 }
 
+export interface LolStoreGameDataChampionSkinInfo {
+	/** @format int32 */
+	id: number
+	relatedPrimeContentId: string
+}
+
 export interface LolStoreGetPlatformIdsFromInstanceIdsRequest {
 	instanceIds: string[]
 }
@@ -22216,10 +22229,6 @@ export interface LolStoreItemSale {
 	active: boolean
 	item: LolStoreItemKey
 	sale: LolStoreSale
-}
-
-export interface LolStoreLoginDataPacket {
-	simpleMessages: LolStoreSimpleDialogMessage[]
 }
 
 export interface LolStoreLoginSession {
@@ -28716,21 +28725,6 @@ export interface SimpleDialogMessage {
 	params: string[]
 }
 
-export interface StoreLcdsSimpleDialogMessage {
-	/** @format uint64 */
-	accountId: number
-	msgId: string
-	type: string
-	params: string[]
-}
-
-export interface StoreLcdsSimpleDialogMessageResponse {
-	/** @format uint64 */
-	accountId: number
-	msgId: string
-	command: string
-}
-
 export interface TeamBuilderDirect_Action {
 	/** @format int32 */
 	actionId: number
@@ -30397,11 +30391,6 @@ export interface YourshopLcdsChampionSkinDTO {
 	owned: boolean
 	/** @format int32 */
 	skinId: number
-}
-
-export interface YourshopLcdsClientDynamicConfigurationNotification {
-	configs: string
-	delta: boolean
 }
 
 export interface YourshopStoreFulfillmentNotification {
