@@ -2,7 +2,7 @@ import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } f
 import { Agent } from "https";
 import { WebSocket } from "ws";
 import { LCUCredentials, MaybePromise, delay, getCredentials } from "./util.js";
-import { TypedEmitter, type ListenerSignature } from "tiny-typed-emitter";
+import { TypedEmitter, type ListenerSignature } from "./typed-emitter.js";
 import RIOT_GAMES_CERTIFICATE from "./riot-games-certificate.js";
 import { EndpointsWithMethod, HttpMethod, LCUEndpoint, LCUEndpointResponseType, LCUEndpoints } from "./types/lcu-endpoints.js";
 import { LCUError, NotConnectedError, RequestError } from "./errors.js";
