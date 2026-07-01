@@ -46,7 +46,9 @@ export async function getCredentials(source: "process" | "lockfile" = "process",
 }
 
 export function getCredentialsFromLockfileContent(lockfileContent: string): LCUCredentials {
-  const match = lockfileContent.match(/^LeagueClient:\d+:(\d+):(.+):https$/);
+  // Trim so content with surrounding whitespace (e.g. a trailing newline from a caller reading the
+  // file themselves) doesn't fail the anchored match.
+  const match = lockfileContent.trim().match(/^LeagueClient:\d+:(\d+):(.+):https$/);
   if (!match)
     throw new Error("Lockfile does not have the expected schema. (/^LeagueClient:\\d+:\\d+:.+:https$/)");
 

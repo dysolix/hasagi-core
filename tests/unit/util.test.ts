@@ -59,6 +59,11 @@ describe("getCredentialsFromLockfileContent", () => {
       .not.toThrow(/s3cret-pw/);
   });
 
+  it("tolerates surrounding whitespace such as a trailing newline", () => {
+    const result = getCredentialsFromLockfileContent("LeagueClient:1234:5678:my-password:https\n");
+    expect(result).toEqual({ port: 5678, password: "my-password" });
+  });
+
   it("should throw on invalid lockfile schema", () => {
     const invalidLockfiles = [
       "LeagueClient:port:password:https",

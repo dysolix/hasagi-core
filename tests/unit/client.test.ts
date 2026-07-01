@@ -221,6 +221,24 @@ describe("HasagiClient.buildRequest", () => {
     expect(cfg.data).toBeUndefined();
   });
 
+  it("sends query params instead of a body for DELETE and HEAD", async () => {
+    // The schema generator never emits a request body for get/head/delete — the typed trailing
+    // argument is always query params, so it must not be sent as a JSON body.
+    const client = await createConnectedClient();
+    mockRequest.mockResolvedValue(lcuResponse("r"));
+
+    for (const method of ["delete", "head"] as const) {
+      mockRequest.mockClear();
+      const fn = client.buildRequest(method as any, "/lol-x/{a}" as any);
+      await (fn as any)("1", { pluginId: 5 });
+
+      const cfg = mockRequest.mock.calls[0][0];
+      expect(cfg.params).toEqual({ pluginId: 5 });
+      expect(cfg.data).toBeUndefined();
+      expect(cfg.headers["Content-Type"]).toBeUndefined();
+    }
+  });
+
   it("sends a body for non-GET methods", async () => {
     const client = await createConnectedClient();
     mockRequest.mockResolvedValue(lcuResponse("r"));
@@ -306,6 +324,18 @@ describe("HasagiClient - LCU event listeners", () => {
     expect(client.removeLCUEventListener(cb)).toBe(true);
     (client as any).handleLCUEvent([8, "OnJsonApiEvent", { uri: "/x", eventType: "Update", data: {} }]);
     expect(cb).not.toHaveBeenCalled();
+  });
+
+  it("removes a path-only listener by its original object despite the internal copy", async () => {
+    // addLCUEventListener stores a copy of path-only listeners (to assign the implicit
+    // OnJsonApiEvent name), so removal by the caller's object must fall back to callback matching.
+    const client = await createConnectedClient();
+    const listener = { path: "/x", callback: vi.fn() };
+    client.addLCUEventListener(listener);
+
+    expect(client.removeLCUEventListener(listener)).toBe(true);
+    (client as any).handleLCUEvent([8, "OnJsonApiEvent", { uri: "/x", eventType: "Update", data: {} }]);
+    expect(listener.callback).not.toHaveBeenCalled();
   });
 
   it("isolates a throwing 'lcu-event' emitter listener from path/name listeners", async () => {

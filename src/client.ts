@@ -676,12 +676,18 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
 
       const body = args[i];
 
+      // The schema generator only ever emits a request body for post/put/patch; for get/head/delete
+      // the trailing argument is always query parameters, so send it as such. (Post/put/patch
+      // endpoints whose LCUEndpoint type declares query params instead of a body — the generator's
+      // multi-argument case — still send them as a body here, as the runtime can't tell them apart.)
+      const isQueryMethod = method === "get" || method === "head" || method === "delete";
+
       const lcuResponse = await this.request({
         method,
         url: requestPath,
-        data: method !== "get" ? body : undefined,
-        params: method === "get" ? body : undefined,
-        headers: { "Content-Type": body !== undefined && method !== "get" ? "application/json" : undefined },
+        data: isQueryMethod ? undefined : body,
+        params: isQueryMethod ? body : undefined,
+        headers: { "Content-Type": body !== undefined && !isQueryMethod ? "application/json" : undefined },
         retryOptions: options?.retryOptions,
       });
 
@@ -727,11 +733,19 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
    * @returns `true` if a listener was found and removed, otherwise `false`.
    */
   public removeLCUEventListener(listener: LCUEventListener | LCUEventListener["callback"] | string) {
-    const index = typeof listener === "function"
-      ? this.lcuEventListeners.findIndex(l => l.callback === listener)
-      : typeof listener === "string"
-        ? this.lcuEventListeners.findIndex(l => l.name === listener || l.path === listener)
-        : this.lcuEventListeners.indexOf(listener);
+    let index: number;
+    if (typeof listener === "function") {
+      index = this.lcuEventListeners.findIndex(l => l.callback === listener);
+    } else if (typeof listener === "string") {
+      index = this.lcuEventListeners.findIndex(l => l.name === listener || l.path === listener);
+    } else {
+      index = this.lcuEventListeners.indexOf(listener);
+      // addLCUEventListener stores a *copy* of path-only listeners (to assign the implicit
+      // OnJsonApiEvent name without mutating the caller's object), so identity can miss — fall
+      // back to matching the callback.
+      if (index === -1)
+        index = this.lcuEventListeners.findIndex(l => l.callback === listener.callback);
+    }
 
     if (index === -1)
       return false;
