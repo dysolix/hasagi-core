@@ -14,7 +14,7 @@
     "test:unit": "npm run test:typecheck && vitest run tests/unit",
     "test:integration": "npm run test:typecheck && vitest run tests/integration",
     "test:typecheck": "tsc -p tests/tsconfig.json",
-    "release": "npm run check:src && npm run build && publint ./dist && attw --pack ./dist && cd ./dist && npm publish --access public",
+    "release": "npm run check:src && npm run build && publint ./dist && attw --pack ./dist && npm publish ./dist --access public",
     "update-types": "hasagi schema --typescript ./src/types",
     "changelog": "node scripts/changelog-stub.mjs",
     "postversion": "npm run changelog",
