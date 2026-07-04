@@ -60,10 +60,6 @@ not retried). Use `lockfile` or `manual` elsewhere.
 await client.connect(); // authenticationStrategy: "process" is implied
 ```
 
-> If multiple `LeagueClientUx` processes are running (e.g. a second client starting before the first has
-> fully exited), the first one reported by the OS is used. To target a specific client, use `lockfile`
-> or pass `manual` credentials you selected yourself — see [[Credentials and Discovery]].
-
 ### `lockfile`
 
 Reads credentials from the client's `lockfile`. Pass either an absolute path to it, or its raw content.

@@ -222,8 +222,7 @@ describe("HasagiClient.buildRequest", () => {
   });
 
   it("sends query params instead of a body for DELETE and HEAD", async () => {
-    // The schema generator never emits a request body for get/head/delete — the typed trailing
-    // argument is always query params, so it must not be sent as a JSON body.
+    // The schema generator never emits a request body for get/head/delete.
     const client = await createConnectedClient();
     mockRequest.mockResolvedValue(lcuResponse("r"));
 
@@ -327,8 +326,6 @@ describe("HasagiClient - LCU event listeners", () => {
   });
 
   it("removes a path-only listener by its original object despite the internal copy", async () => {
-    // addLCUEventListener stores a copy of path-only listeners (to assign the implicit
-    // OnJsonApiEvent name), so removal by the caller's object must fall back to callback matching.
     const client = await createConnectedClient();
     const listener = { path: "/x", callback: vi.fn() };
     client.addLCUEventListener(listener);

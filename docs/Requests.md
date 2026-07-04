@@ -129,7 +129,8 @@ without restating the method and path, and optionally transform parameters and/o
 ```ts
 const getSummonerById = client.buildRequest("get", "/lol-summoner/v1/summoners/{id}");
 
-// Path params are positional, in the order they appear in the path; the body (if any) comes last.
+// Path params are positional, in the order they appear in the path. The last argument is the
+// request body — or, for GET/HEAD/DELETE endpoints, the query parameters.
 const summoner = await getSummonerById("123");
 ```
 
@@ -146,17 +147,29 @@ const name = await getCurrentRunePageName();
 ### Transforming parameters
 
 `transformParameters` lets the built function take friendlier arguments and map them to the endpoint's
-actual parameters (it may be async):
+actual parameter tuple:
 
 ```ts
-const setLobbyQueue = client.buildRequest("post", "/lol-lobby/v2/lobby", {
-  transformParameters: (queue: "draft" | "ranked") => {
-    const queueId = queue === "ranked" ? 420 : 400;
-    return [{ queueId }]; // the endpoint's real parameter tuple: [body]
-  },
+const downloadReplay = client.buildRequest("post", "/lol-replays/v1/rofls/{gameId}/download", {
+  // The endpoint's real parameters are [gameId, body]; the caller only supplies the gameId.
+  transformParameters: (gameId: number) => [gameId, { componentType: "replay-button_match-history" }] as const,
 });
 
-await setLobbyQueue("ranked");
+await downloadReplay(2809535942);
+```
+
+It may also be async — useful when a parameter has to be looked up first:
+
+```ts
+const getOwnedSkins = client.buildRequest("get", "/lol-champions/v1/inventories/{summonerId}/skins-minimal", {
+  transformParameters: async () => {
+    const summoner = await client.request("get", "/lol-summoner/v1/current-summoner");
+    return [summoner.summonerId] as const;
+  },
+  transformResponse: (skins) => skins.filter((skin) => skin.ownership.owned),
+});
+
+const ownedSkins = await getOwnedSkins(); // no arguments needed
 ```
 
 ### Options

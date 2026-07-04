@@ -10,6 +10,7 @@
 - [[Standalone Requests]]
 - [[Events]]
 - [[Polling]]
+- [[Common Endpoints]]
 
 **Reference**
 - [[Credentials and Discovery]]

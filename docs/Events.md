@@ -64,8 +64,8 @@ Match a family of resources with a `RegExp`:
 
 ```ts
 client.addLCUEventListener({
-  path: /^\/lol-chat\/v1\/conversations\/.+\/messages$/,
-  callback: (event) => console.log("new chat activity:", event.data),
+  path: /^\/lol-lobby\/v2\/lobby(\/.+)?$/,
+  callback: (event) => console.log("lobby changed:", event.data),
 });
 ```
 

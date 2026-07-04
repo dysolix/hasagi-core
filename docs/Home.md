@@ -50,6 +50,7 @@ New here? Start with **[[Getting Started]]** for installation and your first req
 | [[Standalone Requests]] | One-off `request()` without a client |
 | [[Events]] | WebSocket event subscriptions and filtering |
 | [[Polling]] | Interval polling of endpoints |
+| [[Common Endpoints]] | Frequently used endpoints and their quirks |
 | [[Credentials and Discovery]] | Low-level credential helpers |
 | [[TLS and Certificates]] | The `certificate` option and its defaults |
 | [[Type System]] | Generated types and subpath exports |

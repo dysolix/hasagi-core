@@ -1,8 +1,8 @@
 # Type System
 
-Hasagi's headline feature is that nearly every LCU endpoint and event is **fully typed**. The types are
-auto-generated from the LCU's schema, so request bodies, query/path params, responses, and event
-payloads are all checked and inferred for known endpoints.
+Nearly every LCU endpoint and event is **fully typed**. The types are auto-generated from the LCU's
+schema, so request bodies, query/path params, responses, and event payloads are all checked and
+inferred for known endpoints.
 
 ## How typed requests work
 
@@ -57,6 +57,7 @@ programmatically:
 | `LCUEndpoint<Method, Path>` | The callable function signature for an endpoint. |
 | `LCUEndpointResponseType<Method, Path>` | The response type for an endpoint. |
 | `LCUEndpointBodyType<Method, Path>` | The request-body type for an endpoint. |
+| `LCUEndpointParams<Method, Path>` | The query-parameter type for an endpoint. |
 | `LCUWebSocketEvents` | Map of WebSocket event names to their payload types. |
 
 These power `buildRequest`, `poll`, and the event API internally, and are useful when writing your own

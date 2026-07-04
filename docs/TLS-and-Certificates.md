@@ -71,8 +71,6 @@ pass your own agent, configure validation on it directly.
 
 ## Connection pooling note
 
-This is a TLS topic with a performance footnote worth knowing:
-
 - A **`HasagiClient`** builds one keep-alive HTTPS agent per connection and **pools sockets**, so repeated
   requests reuse the TCP + TLS handshake. The agent is destroyed on `disconnect()`.
 - The **standalone `request`** opens a fresh connection each call (no keep-alive), so a pooled socket

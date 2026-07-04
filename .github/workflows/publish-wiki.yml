@@ -1,9 +1,7 @@
 name: Publish Wiki
 
-# Publishes the in-repo docs (core/docs/) to this repository's GitHub Wiki, so the wiki is a
+# Publishes the in-repo docs to this repository's GitHub Wiki, so the wiki is a
 # generated mirror reviewed alongside code instead of a separately-maintained repo that drifts.
-# Requires "Read and write permissions" for Actions (Settings -> Actions -> General -> Workflow
-# permissions); the built-in GITHUB_TOKEN can then push to <repo>.wiki.git.
 
 on:
   push:

@@ -23,8 +23,7 @@ client.on("connection-attempt-failed", () => console.log("not found yet, retryin
 
 ## "Authentication strategy 'process' is not supported on this platform"
 
-**Cause:** the `process` strategy is only implemented for **Windows and macOS**. On Linux (and other
-platforms) it throws immediately.
+**Cause:** the `process` strategy is only implemented for **Windows and macOS**. On Linux it throws immediately.
 
 **Fix:** use the `lockfile` strategy and point it at the client's lockfile:
 
@@ -42,24 +41,8 @@ See [[Connecting]] and [[Credentials and Discovery]].
 **Cause:** no running `LeagueClientUx` process was found. The client isn't running, or only the early
 `LeagueClient` process (not `LeagueClientUx`) has started.
 
-**Fix:** make sure you're fully logged in / past the launcher. If you're scripting startup, keep
+**Fix:** make sure you're fully past the launcher (Riot Client). If you're scripting startup, keep
 `maxConnectionAttempts` high (or `-1`) so Hasagi waits for the UX process to appear.
-
-## Connection drops to the wrong client / multiple clients
-
-**Cause:** with several `LeagueClientUx` processes running (e.g. a second client launched before the
-first exited), the `process` strategy uses whichever the OS reports first.
-
-**Fix:** select the PID yourself and connect with `manual` credentials:
-
-```ts
-import { getLeagueClientUxProcesses, getCredentialsByProcessId } from "@hasagi/core/credentials";
-
-const pids = await getLeagueClientUxProcesses();
-const credentials = await getCredentialsByProcessId(pids[/* the one you want */ 0]);
-
-await client.connect({ authenticationStrategy: "manual", credentials });
-```
 
 ## TLS / certificate errors
 
@@ -112,10 +95,9 @@ also emits `disconnected`.
 
 See [[Events]].
 
-## Standalone `request` keeps the process alive / is slow
+## Many standalone `request` calls are slow
 
-**Cause:** for one-off calls this is expected — but if you're making **many** standalone calls, each
-opens a fresh connection (no socket pooling).
+**Cause:** each standalone call opens a fresh TCP + TLS connection (no socket pooling).
 
 **Fix:** use a `HasagiClient` instead. Its agent pools sockets via keep-alive and is destroyed on
 `disconnect()`. See [[Standalone Requests]].

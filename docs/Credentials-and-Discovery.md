@@ -40,9 +40,6 @@ const creds2 = await getCredentials("lockfile", "C:\\Riot Games\\League of Legen
 | `lockfile` | path or content | Required when `source` is `"lockfile"`. |
 
 > **`process` is Windows/macOS only.** On other platforms it throws — use `"lockfile"` there.
->
-> With multiple `LeagueClientUx` processes running, `"process"` uses the first one the OS reports. To
-> target a specific client, use the lockfile or `getCredentialsByProcessId` with a PID you select.
 
 ## Low-level helpers (`@hasagi/core/credentials`)
 
@@ -71,8 +68,8 @@ const pids = await getLeagueClientUxProcesses();
 
 ### `getCredentialsByProcessId(processId): Promise<LCUCredentials>`
 
-Reads the port and password from a specific process's command-line arguments. Use this with a PID from
-`getLeagueClientUxProcesses` to target a particular client when several are running.
+Reads the port and password from a specific process's command-line arguments, e.g. with a PID from
+`getLeagueClientUxProcesses`.
 
 ```ts
 const pids = await getLeagueClientUxProcesses();
@@ -84,11 +81,10 @@ await client.connect({ authenticationStrategy: "manual", credentials: creds });
 Throws if the PID isn't a valid integer, the process can't be found, or the port/password can't be
 parsed from its command line.
 
-### `getCredentialsFromLockfileContent(content): Promise<LCUCredentials>`
+### `getCredentialsFromLockfileContent(content): LCUCredentials`
 
-Parses credentials from raw lockfile content (synchronously, despite returning through `getCredentials`'
-async path). Useful if you've already read the file — or received its content over IPC — and don't want
-Hasagi to read it again.
+Parses credentials from raw lockfile content (synchronous). Useful if you've already read the file —
+or received its content over IPC — and don't want Hasagi to read it again.
 
 ```ts
 import { readFile } from "node:fs/promises";
@@ -106,7 +102,7 @@ extracts the port and password and throws if the format doesn't match.
 |--------------|-----|
 | Just connect | [[Connecting|`connect()`]] — handles discovery internally |
 | One standalone request | `getCredentials()` → [[Standalone Requests|`request()`]] |
-| Target a specific client among several | `getLeagueClientUxProcesses` + `getCredentialsByProcessId` |
+| Discover from a specific process | `getLeagueClientUxProcesses` + `getCredentialsByProcessId` |
 | Parse credentials you already have | `getCredentialsFromLockfileContent` |
 | Run on Linux / unsupported platform | `lockfile` source (process discovery is Windows/macOS only) |
 

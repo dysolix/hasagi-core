@@ -12,11 +12,8 @@ export type LCUCredentials = {
 
 /**
  * Easiest way to retrieve credentials
- * @param lockfile Required if source="lockfile". Can either be the absolute path to the lockfile or it's content.
- * @note With `source="process"` and multiple `LeagueClientUx` processes running (e.g. a second client
- * starting up before the first has fully exited), the first one reported by the OS is used. Use the
- * `lockfile` source, or {@link getCredentialsByProcessId} with a process id you select yourself, if you
- * need to target a specific client.
+ * @param lockfile Required if source="lockfile". Can either be the absolute path to the lockfile or its content.
+ * @note With multiple `LeagueClientUx` processes running, the first one reported by the OS is used.
  */
 export async function getCredentials(source: "process" | "lockfile" = "process", lockfile?: string): Promise<LCUCredentials> {
   if (source === "process") {
@@ -45,9 +42,9 @@ export async function getCredentials(source: "process" | "lockfile" = "process",
   }
 }
 
+/** Parses credentials from raw lockfile content (`LeagueClient:<pid>:<port>:<password>:https`). */
 export function getCredentialsFromLockfileContent(lockfileContent: string): LCUCredentials {
-  // Trim so content with surrounding whitespace (e.g. a trailing newline from a caller reading the
-  // file themselves) doesn't fail the anchored match.
+  // Trim so a trailing newline doesn't fail the anchored match.
   const match = lockfileContent.trim().match(/^LeagueClient:\d+:(\d+):(.+):https$/);
   if (!match)
     throw new Error("Lockfile does not have the expected schema. (/^LeagueClient:\\d+:\\d+:.+:https$/)");
@@ -67,8 +64,7 @@ export function getCredentialsFromLockfileContent(lockfileContent: string): LCUC
 export function getLeagueClientUxProcesses(): Promise<number[]> {
   const command = process.platform !== "darwin" ? "(Get-CimInstance Win32_Process -Filter \"Name='LeagueClientUx.exe'\").ProcessId" : "ps -A | grep LeagueClientUx | awk '{print $1}'";
   return new Promise<number[]>((resolve, reject) => {
-    // Only a non-zero exit (err) is fatal. PowerShell can write non-fatal warnings/progress to
-    // stderr, so we don't reject on stderr alone — an empty result simply means none are running.
+    // PowerShell writes non-fatal warnings/progress to stderr, so only a non-zero exit is fatal.
     exec(command, { shell, windowsHide: true }, (err, stdout) => {
       if (err)
         return reject(new Error("Could not retrieve LeagueClientUx process ids.", { cause: err }));
@@ -78,16 +74,15 @@ export function getLeagueClientUxProcesses(): Promise<number[]> {
   });
 }
 
+/** Reads the credentials from the command line of the process with the given id. */
 export async function getCredentialsByProcessId(processId: number): Promise<LCUCredentials> {
-  // Guard the shell-command interpolation below: this is a public API, so a non-integer value from
-  // an untyped (JS) caller must not be able to inject into the PowerShell/ps command string.
+  // Guards the shell interpolation below against injection from untyped (JS) callers.
   if (!Number.isInteger(processId))
     throw new Error(`Invalid process id: ${String(processId)}. Expected an integer.`);
 
   const command = process.platform !== "darwin" ? `(Get-CimInstance Win32_Process -Filter "ProcessId=${processId}").CommandLine` : `ps -p ${processId} -o command=`;
   const commandLine = await new Promise<string>((resolve, reject) => {
-    // Only a non-zero exit (err) is fatal. PowerShell can write non-fatal warnings to stderr, so we
-    // don't reject on stderr alone; we only surface it when the command produced no usable output.
+    // stderr alone isn't fatal (PowerShell warnings); it's only surfaced without usable output.
     exec(command, { shell, windowsHide: true }, (err, stdout, stderr) => {
       if (err)
         return reject(new Error(`Could not retrieve command line of process with PID ${processId}.${stderr ? ` ${stderr}` : ""}`, { cause: err }));

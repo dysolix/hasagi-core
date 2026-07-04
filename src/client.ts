@@ -9,44 +9,25 @@ import { LCUError, NotConnectedError, RequestError } from "./errors.js";
 import { LCUWebSocketEvents } from "./types/lcu-events.js";
 
 /**
- * Shared agent for the standalone `request` function's default path: validates the LCU's TLS
- * certificate against the built-in Riot Games certificate, matching {@link HasagiClient}'s default.
- * No keep-alive: the standalone helper is for one-off calls, and a pooled socket would keep the
- * process alive at exit. Repeated/high-frequency requests should use a HasagiClient instance, whose
- * agent pools sockets (keep-alive) and is destroyed on disconnect.
+ * Default TLS agent for standalone `request` calls: validates against the built-in Riot Games
+ * certificate. No keep-alive — a pooled socket would keep the process alive at exit.
  */
 const DEFAULT_STANDALONE_AGENT = new Agent({ rejectUnauthorized: true, ca: RIOT_GAMES_CERTIFICATE });
 
-/**
- * Resolves the TLS agent for a standalone `request` call from its optional `certificate` option:
- * `undefined` reuses the shared {@link DEFAULT_STANDALONE_AGENT} (validates against the built-in Riot
- * certificate); `null` builds a fresh non-validating agent; a string builds an agent that trusts that
- * certificate as its CA. Like the default agent, the per-call agents don't keep-alive, so they hold no
- * sockets open at exit.
- */
+/** `undefined` → shared default agent, `null` → no validation, string → trust that CA. */
 function resolveStandaloneAgent(certificate: string | null | undefined): Agent {
   if (certificate === undefined)
     return DEFAULT_STANDALONE_AGENT;
   return new Agent({ rejectUnauthorized: certificate !== null, ca: certificate ?? undefined });
 }
 
-/**
- * Substitutes every `{name}` placeholder in a path with the matching value from `params`, replacing
- * all occurrences in a single pass. A placeholder with no matching key is left intact. Uses a
- * replacer callback so `$`-sequences in the values aren't treated as replacement patterns.
- */
+/** Substitutes every `{name}` placeholder; unmatched ones are left intact. (Replacer callback so `$` in values isn't a replacement pattern.) */
 function substitutePathParameters(path: string, params: Record<string, string>): string {
   return path.replace(/{(.*?)}/g, (match, name: string) => name in params ? params[name] : match);
 }
 
-/**
- * Parses the two supported request argument shapes (a raw axios config, or method/path/options)
- * into a normalized form shared by both the standalone `request` function and `HasagiClient.request`.
- */
+/** Normalizes the two request argument shapes (raw axios config, or method/path/options). */
 function parseRequestArgs(args: any[], defaultRetryOptions?: Partial<RequestRetryOptions> | null): { axiosConfig: AxiosRequestConfig; returnAxiosResponse: boolean; retryOptions: RequestRetryOptions; certificate: string | null | undefined } {
-  // Layered, last-wins merge: built-in defaults < client-wide default < per-call override (applied
-  // below). Each layer overrides only the fields it sets, so a per-call override of one field keeps
-  // the rest of the client default intact.
   let retryOptions: RequestRetryOptions = {
     maxRetries: 0,
     retryDelay: 1000,
@@ -56,21 +37,17 @@ function parseRequestArgs(args: any[], defaultRetryOptions?: Partial<RequestRetr
 
   let axiosConfig: AxiosRequestConfig;
   let returnAxiosResponse = false;
-  // Extracted here (the only place that knows which arg holds the options) so callers don't have to
-  // re-derive the arg shape. Only the standalone `request` consumes it; HasagiClient.request ignores it.
+  // Only the standalone `request` consumes this; HasagiClient.request ignores it.
   let certificate: string | null | undefined;
 
   if (typeof args[0] !== "string") {
     // Raw axios config overload
     const config = args[0] as AxiosRequestConfig & { returnAxiosResponse?: boolean; retryOptions?: Partial<RequestRetryOptions>; certificate?: string | null };
-    // Shallow-copy so we never mutate the caller's config object (e.g. injecting Content-Type below),
-    // and strip our own non-axios keys so they aren't forwarded into the axios request config.
+    // Copy (never mutate the caller's config) and strip the non-axios keys.
     const configCopy = { ...config };
     delete configCopy.returnAxiosResponse;
     delete configCopy.retryOptions;
     delete configCopy.certificate;
-    // Copy headers too (not just the top-level object) so the caller's headers object is never
-    // mutated downstream; inject the JSON Content-Type only when there's a body.
     configCopy.headers = config.data !== undefined
       ? { "Content-Type": "application/json", ...config.headers }
       : { ...config.headers };
@@ -107,9 +84,8 @@ function parseRequestArgs(args: any[], defaultRetryOptions?: Partial<RequestRetr
       retryOptions = { ...retryOptions, ..._config.retryOptions };
   }
 
-  // Re-assert the required fields: now that overrides are Partial, an explicit `undefined` in a
-  // default or per-call override would clobber a built-in default during the spreads above (and a
-  // `undefined` maxRetries would make runWithRetry's attempt count NaN). Fall back, don't clobber.
+  // An explicit `undefined` in an override must fall back to the default, not clobber it
+  // (an undefined maxRetries would make runWithRetry's attempt count NaN).
   return {
     axiosConfig,
     returnAxiosResponse,
@@ -124,14 +100,12 @@ function parseRequestArgs(args: any[], defaultRetryOptions?: Partial<RequestRetr
 
 /**
  * Runs an axios request with the shared retry/error-wrapping behavior.
- * @param send Performs the actual axios call (raw or via an instance).
- * @param onExhausted Optional hook invoked once all attempts are used up, before the final throw. May throw to short-circuit.
+ * @param onExhausted Invoked once all attempts are used up, before the final throw. May throw to short-circuit.
  */
 async function runWithRetry(send: () => Promise<AxiosResponse<unknown>>, returnAxiosResponse: boolean, retryOptions: RequestRetryOptions, onExhausted?: (err: unknown) => void): Promise<unknown> {
   const maxAttempts = retryOptions.maxRetries + 1;
   const retryDelay = retryOptions.retryDelay;
-  // parseRequestArgs (the only caller path) always populates this, defaulting to [400].
-  const noRetryStatusCodes = retryOptions.noRetryStatusCodes!;
+  const noRetryStatusCodes = retryOptions.noRetryStatusCodes!; // always populated by parseRequestArgs
 
   const errors: unknown[] = [];
   while (errors.length < maxAttempts) {
@@ -185,7 +159,6 @@ async function request<ReturnAxiosResponse extends boolean = false>(credentials:
 async function request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(credentials: LCUCredentials, method: Method, path: Path, ...options: LCURequestOptionsParameter<Method, Path, { certificate?: string | null }>): Promise<LCUEndpointResponseType<Method, Path>>;
 async function request() {
   const credentials: LCUCredentials = arguments[0];
-  // parseRequestArgs extracts the optional `certificate` (and strips it before it reaches axios).
   const { axiosConfig, returnAxiosResponse, retryOptions, certificate } = parseRequestArgs(Array.prototype.slice.call(arguments, 1));
 
   const finalAxiosConfig: AxiosRequestConfig = {
@@ -195,8 +168,6 @@ async function request() {
       username: "riot",
       password: credentials.password,
     },
-    // A caller-supplied agent (raw axios config overload) wins; otherwise resolve one from `certificate`,
-    // falling back to the shared built-in-certificate-validating agent when `certificate` is omitted.
     httpsAgent: axiosConfig.httpsAgent ?? resolveStandaloneAgent(certificate),
     adapter: "http",
   };
@@ -212,33 +183,24 @@ export { request };
  * LCU WebSocket events to listeners. Extends a typed event emitter (see {@link HasagiCoreEvents}).
  */
 export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSignature<Events> = HasagiCoreEvents> extends TypedEmitter<Events> {
-  /**
-   * The most recently constructed instance. Every `new HasagiClient()` overwrites it — see
-   * {@link HasagiClient.getInstance}. Holding only the latest is intentional (a convenience for
-   * single-client apps), so be deliberate about constructing more than one.
-   */
   private static Instance?: HasagiClient<any>;
   /**
-   * Returns the **most recently constructed** `HasagiClient`, or `undefined` if none exists. Defaults
-   * to {@link HasagiCoreEvents} typing; pass the event-map type argument (e.g. a subclass's widened
-   * events) to type the result accordingly — the static field can't infer it from construction.
-   * @note This is a convenience global, not a true singleton: constructing another client replaces
-   * what this returns. If your app uses multiple clients, pass references explicitly instead.
+   * Returns the **most recently constructed** `HasagiClient`, or `undefined` if none exists — a
+   * convenience global, not a true singleton. Pass the event-map type argument (e.g. a subclass's
+   * widened events) to type the result accordingly.
    */
   public static getInstance = <Events extends HasagiCoreEvents & ListenerSignature<Events> = HasagiCoreEvents>(): HasagiClient<Events> | undefined =>
     HasagiClient.Instance as HasagiClient<Events> | undefined;
 
   /**
-   * Overrides what {@link HasagiClient.getInstance} returns, or clears it (pass `undefined`/`null`).
-   * Constructing a client sets this to the new instance automatically; call it to designate a preferred
-   * instance, or to release the global reference so a no-longer-used client can be garbage collected —
-   * the static otherwise retains the most recently constructed instance for the life of the process,
-   * even after {@link HasagiClient.disconnect}.
+   * Overrides what {@link HasagiClient.getInstance} returns, or clears it (pass `undefined`/`null`)
+   * so a no-longer-used client can be garbage collected.
    */
   public static setInstance = (instance?: HasagiClient<any> | null): void => {
     HasagiClient.Instance = instance ?? undefined;
   };
 
+  /** Whether the client is currently connected. */
   public isConnected: boolean = false;
   /** Will always be null if lockfile authentication is used */
   private processId: number | null = null;
@@ -251,9 +213,8 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
   private lcuEventListeners: LCUEventListener[] = [];
   private defaultRetryOptions: Partial<RequestRetryOptions> | null = null;
   /**
-   * Monotonic token identifying the in-flight {@link HasagiClient.connect} call. Every connect()
-   * bumps it; an older call whose token no longer matches has been superseded by a newer connect()
-   * and bails out without mutating shared state (generalizes the `this.webSocket === ws` guards).
+   * Token identifying the in-flight {@link HasagiClient.connect} call; a call whose token no longer
+   * matches has been superseded and must not mutate shared state.
    */
   private connectGeneration = 0;
 
@@ -270,7 +231,9 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
 
   /** Will always be null if lockfile authentication is used */
   public readonly getProcessId = () => this.processId;
+  /** The password used to authenticate with the LCU (remoting auth token) */
   public readonly getPassword = () => this.password;
+  /** The port the LCU is listening on */
   public readonly getPort = () => this.port;
   /** The base64 encoded basic auth token ("riot:{password}") */
   public readonly getBasicAuthToken = () => this.basicAuthToken;
@@ -278,13 +241,12 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
   /** e.g. riot:123456789@127.0.0.1:12345 */
   public readonly getHostWithAuthentication = () => this.password && this.port ? `riot:${encodeURIComponent(this.password)}@127.0.0.1:${this.port}` : null;
 
+  /** Sets the client-wide default retry options. Per-call `retryOptions` are merged on top of these. */
   public readonly setDefaultRetryOptions = (options: Partial<RequestRetryOptions>) => this.defaultRetryOptions = options;
 
   /**
-   * Emits a built-in core event. Internal emits go through this helper (typed to
-   * {@link HasagiCoreEvents}) because, from inside the generic class, `Parameters<Events[U]>` of the
-   * public {@link emit} is unresolvable — `this.emit("connected")` would not typecheck. Subclasses may
-   * widen `Events`, but core only ever emits the keys it declares, so casting to the base emitter is sound.
+   * Emits a built-in {@link HasagiCoreEvents} event. From inside the generic class,
+   * `Parameters<Events[U]>` doesn't resolve, so `this.emit("connected")` wouldn't typecheck.
    */
   private emitCore<U extends keyof HasagiCoreEvents>(event: U, ...args: Parameters<HasagiCoreEvents[U]>): boolean {
     return (this as unknown as TypedEmitter<HasagiCoreEvents>).emit(event, ...args);
@@ -307,6 +269,14 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
         8: Event
     */
 
+  /**
+   * Subscribes to a WebSocket event so the LCU starts sending it. **You most likely don't need to
+   * call this** — {@link HasagiClient.addLCUEventListener} subscribes automatically. Its only use is
+   * consuming events through the raw `lcu-event` emitter without registering a listener.
+   *
+   * Subscriptions made while disconnected are queued and sent once the socket opens, and survive
+   * reconnects.
+   */
   public subscribeWebSocketEvent = (eventName: keyof LCUWebSocketEvents) => {
     if (this.webSocket === null) {
       this.subscribedEvents.add(eventName);
@@ -320,6 +290,7 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
     this.webSocket!.send(JSON.stringify([5, eventName]));
   };
 
+  /** Unsubscribes from a WebSocket event. No-op if the event isn't subscribed or the socket is closed. */
   public unsubscribeWebSocketEvent = (eventName: keyof LCUWebSocketEvents) => {
     if (this.webSocket === null) return;
     if (this.subscribedEvents.delete(eventName))
@@ -342,25 +313,17 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
   public async connect(options?: ConnectionOptions): Promise<void> {
     const useWebSocket = options?.useWebSocket ?? true;
 
-    // Claim this connect() as the current one. A later connect() bumps the token, after which the
-    // checks below short-circuit this (now superseded) call so it can't clobber the newer state.
     const myGen = ++this.connectGeneration;
 
-    // Deterministically tear down any existing connection first. Setting isConnected = false here
-    // (rather than relying on the old socket's onclose, which the identity guard ignores) ensures
-    // onConnected() re-subscribes events and emits "connected" on a forced reconnect. Done silently
-    // (no "disconnected" emit) to avoid re-entrancy if a "disconnected" handler calls connect().
+    // Tear down any existing connection silently (no "disconnected" emit).
     this.isConnected = false;
     this.resetConnectionState();
 
-    // TLS options shared by the request agent and the WebSocket. `certificate: null` disables
-    // validation; otherwise the provided (or built-in Riot) certificate is trusted.
+    // TLS options shared by the request agent and the WebSocket.
     const agent = {
       rejectUnauthorized: options?.certificate !== null,
       ca: options?.certificate === null ? undefined : (options?.certificate ?? RIOT_GAMES_CERTIFICATE),
     };
-    // Reused across every request for this connection; keep-alive pools sockets so each LCU call
-    // skips a fresh TCP + TLS handshake. Destroyed by resetConnectionState() on disconnect/reconnect.
     this.httpsAgent = new Agent({ ...agent, keepAlive: true });
 
     try {
@@ -368,8 +331,7 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
       if (options?.authenticationStrategy === "manual") {
         if (!options.credentials)
           throw new Error("No credentials provided for manual authentication strategy.");
-        // Emit "connecting" once here too: the process/lockfile path emits it per attempt inside
-        // acquireCredentials, which the manual path skips — without this it would never fire for manual.
+        // The process/lockfile path emits "connecting" inside acquireCredentials; manual skips it.
         this.emitCore("connecting");
         credentials = options.credentials;
       } else {
@@ -377,7 +339,6 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
         const lockfile = options?.authenticationStrategy === "lockfile" ? options.lockfile : null;
         credentials = await this.acquireCredentials(strategy, lockfile, options?.maxConnectionAttempts ?? -1, options?.connectionAttemptDelay ?? 5000, myGen);
       }
-      // Superseded by a newer connect() while acquiring credentials — the newer call owns the state.
       if (this.connectGeneration !== myGen)
         return;
       this.applyCredentials(credentials);
@@ -394,10 +355,8 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
           return;
       }
     } catch (err) {
-      // Superseded mid-connect: a newer connect() already reset/rebuilt the state, so leave it alone.
       if (this.connectGeneration !== myGen)
         return;
-      // Any failure after the agent was created — leave the client cleanly disconnected, then rethrow.
       this.resetConnectionState();
       throw err;
     }
@@ -459,8 +418,7 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
 
     let attempt = 0;
     while (maxAttempts === -1 || attempt++ < maxAttempts) {
-      // Stop a superseded connect() from retrying forever (maxAttempts === -1). connect() discards
-      // this throw via its generation check, so the message is never surfaced to the caller.
+      // Superseded — stop retrying; connect() discards this throw via its generation check.
       if (this.connectGeneration !== generation)
         throw new Error("connect() superseded by a newer connection attempt.");
 
@@ -507,10 +465,8 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
   }
 
   /**
-   * Opens the LCU event WebSocket, resolving once it's open and rejecting (with a clear error) on an
-   * early error/close or after `timeoutMs`. Once open, a later close drives onDisconnected() and
-   * runtime errors surface via the "websocket-error" event. A stale socket (replaced by a newer
-   * connect() call) is ignored via an identity check so it can't mutate the current connection.
+   * Opens the LCU event WebSocket: resolves once open, rejects on an early error/close or after
+   * `timeoutMs`. Events from a socket replaced by a newer connect() are ignored via identity checks.
    */
   private openWebSocket(agent: { rejectUnauthorized: boolean; ca: string | undefined }, timeoutMs: number): Promise<void> {
     return new Promise<void>((resolve, reject) => {
@@ -543,7 +499,6 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
           return;
         }
 
-        // Ignore close events from a stale socket replaced by a newer connect() call.
         if (this.webSocket === ws) this.onDisconnected();
       };
 
@@ -571,7 +526,6 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
           return;
         }
 
-        // Ignore error events from a stale socket replaced by a newer connect() call.
         if (this.webSocket === ws) this.emitCore("websocket-error", ev.error);
       };
     });
@@ -646,7 +600,6 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
           return;
       }
 
-      // Skip the wait after the final execution.
       if (executions < maxExecutions)
         await delay(pollOptions.intervalMs);
     }
@@ -663,10 +616,8 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
       if (options?.transformParameters)
         args = await options.transformParameters(...args);
 
-      // Map each path placeholder, in order, to the leading positional args; the next arg is the body.
-      // Assumes distinct placeholder names (true for all generated endpoint types) — a name repeated
-      // in the path collapses to a single record key, so every occurrence takes the last positional
-      // arg given for that name (while i still advances once per occurrence).
+      // Path placeholders map, in order, to the leading positional args; the next arg is the
+      // body/query. Assumes distinct placeholder names (true for all generated endpoints).
       const pathParams = path.match(/{(.*?)}/g)?.map(str => str.substring(1, str.length - 1)) ?? [];
       let i = 0;
       const pathParamValues: Record<string, string> = {};
@@ -676,10 +627,9 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
 
       const body = args[i];
 
-      // The schema generator only ever emits a request body for post/put/patch; for get/head/delete
-      // the trailing argument is always query parameters, so send it as such. (Post/put/patch
-      // endpoints whose LCUEndpoint type declares query params instead of a body — the generator's
-      // multi-argument case — still send them as a body here, as the runtime can't tell them apart.)
+      // The schema generator only emits request bodies for post/put/patch; for get/head/delete the
+      // trailing argument is always query params. (Post/put/patch endpoints typed with query params
+      // instead of a body still send them as a body — indistinguishable at runtime.)
       const isQueryMethod = method === "get" || method === "head" || method === "delete";
 
       const lcuResponse = await this.request({
@@ -703,7 +653,10 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
 
   // #region LCU Events
   /**
-   * Adds a LCU event listener. If only a path is provided then OnJsonApiEvent will automatically be subscribed.
+   * Adds an LCU event listener and subscribes to the WebSocket event it needs, at the time of the
+   * call: the listener's `name` if present, otherwise `OnJsonApiEvent` (the event stream all JSON API
+   * events arrive on) if a `path` is given. A listener with neither `name` nor `path` subscribes to
+   * nothing — its callback only fires for events subscribed to by other listeners.
    */
   public addLCUEventListener<EventName extends keyof LCUWebSocketEvents = "OnJsonApiEvent">(listener: {
     /** If present, the callback will only be called if the event's path matches. OnJsonApiEvent will be subscribed to if you only use the path. */
@@ -740,9 +693,7 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
       index = this.lcuEventListeners.findIndex(l => l.name === listener || l.path === listener);
     } else {
       index = this.lcuEventListeners.indexOf(listener);
-      // addLCUEventListener stores a *copy* of path-only listeners (to assign the implicit
-      // OnJsonApiEvent name without mutating the caller's object), so identity can miss — fall
-      // back to matching the callback.
+      // Path-only listeners are stored as copies (implicit OnJsonApiEvent name), so identity can miss.
       if (index === -1)
         index = this.lcuEventListeners.findIndex(l => l.callback === listener.callback);
     }
@@ -757,6 +708,7 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
     return true;
   }
 
+  /** Removes all LCU event listeners and unsubscribes every subscribed WebSocket event. */
   public removeAllLCUEventListeners() {
     this.lcuEventListeners = [];
     this.subscribedEvents.forEach(event => this.unsubscribeWebSocketEvent(event));
@@ -765,15 +717,13 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
   }
 
   private handleLCUEvent<EventName extends keyof LCUWebSocketEvents = "OnJsonApiEvent">(event: [opcode: number, name: EventName, data: LCUWebSocketEvents[EventName]]) {
-    // Dispatch "lcu-event" with the same per-listener isolation as the path/name listeners below.
-    // emit() invokes listeners synchronously, so an early throwing one would abort the rest; instead
-    // we invoke a snapshot (rawListeners() returns a fresh array, and the once-wrappers it contains
-    // still self-remove when called) and contain each listener's errors individually.
+    // Invoke a snapshot instead of emit() so a throwing listener can't abort the rest;
+    // rawListeners() returns a fresh array and its once-wrappers still self-remove when called.
     for (const listener of this.rawListeners("lcu-event")) {
       try {
         (listener as (e: typeof event) => void)(event);
       } catch {
-        // Listener errors are contained here and do not affect other listeners.
+        // isolate listener errors
       }
     }
 
@@ -782,9 +732,7 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
     const eventType = payload?.eventType;
     const name = event[1];
 
-    // Snapshot the listeners so a callback that adds/removes listeners during dispatch can't skip
-    // siblings (e.g. a self-removing one-shot listener). Single inlined pass — no per-element
-    // predicate closure or second forEach pass like the previous filter().forEach().
+    // Snapshot so callbacks that add/remove listeners mid-dispatch can't skip siblings.
     for (const listener of this.lcuEventListeners.slice()) {
       if (listener.path && (typeof listener.path === "string" ? uri !== listener.path : !listener.path.test(uri)))
         continue;
@@ -795,11 +743,10 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
       if (listener.name && name !== listener.name)
         continue;
 
-      // Isolate each callback so one throwing listener doesn't abort the others.
       try {
         listener.callback(event[2]);
       } catch {
-        // Listener callback errors are contained here and do not affect other listeners.
+        // isolate listener errors
       }
     }
   }
