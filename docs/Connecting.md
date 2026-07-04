@@ -143,8 +143,9 @@ There's also a low-level `lcu-event` for *every* WebSocket event — see [[Event
 connection, discovers credentials again, and **re-subscribes your existing event listeners**
 automatically. You don't need to re-add listeners after a reconnect.
 
-It's also safe to call **concurrently** — the latest call wins and any earlier in-flight `connect()`
-bails out without corrupting state.
+It's also safe to call **concurrently** — the latest call wins, and any earlier in-flight `connect()`
+settles with the winning call's outcome. A resolved `connect()` therefore always means the client is
+connected, no matter how many calls raced.
 
 A common pattern is to reconnect when the client disappears (e.g. the user closed and reopened League):
 
@@ -165,7 +166,7 @@ client.disconnect();
 
 Closes the WebSocket, destroys the keep-alive HTTP agent, and clears all per-connection state. Calling
 it while a `connect()` is still in flight **cancels that connect** — the pending `connect()` promise
-resolves without connecting. After disconnecting, requests throw `NotConnectedError` (see
+rejects with `ConnectionCancelledError`. After disconnecting, requests throw `NotConnectedError` (see
 [[Error Handling]]).
 
 ## Connection info getters

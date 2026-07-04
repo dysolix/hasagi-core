@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { AxiosError } from "axios";
 import HasagiClient, { request } from "../../src/client";
-import { LCUError, RequestError, NotConnectedError } from "../../src/errors";
+import { LCUError, RequestError, NotConnectedError, ConnectionCancelledError } from "../../src/errors";
 import RIOT_GAMES_CERTIFICATE from "../../src/riot-games-certificate";
 
 // Hoisted mock state: a single request fn shared by both the standalone `axios.request`
@@ -713,7 +713,7 @@ describe("HasagiClient.connect - WebSocket handling", () => {
     })).rejects.toThrow(/timed out after 50ms/);
   });
 
-  it("disconnect() cancels an in-flight connect()", async () => {
+  it("disconnect() cancels an in-flight connect(), which rejects with ConnectionCancelledError", async () => {
     let resolveCredentials!: (creds: { port: number; password: string }) => void;
     mocks.getCredentials.mockImplementationOnce(() => new Promise(res => { resolveCredentials = res; }));
 
@@ -733,13 +733,76 @@ describe("HasagiClient.connect - WebSocket handling", () => {
     client.disconnect();
 
     resolveCredentials({ port: 1234, password: "pw" });
-    await pending; // resolves without connecting
+    await expect(pending).rejects.toBeInstanceOf(ConnectionCancelledError);
 
     expect(client.isConnected).toBe(false);
     expect(client.getPort()).toBeNull();
     expect((client as any).httpsAgent).toBeNull();
     // Cancellation is not a failure — the terminal event must not fire.
     expect(connectionFailed).not.toHaveBeenCalled();
+  });
+
+  it("a superseded connect() settles with the winning call's outcome (failure)", async () => {
+    let resolveOlder!: (creds: { port: number; password: string }) => void;
+    mocks.getCredentials
+      .mockImplementationOnce(() => new Promise(res => { resolveOlder = res; })) // older call hangs
+      .mockRejectedValueOnce(new Error("client not running")); // newer call fails terminally
+
+    const client = new HasagiClient();
+    const older = client.connect({
+      authenticationStrategy: "lockfile",
+      lockfile: "older",
+      readinessCheck: false,
+      useWebSocket: false,
+      connectionAttemptDelay: 1,
+    });
+
+    await Promise.resolve();
+
+    const newer = client.connect({
+      authenticationStrategy: "lockfile",
+      lockfile: "newer",
+      maxConnectionAttempts: 1,
+      connectionAttemptDelay: 1,
+      readinessCheck: false,
+      useWebSocket: false,
+    });
+    await expect(newer).rejects.toThrow(/Could not connect/);
+
+    // The older call must not resolve (implying "connected") — it adopts the winner's failure.
+    resolveOlder({ port: 1, password: "x" });
+    await expect(older).rejects.toThrow(/Could not connect/);
+    expect(client.isConnected).toBe(false);
+  });
+
+  it("a connect() cancelled by disconnect() adopts a newer connect() started before it notices", async () => {
+    let resolveOlder!: (creds: { port: number; password: string }) => void;
+    mocks.getCredentials.mockImplementationOnce(() => new Promise(res => { resolveOlder = res; }));
+
+    const client = new HasagiClient();
+    const older = client.connect({
+      authenticationStrategy: "lockfile",
+      lockfile: "older",
+      readinessCheck: false,
+      useWebSocket: false,
+      connectionAttemptDelay: 1,
+    });
+
+    await Promise.resolve();
+    client.disconnect();
+
+    // A new connect() starts before the cancelled call reaches its next generation check.
+    await client.connect({
+      authenticationStrategy: "manual",
+      credentials: { port: 7777, password: "new" },
+      readinessCheck: false,
+      useWebSocket: false,
+    });
+
+    resolveOlder({ port: 1, password: "old" });
+    await expect(older).resolves.toBeUndefined();
+    expect(client.isConnected).toBe(true);
+    expect(client.getPort()).toBe(7777);
   });
 
   it("a newer connect() supersedes an in-flight older one without clobbering state", async () => {

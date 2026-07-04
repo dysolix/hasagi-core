@@ -32,8 +32,8 @@ new HasagiClient(options?: { defaultRetryOptions?: Partial<RequestRetryOptions> 
 
 | Method | Description |
 |--------|-------------|
-| `connect(options?): Promise<void>` | Discover credentials, run the readiness check, open the WebSocket. Safe to re-call (clean reconnect) and call concurrently. See [[Connecting]]. |
-| `disconnect(): void` | Close the connection and clear state. Cancels an in-flight `connect()`. |
+| `connect(options?): Promise<void>` | Discover credentials, run the readiness check, open the WebSocket. Safe to re-call (clean reconnect); concurrent calls settle with the latest call's outcome. See [[Connecting]]. |
+| `disconnect(): void` | Close the connection and clear state. Cancels an in-flight `connect()`, which rejects with `ConnectionCancelledError`. |
 | `isConnected: boolean` | Whether the client is currently connected. |
 
 ### Connection info
@@ -102,6 +102,7 @@ See [[Error Handling]].
 | Class | Thrown when | Key fields |
 |-------|-------------|-----------|
 | `NotConnectedError` | Request before `connect()` | — |
+| `ConnectionCancelledError` | Pending `connect()` cancelled by `disconnect()` | — |
 | `LCUError` | Non-success status response | `statusCode`, `errorCode`, `implementationDetails` |
 | `RequestError` | No response (transport failure) | `errorCode` |
 

@@ -5,7 +5,7 @@ import { LCUCredentials, MaybePromise, abortableDelay, delay, getCredentials } f
 import { TypedEmitter, type ListenerSignature } from "./typed-emitter.js";
 import RIOT_GAMES_CERTIFICATE from "./riot-games-certificate.js";
 import { EndpointsWithMethod, HttpMethod, LCUEndpoint, LCUEndpointResponseType, LCUEndpoints } from "./types/lcu-endpoints.js";
-import { LCUError, NotConnectedError, RequestError } from "./errors.js";
+import { ConnectionCancelledError, LCUError, NotConnectedError, RequestError } from "./errors.js";
 import { LCUWebSocketEvents } from "./types/lcu-events.js";
 
 /**
@@ -220,6 +220,8 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
    * matches has been superseded and must not mutate shared state.
    */
   private connectGeneration = 0;
+  /** The most recent connect() call — superseded calls adopt its outcome (see adoptNewerConnect). */
+  private latestConnect: { generation: number; promise: Promise<void> } | null = null;
 
   /**
    * Creates a new HasagiClient instance.
@@ -313,16 +315,23 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
    * Connects to the League of Legends client: discovers credentials, waits until the client is ready,
    * and (unless `useWebSocket` is disabled) opens the event WebSocket.
    *
-   * Safe to call while already connected — it performs a clean reconnect, re-subscribing existing
-   * event listeners. Also safe to call concurrently: the latest call wins and any earlier in-flight
-   * call bails out (via {@link HasagiClient.connectGeneration}) without touching shared state. If any
-   * step fails the client is left in a consistent disconnected state and the error is thrown (so a
-   * subsequent {@link HasagiClient.request} will throw {@link NotConnectedError}).
+   * Resolution always means the client is connected. Safe to call while already connected — it
+   * performs a clean reconnect, re-subscribing existing event listeners. Also safe to call
+   * concurrently: the latest call wins and earlier in-flight calls settle with the winning call's
+   * outcome. A call cancelled by {@link HasagiClient.disconnect} rejects with
+   * {@link ConnectionCancelledError}. If any step fails the client is left in a consistent
+   * disconnected state and the error is thrown (so a subsequent {@link HasagiClient.request} will
+   * throw {@link NotConnectedError}).
    */
-  public async connect(options?: ConnectionOptions): Promise<void> {
-    const useWebSocket = options?.useWebSocket ?? true;
+  public connect(options?: ConnectionOptions): Promise<void> {
+    const generation = ++this.connectGeneration;
+    const promise = this.performConnect(options, generation);
+    this.latestConnect = { generation, promise };
+    return promise;
+  }
 
-    const myGen = ++this.connectGeneration;
+  private async performConnect(options: ConnectionOptions | undefined, myGen: number): Promise<void> {
+    const useWebSocket = options?.useWebSocket ?? true;
 
     // Tear down any existing connection silently (no "disconnected" emit).
     this._isConnected = false;
@@ -349,23 +358,23 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
         credentials = await this.acquireCredentials(strategy, lockfile, options?.maxConnectionAttempts ?? -1, options?.connectionAttemptDelay ?? 5000, myGen);
       }
       if (this.connectGeneration !== myGen)
-        return;
+        return this.adoptNewerConnect(myGen);
       this.applyCredentials(credentials);
 
       if (options?.readinessCheck !== false) {
         await this.runReadinessCheck(options?.readinessCheck);
         if (this.connectGeneration !== myGen)
-          return;
+          return this.adoptNewerConnect(myGen);
       }
 
       if (useWebSocket) {
         await this.openWebSocket(agent, options?.webSocketTimeoutMs ?? 10000);
         if (this.connectGeneration !== myGen)
-          return;
+          return this.adoptNewerConnect(myGen);
       }
     } catch (err) {
       if (this.connectGeneration !== myGen)
-        return;
+        return this.adoptNewerConnect(myGen);
       this.resetConnectionState();
       this.emitCore("connection-failed", err);
       throw err;
@@ -375,8 +384,20 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
   }
 
   /**
-   * Closes the current connection. Also cancels an in-flight {@link HasagiClient.connect} call —
-   * the cancelled connect() resolves without connecting. No-op if neither applies.
+   * Settles a superseded connect() call: adopts the newest call's outcome so resolution still means
+   * "connected", or rejects with {@link ConnectionCancelledError} when no newer call exists (i.e. the
+   * generation was bumped by {@link HasagiClient.disconnect}).
+   */
+  private adoptNewerConnect(myGen: number): Promise<void> {
+    const latest = this.latestConnect;
+    if (latest && latest.generation > myGen)
+      return latest.promise;
+    throw new ConnectionCancelledError();
+  }
+
+  /**
+   * Closes the current connection. Also cancels an in-flight {@link HasagiClient.connect} call, which
+   * then rejects with {@link ConnectionCancelledError}. No-op if neither applies.
    */
   public disconnect(): void {
     this.connectGeneration++;

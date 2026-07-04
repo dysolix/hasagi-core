@@ -2,7 +2,7 @@ import { default as HasagiClient, request, type ConnectionOptions, type RequestR
 
 import { getLeagueClientUxProcesses, getCredentialsByProcessId, getCredentials, type LCUCredentials } from "./util.js";
 
-import { LCUError, RequestError, NotConnectedError } from "./errors.js";
+import { LCUError, RequestError, NotConnectedError, ConnectionCancelledError } from "./errors.js";
 
 import { default as RIOT_GAMES_CERTIFICATE } from "./riot-games-certificate.js";
 
@@ -18,7 +18,7 @@ export type { LCUTypes } from "./types";
 
 // Core API values.
 export {
-  HasagiClient, getCredentials, request, LCUError, RequestError, NotConnectedError, RIOT_GAMES_CERTIFICATE,
+  HasagiClient, getCredentials, request, LCUError, RequestError, NotConnectedError, ConnectionCancelledError, RIOT_GAMES_CERTIFICATE,
 };
 
 /*

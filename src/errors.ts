@@ -67,3 +67,10 @@ export class NotConnectedError extends Error {
     super("Hasagi is not connected to the League of Legends client.");
   }
 }
+
+/** Thrown by a pending `connect()` call that was cancelled by `disconnect()`. */
+export class ConnectionCancelledError extends Error {
+  constructor() {
+    super("The connection attempt was cancelled by disconnect().");
+  }
+}

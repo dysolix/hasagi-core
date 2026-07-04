@@ -2,13 +2,14 @@
 
 Both `client.request` and the standalone [[Standalone Requests|`request`]] wrap failures in one of three
 typed error classes, all exported from the package root. This lets you branch on *why* a request failed
-without parsing axios internals.
+without parsing axios internals. A fourth class, `ConnectionCancelledError`, comes from `connect()`
+rather than requests.
 
 ```ts
-import { LCUError, RequestError, NotConnectedError } from "@hasagi/core";
+import { LCUError, RequestError, NotConnectedError, ConnectionCancelledError } from "@hasagi/core";
 ```
 
-## The three errors
+## The error classes
 
 ### `NotConnectedError`
 
@@ -23,6 +24,20 @@ try {
     await client.connect();
     // ...retry
   }
+}
+```
+
+### `ConnectionCancelledError`
+
+Thrown by a pending `connect()` whose attempt was cancelled by `disconnect()`. Useful for filtering
+cancellations out of reconnect logic — a cancelled connect isn't a failure:
+
+```ts
+try {
+  await client.connect();
+} catch (err) {
+  if (err instanceof ConnectionCancelledError) return; // shutdown, not an error
+  console.error("could not connect:", err);
 }
 ```
 
@@ -102,6 +117,7 @@ A status code listed in `noRetryStatusCodes` (default `[400]`) short-circuits re
 | Error | Meaning | Key fields |
 |-------|---------|-----------|
 | `NotConnectedError` | Request made before `connect()` succeeded | — |
+| `ConnectionCancelledError` | Pending `connect()` cancelled by `disconnect()` | — |
 | `LCUError` | LCU responded with a non-success status | `statusCode`, `errorCode`, `implementationDetails` |
 | `RequestError` | Request failed with no response | `errorCode` |
 | `AggregateError` | All retry attempts failed (≥ 2) | `errors[]` |
