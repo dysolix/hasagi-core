@@ -32,22 +32,22 @@ describe("delay", () => {
 describe("getCredentialsFromLockfileContent", () => {
   it("should parse valid lockfile content", () => {
     const result = getCredentialsFromLockfileContent("LeagueClient:1234:5678:my-password:https");
-    expect(result).toEqual({ port: 5678, password: "my-password" });
+    expect(result).toEqual({ processId: 1234, port: 5678, password: "my-password" });
   });
 
   it("should parse lockfile with password containing colons", () => {
     const result = getCredentialsFromLockfileContent("LeagueClient:1234:5678:pass:word:https");
-    expect(result).toEqual({ port: 5678, password: "pass:word" });
+    expect(result).toEqual({ processId: 1234, port: 5678, password: "pass:word" });
   });
 
   it("should parse lockfile with special characters in password", () => {
     const result = getCredentialsFromLockfileContent("LeagueClient:1234:5678:p@ss-w0rd!:https");
-    expect(result).toEqual({ port: 5678, password: "p@ss-w0rd!" });
+    expect(result).toEqual({ processId: 1234, port: 5678, password: "p@ss-w0rd!" });
   });
 
   it("should parse lockfile with unicode in password", () => {
     const result = getCredentialsFromLockfileContent("LeagueClient:1234:5678:pässwörd:https");
-    expect(result).toEqual({ port: 5678, password: "pässwörd" });
+    expect(result).toEqual({ processId: 1234, port: 5678, password: "pässwörd" });
   });
 
   it("does not leak the lockfile content (password) in the error message", () => {
@@ -61,7 +61,7 @@ describe("getCredentialsFromLockfileContent", () => {
 
   it("tolerates surrounding whitespace such as a trailing newline", () => {
     const result = getCredentialsFromLockfileContent("LeagueClient:1234:5678:my-password:https\n");
-    expect(result).toEqual({ port: 5678, password: "my-password" });
+    expect(result).toEqual({ processId: 1234, port: 5678, password: "my-password" });
   });
 
   it("should throw on invalid lockfile schema", () => {
@@ -166,7 +166,7 @@ describe("getCredentials", () => {
   });
 
   it("lockfile strategy: parses provided lockfile content", async () => {
-    await expect(getCredentials("lockfile", "LeagueClient:1234:5678:pw:https")).resolves.toEqual({ port: 5678, password: "pw" });
+    await expect(getCredentials("lockfile", "LeagueClient:1234:5678:pw:https")).resolves.toEqual({ processId: 1234, port: 5678, password: "pw" });
   });
 
   it("lockfile strategy: throws when the lockfile argument is missing", async () => {

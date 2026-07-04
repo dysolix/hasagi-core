@@ -123,6 +123,7 @@ your own readiness logic.
 |-------|-----------|
 | `connecting` | A credential-discovery attempt is starting. |
 | `connection-attempt-failed` | A discovery attempt failed and will be retried. |
+| `connection-failed` | `connect()` gave up and is about to reject (e.g. `maxConnectionAttempts` exhausted). Receives the error. |
 | `connected` | The client is fully online (credentials + readiness + socket). |
 | `disconnected` | The connection was lost or `disconnect()` was called. |
 | `websocket-error` | A runtime error occurred on the open WebSocket. |
@@ -162,8 +163,9 @@ client.on("disconnected", () => {
 client.disconnect();
 ```
 
-Closes the WebSocket, destroys the keep-alive HTTP agent, and clears all per-connection state. It's a
-no-op if the client isn't connected. After disconnecting, requests throw `NotConnectedError` (see
+Closes the WebSocket, destroys the keep-alive HTTP agent, and clears all per-connection state. Calling
+it while a `connect()` is still in flight **cancels that connect** — the pending `connect()` promise
+resolves without connecting. After disconnecting, requests throw `NotConnectedError` (see
 [[Error Handling]]).
 
 ## Connection info getters
@@ -174,7 +176,7 @@ Once connected, these expose the current connection identity:
 client.isConnected;                  // boolean
 client.getPort();                    // number | null
 client.getPassword();                // string | null
-client.getProcessId();               // number | null (always null for the lockfile strategy)
+client.getProcessId();               // number | null (null if unknown, e.g. manual credentials)
 client.getBasicAuthToken();          // base64 "riot:{password}" | null
 client.getHostWithAuthentication();  // "riot:<pw>@127.0.0.1:<port>" | null
 ```

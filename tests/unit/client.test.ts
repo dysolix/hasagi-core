@@ -18,10 +18,13 @@ vi.mock("../../src/util", async (importOriginal) => {
 
 vi.mock("axios", async (importOriginal) => {
   const actual = await importOriginal<typeof import("axios")>();
+  // `.default` only exists on the type under bundler module resolution; resolve it dynamically so
+  // this also typechecks under the editor's default (CommonJS-interop) project settings.
+  const actualDefault = (actual as { default?: object }).default ?? actual;
   return {
     ...actual,
     default: {
-      ...actual.default,
+      ...actualDefault,
       create: vi.fn(() => ({ request: mocks.request })),
       request: mocks.request,
     },
@@ -422,6 +425,26 @@ describe("HasagiClient - LCU event listeners", () => {
     client.removeLCUEventListener(cb2);
     expect(send).toHaveBeenCalledWith(unsubscribeFrame);
   });
+
+  it("unsubscribes OnJsonApiEvent once the last path-only listener is removed", async () => {
+    const client = await createConnectedClient();
+    const send = vi.fn();
+    (client as any).webSocket = { send };
+
+    const cb1 = vi.fn();
+    const cb2 = vi.fn();
+    client.addLCUEventListener({ path: "/lol-gameflow/v1/gameflow-phase", callback: cb1 });
+    client.addLCUEventListener({ path: "/lol-champ-select/v1/session", callback: cb2 });
+
+    const unsubscribeFrame = JSON.stringify([6, "OnJsonApiEvent"]);
+
+    // Path-only listeners share the implicit OnJsonApiEvent subscription.
+    client.removeLCUEventListener(cb1);
+    expect(send).not.toHaveBeenCalledWith(unsubscribeFrame);
+
+    client.removeLCUEventListener(cb2);
+    expect(send).toHaveBeenCalledWith(unsubscribeFrame);
+  });
 });
 
 describe("HasagiClient.poll", () => {
@@ -478,6 +501,28 @@ describe("HasagiClient.poll", () => {
 
     expect(errors).toBe(1);
     expect(mockRequest).toHaveBeenCalledTimes(1);
+  });
+
+  it("stops polling when the AbortSignal aborts, without waiting out the interval", async () => {
+    const client = await createConnectedClient();
+    mockRequest.mockResolvedValue(lcuResponse({ v: 1 }));
+
+    const controller = new AbortController();
+    let responses = 0;
+    const start = Date.now();
+    await client.poll("get", "/x" as any, {
+      intervalMs: 60_000, // aborting must cut the wait short
+      maxExecutions: 5,
+      signal: controller.signal,
+      onResponse: () => {
+        responses++;
+        controller.abort();
+      },
+    });
+
+    expect(responses).toBe(1);
+    expect(mockRequest).toHaveBeenCalledTimes(1);
+    expect(Date.now() - start).toBeLessThan(1000);
   });
 
   it("does not wait an extra interval after the final execution", async () => {
@@ -607,10 +652,13 @@ describe("HasagiClient.connect - WebSocket handling", () => {
     expect(attemptFailed).toHaveBeenCalledTimes(2);
   });
 
-  it("throws after exhausting maxConnectionAttempts", async () => {
+  it("throws after exhausting maxConnectionAttempts and emits 'connection-failed'", async () => {
     mocks.getCredentials.mockRejectedValue(new Error("client not running"));
 
     const client = new HasagiClient();
+    const connectionFailed = vi.fn();
+    client.on("connection-failed", connectionFailed);
+
     await expect(client.connect({
       authenticationStrategy: "lockfile",
       lockfile: "lockfile-content",
@@ -621,6 +669,8 @@ describe("HasagiClient.connect - WebSocket handling", () => {
 
     expect(mocks.getCredentials).toHaveBeenCalledTimes(2);
     expect(client.isConnected).toBe(false);
+    expect(connectionFailed).toHaveBeenCalledTimes(1);
+    expect(connectionFailed.mock.calls[0][0]).toBeInstanceOf(Error);
   });
 
   it("leaves a clean disconnected state when the WebSocket fails", async () => {
@@ -661,6 +711,35 @@ describe("HasagiClient.connect - WebSocket handling", () => {
       readinessCheck: false,
       webSocketTimeoutMs: 50,
     })).rejects.toThrow(/timed out after 50ms/);
+  });
+
+  it("disconnect() cancels an in-flight connect()", async () => {
+    let resolveCredentials!: (creds: { port: number; password: string }) => void;
+    mocks.getCredentials.mockImplementationOnce(() => new Promise(res => { resolveCredentials = res; }));
+
+    const client = new HasagiClient();
+    const pending = client.connect({
+      authenticationStrategy: "lockfile",
+      lockfile: "content",
+      readinessCheck: false,
+      useWebSocket: false,
+      connectionAttemptDelay: 1,
+    });
+
+    // Let connect() reach the (hanging) credential await, then cancel it.
+    await Promise.resolve();
+    const connectionFailed = vi.fn();
+    client.on("connection-failed", connectionFailed);
+    client.disconnect();
+
+    resolveCredentials({ port: 1234, password: "pw" });
+    await pending; // resolves without connecting
+
+    expect(client.isConnected).toBe(false);
+    expect(client.getPort()).toBeNull();
+    expect((client as any).httpsAgent).toBeNull();
+    // Cancellation is not a failure — the terminal event must not fire.
+    expect(connectionFailed).not.toHaveBeenCalled();
   });
 
   it("a newer connect() supersedes an in-flight older one without clobbering state", async () => {

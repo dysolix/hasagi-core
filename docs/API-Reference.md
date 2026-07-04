@@ -33,7 +33,7 @@ new HasagiClient(options?: { defaultRetryOptions?: Partial<RequestRetryOptions> 
 | Method | Description |
 |--------|-------------|
 | `connect(options?): Promise<void>` | Discover credentials, run the readiness check, open the WebSocket. Safe to re-call (clean reconnect) and call concurrently. See [[Connecting]]. |
-| `disconnect(): void` | Close the connection and clear state. No-op if not connected. |
+| `disconnect(): void` | Close the connection and clear state. Cancels an in-flight `connect()`. |
 | `isConnected: boolean` | Whether the client is currently connected. |
 
 ### Connection info
@@ -42,7 +42,7 @@ new HasagiClient(options?: { defaultRetryOptions?: Partial<RequestRetryOptions> 
 |--------|---------|
 | `getPort()` | `number \| null` |
 | `getPassword()` | `string \| null` |
-| `getProcessId()` | `number \| null` (always `null` for the lockfile strategy) |
+| `getProcessId()` | `number \| null` (`null` if unknown, e.g. manual credentials) |
 | `getBasicAuthToken()` | base64 `"riot:{password}"` \| `null` |
 | `getHostWithAuthentication()` | `"riot:<encoded-pw>@127.0.0.1:<port>"` \| `null` |
 
@@ -72,6 +72,7 @@ new HasagiClient(options?: { defaultRetryOptions?: Partial<RequestRetryOptions> 
 |-------|---------|------|
 | `connecting` | — | A discovery attempt is starting. |
 | `connection-attempt-failed` | — | A discovery attempt failed (will retry). |
+| `connection-failed` | `unknown` (the error) | `connect()` gave up and is about to reject. |
 | `connected` | — | Fully online. |
 | `disconnected` | — | Connection lost / `disconnect()` called. |
 | `websocket-error` | `Error \| undefined` | Runtime WebSocket error. |
@@ -164,6 +165,7 @@ type ConnectionOptions = {
 type PollOptions<Method, Path> = {
   intervalMs: number;
   maxExecutions?: number;
+  signal?: AbortSignal;   // polling stops when it aborts
   onResponse?: (response) => boolean | void | Promise<boolean | void>;
   onDistinctResponse?: (response) => boolean | void | Promise<boolean | void>;
   onError?: (error) => boolean | void | Promise<boolean | void>;

@@ -11,7 +11,7 @@ To talk to the LCU you need two things, exposed as `LCUCredentials`:
 
 ```ts
 type LCUCredentials = {
-  processId?: number; // present when discovered via process; absent for lockfile
+  processId?: number; // the LeagueClientUx process id, when known
   port: number;       // the local port the client's API listens on
   password: string;   // the remoting auth token (used as HTTP basic-auth password "riot:<password>")
 };
@@ -94,7 +94,7 @@ const creds = getCredentialsFromLockfileContent(content);
 ```
 
 The lockfile is a single line of the form `LeagueClient:<pid>:<port>:<password>:https`; this helper
-extracts the port and password and throws if the format doesn't match.
+extracts the process id, port, and password and throws if the format doesn't match.
 
 ## Choosing an approach
 

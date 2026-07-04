@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import { Agent } from "https";
 import { WebSocket } from "ws";
-import { LCUCredentials, MaybePromise, delay, getCredentials } from "./util.js";
+import { LCUCredentials, MaybePromise, abortableDelay, delay, getCredentials } from "./util.js";
 import { TypedEmitter, type ListenerSignature } from "./typed-emitter.js";
 import RIOT_GAMES_CERTIFICATE from "./riot-games-certificate.js";
 import { EndpointsWithMethod, HttpMethod, LCUEndpoint, LCUEndpointResponseType, LCUEndpoints } from "./types/lcu-endpoints.js";
@@ -200,9 +200,12 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
     HasagiClient.Instance = instance ?? undefined;
   };
 
+  private _isConnected = false;
   /** Whether the client is currently connected. */
-  public isConnected: boolean = false;
-  /** Will always be null if lockfile authentication is used */
+  public get isConnected(): boolean {
+    return this._isConnected;
+  }
+
   private processId: number | null = null;
   private port: number | null = null;
   private password: string | null = null;
@@ -229,7 +232,7 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
     HasagiClient.setInstance(this);
   }
 
-  /** Will always be null if lockfile authentication is used */
+  /** The connected LeagueClientUx process id, or null if unknown (e.g. manual credentials without one) */
   public readonly getProcessId = () => this.processId;
   /** The password used to authenticate with the LCU (remoting auth token) */
   public readonly getPassword = () => this.password;
@@ -270,9 +273,11 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
     */
 
   /**
-   * Subscribes to a WebSocket event so the LCU starts sending it. **You most likely don't need to
-   * call this** — {@link HasagiClient.addLCUEventListener} subscribes automatically. Its only use is
-   * consuming events through the raw `lcu-event` emitter without registering a listener.
+   * Subscribes to a WebSocket event so the LCU starts sending it. **Prefer
+   * {@link HasagiClient.addLCUEventListener}, which subscribes automatically** — this only exists for
+   * consuming events through the raw `lcu-event` emitter without registering a listener. If you do
+   * that, stick to subscribe/unsubscribeWebSocketEvent and don't mix in the listener API: both share
+   * one subscription set, so removing listeners also unsubscribes events subscribed manually.
    *
    * Subscriptions made while disconnected are queued and sent once the socket opens, and survive
    * reconnects.
@@ -290,7 +295,11 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
     this.webSocket!.send(JSON.stringify([5, eventName]));
   };
 
-  /** Unsubscribes from a WebSocket event. No-op if the event isn't subscribed or the socket is closed. */
+  /**
+   * Unsubscribes from a WebSocket event. No-op if the event isn't subscribed or the socket is closed.
+   * This also stops events for listeners registered via {@link HasagiClient.addLCUEventListener} that
+   * rely on the event — don't mix the manual and listener APIs.
+   */
   public unsubscribeWebSocketEvent = (eventName: keyof LCUWebSocketEvents) => {
     if (this.webSocket === null) return;
     if (this.subscribedEvents.delete(eventName))
@@ -316,7 +325,7 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
     const myGen = ++this.connectGeneration;
 
     // Tear down any existing connection silently (no "disconnected" emit).
-    this.isConnected = false;
+    this._isConnected = false;
     this.resetConnectionState();
 
     // TLS options shared by the request agent and the WebSocket.
@@ -358,16 +367,25 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
       if (this.connectGeneration !== myGen)
         return;
       this.resetConnectionState();
+      this.emitCore("connection-failed", err);
       throw err;
     }
 
     this.onConnected();
   }
 
-  /** Closes the current connection. No-op if not connected. */
+  /**
+   * Closes the current connection. Also cancels an in-flight {@link HasagiClient.connect} call —
+   * the cancelled connect() resolves without connecting. No-op if neither applies.
+   */
   public disconnect(): void {
-    if (!this.isConnected) return;
-    this.onDisconnected();
+    this.connectGeneration++;
+    if (this.isConnected) {
+      this.onDisconnected();
+      return;
+    }
+    // Tear down anything a cancelled in-flight connect() has already built.
+    this.resetConnectionState();
   }
 
   private onConnected() {
@@ -379,7 +397,7 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
     this.subscribedEvents = new Set();
     previouslySubscribedEvents.forEach(event => this.subscribeWebSocketEvent(event));
 
-    this.isConnected = true;
+    this._isConnected = true;
     this.emitCore("connected");
   }
 
@@ -387,7 +405,7 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
     if (!this.isConnected)
       return;
 
-    this.isConnected = false;
+    this._isConnected = false;
     this.resetConnectionState();
     this.emitCore("disconnected");
   }
@@ -575,16 +593,24 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
   /**
    * Repeatedly requests an endpoint on an interval, invoking callbacks for each response, each response
    * that differs from the previous one, and each error. Per-request retries are disabled. Stops when a
-   * callback returns `true` or after `maxExecutions` (default: unlimited). Resolves once polling stops.
+   * callback returns `true`, after `maxExecutions` (default: unlimited), or when `signal` aborts.
+   * Resolves once polling stops.
    */
   public async poll<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(method: Method, path: Path, pollOptions: PollOptions<Method, Path>, ...options: LCURequestOptionsParameter<Method, Path>): Promise<void> {
     const maxExecutions = pollOptions.maxExecutions ?? Number.MAX_SAFE_INTEGER;
+    const signal = pollOptions.signal;
     let lastResponseJson: string | undefined;
     let executions = 0;
 
     while (executions++ < maxExecutions) {
+      if (signal?.aborted)
+        return;
+
       try {
         const response = await this.request(method, path, { ...(options as any)[0], retryOptions: { maxRetries: 0, retryDelay: 0 } }); // Disable retries for poll requests
+
+        if (signal?.aborted)
+          return;
 
         if (pollOptions.onResponse && await pollOptions.onResponse(response))
           return;
@@ -596,12 +622,15 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
             return;
         }
       } catch (err) {
+        if (signal?.aborted)
+          return;
+
         if (pollOptions.onError && await pollOptions.onError(err))
           return;
       }
 
       if (executions < maxExecutions)
-        await delay(pollOptions.intervalMs);
+        await abortableDelay(pollOptions.intervalMs, signal);
     }
   }
 
@@ -756,7 +785,10 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
 export interface HasagiCoreEvents {
   "connected": () => void;
   "connecting": () => void;
+  /** A single credential-discovery attempt failed and will be retried — see "connection-failed" for the terminal event */
   "connection-attempt-failed": () => void;
+  /** connect() gave up and is about to reject (e.g. attempts exhausted, readiness or WebSocket failure). Not emitted for superseded or cancelled calls. */
+  "connection-failed": (error: unknown) => void;
   "disconnected": () => void;
   "websocket-error": (error: Error | undefined) => void;
   "lcu-event": <EventName extends keyof LCUWebSocketEvents = "OnJsonApiEvent">(event: [opcode: number, name: EventName, data: LCUWebSocketEvents[EventName]]) => void;
@@ -809,6 +841,8 @@ export type RequestRetryOptions = {
 export type PollOptions<Method extends string, Path extends string> = {
   intervalMs: number;
   maxExecutions?: number;
+  /** Polling stops (and the poll() promise resolves) when this signal aborts */
+  signal?: AbortSignal;
   /** Called whenever the poll function is executed and a response is received; Polling will be cancelled if 'true' is returned */
   onResponse?: (response: LCUEndpointResponseType<Method, Path>) => MaybePromise<boolean | void>;
   /** Called whenever the poll function is executed and the response is distinct from the last one; Polling will be cancelled if 'true' is returned */

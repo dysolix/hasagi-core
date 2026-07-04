@@ -31,14 +31,29 @@ client.poll(method, path, pollOptions, options?)
 |-------|---------|---------|
 | `intervalMs` | *(required)* | Milliseconds to wait between executions. |
 | `maxExecutions` | unlimited | Stop after this many requests. |
+| `signal` | — | An `AbortSignal`; polling stops when it aborts. |
 | `onResponse` | — | Called on **every** response. |
 | `onDistinctResponse` | — | Called only when the response **differs** from the previous one. |
 | `onError` | — | Called when a request fails. |
 
 ### Stopping
 
-Return `true` from **any** callback to stop polling immediately. Polling also stops on its own after
-`maxExecutions` requests (if set). When polling stops, the promise returned by `poll()` resolves.
+Return `true` from **any** callback to stop polling immediately. Polling also stops after
+`maxExecutions` requests (if set), or when a provided `signal` aborts — an abort during the interval
+wait cuts it short. When polling stops, the promise returned by `poll()` resolves.
+
+```ts
+const controller = new AbortController();
+
+client.poll("get", "/lol-gameflow/v1/gameflow-phase", {
+  intervalMs: 1000,
+  signal: controller.signal,
+  onDistinctResponse: (phase) => console.log(phase),
+});
+
+// elsewhere, e.g. on app shutdown:
+controller.abort();
+```
 
 The wait is skipped after the final execution, so there's no trailing idle delay.
 

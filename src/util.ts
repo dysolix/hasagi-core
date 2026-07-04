@@ -45,15 +45,16 @@ export async function getCredentials(source: "process" | "lockfile" = "process",
 /** Parses credentials from raw lockfile content (`LeagueClient:<pid>:<port>:<password>:https`). */
 export function getCredentialsFromLockfileContent(lockfileContent: string): LCUCredentials {
   // Trim so a trailing newline doesn't fail the anchored match.
-  const match = lockfileContent.trim().match(/^LeagueClient:\d+:(\d+):(.+):https$/);
+  const match = lockfileContent.trim().match(/^LeagueClient:(\d+):(\d+):(.+):https$/);
   if (!match)
     throw new Error("Lockfile does not have the expected schema. (/^LeagueClient:\\d+:\\d+:.+:https$/)");
 
-  const port = Number(match[1]);
-  const password = match[2];
+  const processId = Number(match[1]);
+  const port = Number(match[2]);
+  const password = match[3];
 
   if (port && password) {
-    return { port, password };
+    return { processId, port, password };
   }
 
   // Don't include the lockfile content in the message — it carries the password, which has no place in logs.
@@ -108,5 +109,26 @@ export async function getCredentialsByProcessId(processId: number): Promise<LCUC
 }
 
 export const delay = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
+
+/** Like {@link delay}, but resolves early when the signal aborts. */
+export function abortableDelay(ms: number, signal?: AbortSignal): Promise<void> {
+  return new Promise<void>(resolve => {
+    if (signal?.aborted) {
+      resolve();
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      signal?.removeEventListener("abort", onAbort);
+      resolve();
+    }, ms);
+
+    function onAbort() {
+      clearTimeout(timeout);
+      resolve();
+    }
+    signal?.addEventListener("abort", onAbort, { once: true });
+  });
+}
 
 export type MaybePromise<T> = T | Promise<T>;

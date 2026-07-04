@@ -111,13 +111,17 @@ Use this for logging or custom dispatch. For normal filtering, prefer `addLCUEve
 
 ## Manual subscription control
 
-You rarely need these — `addLCUEventListener` manages subscriptions — but they're available for advanced
-cases (e.g. pre-subscribing before listeners are wired up):
+You most likely don't need these — `addLCUEventListener` manages subscriptions. Their only use is
+consuming events through the raw `lcu-event` emitter without registering a listener:
 
 ```ts
 client.subscribeWebSocketEvent("OnJsonApiEvent");
 client.unsubscribeWebSocketEvent("OnJsonApiEvent");
 ```
+
+Use **either** the manual pair **or** the listener API, not both: they share one subscription set, so
+removing listeners also unsubscribes manually subscribed events, and manual unsubscribes silently stop
+events for registered listeners.
 
 Subscriptions made while disconnected are queued and (re-)sent automatically once the socket opens — and
 they survive reconnects.
