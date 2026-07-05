@@ -275,15 +275,15 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
     */
 
   /**
-   * Subscribes to a WebSocket event so the LCU starts sending it. Subscriptions made while
-   * disconnected are queued and sent once the socket opens, and survive reconnects.
+   * Subscribes to a WebSocket event so the LCU starts sending it. Subscriptions made while the
+   * socket isn't open yet are queued and sent once it opens, and survive reconnects.
    *
    * @deprecated Use {@link HasagiClient.addLCUEventListener} with a `name` instead — it subscribes
    * automatically (pass a no-op callback to only consume the raw `lcu-event` emitter). Becomes
    * private in v1.
    */
   public subscribeWebSocketEvent = (eventName: keyof LCUWebSocketEvents) => {
-    if (this.webSocket === null) {
+    if (this.webSocket === null || this.webSocket.readyState !== WebSocket.OPEN) {
       this.subscribedEvents.add(eventName);
       return;
     }
@@ -292,18 +292,19 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
       return;
 
     this.subscribedEvents.add(eventName);
-    this.webSocket!.send(JSON.stringify([5, eventName]));
+    this.webSocket.send(JSON.stringify([5, eventName]));
   };
 
   /**
-   * Unsubscribes from a WebSocket event. No-op if the event isn't subscribed. While disconnected,
-   * this removes the event from the queued subscriptions so it won't be subscribed on connect.
+   * Unsubscribes from a WebSocket event. No-op if the event isn't subscribed. While the socket
+   * isn't open, this removes the event from the queued subscriptions so it won't be subscribed on
+   * connect.
    *
    * @deprecated Use {@link HasagiClient.removeLCUEventListener} instead — it unsubscribes the event
    * once no remaining listener needs it. Becomes private in v1.
    */
   public unsubscribeWebSocketEvent = (eventName: keyof LCUWebSocketEvents) => {
-    if (this.subscribedEvents.delete(eventName) && this.webSocket !== null)
+    if (this.subscribedEvents.delete(eventName) && this.webSocket?.readyState === WebSocket.OPEN)
       this.webSocket.send(JSON.stringify([6, eventName]));
   };
 
@@ -400,6 +401,9 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
    */
   public disconnect(): void {
     this.connectGeneration++;
+    // Invalidate the latest connect() so calls pending at this point reject as cancelled instead
+    // of adopting a stale (pre-disconnect) success.
+    this.latestConnect = null;
     if (this.isConnected) {
       this.onDisconnected();
       return;
@@ -729,30 +733,37 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
     this.lcuEventListeners.push(listenerToPush);
   }
   /**
-   * Removes the first listener matching the given parameter — a callback function, an event name, an
-   * event path, or the entire {@link LCUEventListener} object. If no remaining listener subscribes to
-   * the removed listener's event name, that event is also unsubscribed from the WebSocket.
-   * @returns `true` if a listener was found and removed, otherwise `false`.
+   * Removes listeners matching the given parameter. A string (an event name or a path) removes
+   * **every** listener whose name or path equals it; a callback function or the
+   * {@link LCUEventListener} object removes the first matching listener. Events no remaining
+   * listener subscribes to are unsubscribed from the WebSocket.
+   * @returns `true` if at least one listener was removed, otherwise `false`.
    */
   public removeLCUEventListener(listener: LCUEventListener | LCUEventListener["callback"] | string) {
-    let index: number;
-    if (typeof listener === "function") {
-      index = this.lcuEventListeners.findIndex(l => l.callback === listener);
-    } else if (typeof listener === "string") {
-      index = this.lcuEventListeners.findIndex(l => l.name === listener || l.path === listener);
+    let removed: LCUEventListener[];
+    if (typeof listener === "string") {
+      removed = this.lcuEventListeners.filter(l => l.name === listener || l.path === listener);
+      this.lcuEventListeners = this.lcuEventListeners.filter(l => !removed.includes(l));
     } else {
-      index = this.lcuEventListeners.indexOf(listener);
-      // Path-only listeners are stored as copies (implicit OnJsonApiEvent name), so identity can miss.
-      if (index === -1)
-        index = this.lcuEventListeners.findIndex(l => l.callback === listener.callback);
+      let index: number;
+      if (typeof listener === "function") {
+        index = this.lcuEventListeners.findIndex(l => l.callback === listener);
+      } else {
+        index = this.lcuEventListeners.indexOf(listener);
+        // Path-only listeners are stored as copies (implicit OnJsonApiEvent name), so identity can miss.
+        if (index === -1)
+          index = this.lcuEventListeners.findIndex(l => l.callback === listener.callback);
+      }
+      removed = index === -1 ? [] : this.lcuEventListeners.splice(index, 1);
     }
 
-    if (index === -1)
+    if (removed.length === 0)
       return false;
 
-    const [removed] = this.lcuEventListeners.splice(index, 1);
-    if (removed.name && !this.lcuEventListeners.some(l => l.name === removed.name))
-      this.unsubscribeWebSocketEvent(removed.name);
+    for (const name of new Set(removed.map(l => l.name))) {
+      if (name && !this.lcuEventListeners.some(l => l.name === name))
+        this.unsubscribeWebSocketEvent(name);
+    }
 
     return true;
   }

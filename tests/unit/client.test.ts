@@ -36,15 +36,23 @@ vi.mock("axios", async (importOriginal) => {
 vi.mock("ws", () => {
   return {
     WebSocket: class {
+      static CONNECTING = 0;
+      static OPEN = 1;
       onopen: (() => void) | undefined;
       onclose: (() => void) | undefined;
       onmessage: ((ev: any) => void) | undefined;
       onerror: ((ev: any) => void) | undefined;
+      readyState = 0;
       close = vi.fn();
+      send = vi.fn();
       constructor() {
         queueMicrotask(() => {
-          if (mocks.wsBehavior === "open") this.onopen?.();
-          else if (mocks.wsBehavior === "error") this.onerror?.({ error: new Error("boom") });
+          if (mocks.wsBehavior === "open") {
+            this.readyState = 1;
+            this.onopen?.();
+          } else if (mocks.wsBehavior === "error") {
+            this.onerror?.({ error: new Error("boom") });
+          }
           // "hang": never settle
         });
       }
@@ -338,6 +346,56 @@ describe("HasagiClient - LCU event listeners", () => {
     expect(listener.callback).not.toHaveBeenCalled();
   });
 
+  it("removes all listeners matching a name string, but keeps others", async () => {
+    const client = await createConnectedClient();
+    const cb1 = vi.fn();
+    const cb2 = vi.fn();
+    const other = vi.fn();
+    client.addLCUEventListener({ name: "OnJsonApiEvent", callback: cb1 });
+    client.addLCUEventListener({ name: "OnJsonApiEvent", callback: cb2 });
+    client.addLCUEventListener({ name: "OnLcdsEvent" as any, callback: other });
+
+    expect(client.removeLCUEventListener("OnJsonApiEvent")).toBe(true);
+
+    (client as any).handleLCUEvent([8, "OnJsonApiEvent", { uri: "/x", eventType: "Update", data: {} }]);
+    (client as any).handleLCUEvent([8, "OnLcdsEvent", { uri: "/x", eventType: "Update", data: {} }]);
+    expect(cb1).not.toHaveBeenCalled();
+    expect(cb2).not.toHaveBeenCalled();
+    expect(other).toHaveBeenCalledTimes(1);
+  });
+
+  it("removes all listeners matching a path string and only unsubscribes an event no survivor needs", async () => {
+    const client = await createConnectedClient();
+    const send = vi.fn();
+    (client as any).webSocket = { send, readyState: 1 };
+
+    const cb1 = vi.fn();
+    const cb2 = vi.fn();
+    const survivor = vi.fn();
+    client.addLCUEventListener({ path: "/x", callback: cb1 });
+    client.addLCUEventListener({ path: "/x", callback: cb2 });
+    client.addLCUEventListener({ path: "/y", callback: survivor });
+
+    const unsubscribeFrame = JSON.stringify([6, "OnJsonApiEvent"]);
+
+    // Both "/x" listeners go at once; "/y" still needs the shared OnJsonApiEvent subscription.
+    expect(client.removeLCUEventListener("/x")).toBe(true);
+    (client as any).handleLCUEvent([8, "OnJsonApiEvent", { uri: "/x", eventType: "Update", data: {} }]);
+    expect(cb1).not.toHaveBeenCalled();
+    expect(cb2).not.toHaveBeenCalled();
+    expect(send).not.toHaveBeenCalledWith(unsubscribeFrame);
+
+    expect(client.removeLCUEventListener("/y")).toBe(true);
+    expect(send).toHaveBeenCalledWith(unsubscribeFrame);
+  });
+
+  it("returns false for a string matching no listener", async () => {
+    const client = await createConnectedClient();
+    client.addLCUEventListener({ path: "/x", callback: vi.fn() });
+
+    expect(client.removeLCUEventListener("/nope")).toBe(false);
+  });
+
   it("isolates a throwing 'lcu-event' emitter listener from path/name listeners", async () => {
     const client = await createConnectedClient();
     const pathCb = vi.fn();
@@ -410,7 +468,7 @@ describe("HasagiClient - LCU event listeners", () => {
   it("unsubscribes only once the last listener for an event name is removed", async () => {
     const client = await createConnectedClient();
     const send = vi.fn();
-    (client as any).webSocket = { send };
+    (client as any).webSocket = { send, readyState: 1 };
 
     const cb1 = vi.fn();
     const cb2 = vi.fn();
@@ -429,7 +487,7 @@ describe("HasagiClient - LCU event listeners", () => {
   it("unsubscribes OnJsonApiEvent once the last path-only listener is removed", async () => {
     const client = await createConnectedClient();
     const send = vi.fn();
-    (client as any).webSocket = { send };
+    (client as any).webSocket = { send, readyState: 1 };
 
     const cb1 = vi.fn();
     const cb2 = vi.fn();
@@ -803,6 +861,36 @@ describe("HasagiClient.connect - WebSocket handling", () => {
     await expect(older).resolves.toBeUndefined();
     expect(client.isConnected).toBe(true);
     expect(client.getPort()).toBe(7777);
+  });
+
+  it("a connect() superseded by a completed one still rejects as cancelled after disconnect()", async () => {
+    let resolveOlder!: (creds: { port: number; password: string }) => void;
+    mocks.getCredentials.mockImplementationOnce(() => new Promise(res => { resolveOlder = res; }));
+
+    const client = new HasagiClient();
+    const older = client.connect({
+      authenticationStrategy: "lockfile",
+      lockfile: "older",
+      readinessCheck: false,
+      useWebSocket: false,
+      connectionAttemptDelay: 1,
+    });
+
+    await Promise.resolve();
+
+    // A newer connect() wins and completes, then the client disconnects. The older call must not
+    // adopt the stale success and resolve ("connected") while the client is disconnected.
+    await client.connect({
+      authenticationStrategy: "manual",
+      credentials: { port: 7777, password: "new" },
+      readinessCheck: false,
+      useWebSocket: false,
+    });
+    client.disconnect();
+
+    resolveOlder({ port: 1, password: "old" });
+    await expect(older).rejects.toBeInstanceOf(ConnectionCancelledError);
+    expect(client.isConnected).toBe(false);
   });
 
   it("a newer connect() supersedes an in-flight older one without clobbering state", async () => {

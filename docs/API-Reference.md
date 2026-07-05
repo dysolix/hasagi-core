@@ -61,7 +61,7 @@ new HasagiClient(options?: { defaultRetryOptions?: Partial<RequestRetryOptions> 
 | Method | Description |
 |--------|-------------|
 | `addLCUEventListener(listener)` | Register a filtered WebSocket event listener (auto-subscribes). See [[Events]]. |
-| `removeLCUEventListener(listenerOrCallbackOrNameOrPath)` | Remove the first matching listener. Returns `boolean`. |
+| `removeLCUEventListener(listenerOrCallbackOrNameOrPath)` | Remove the first matching listener (object/callback), or all matching listeners (name/path string). Returns `boolean`. |
 | `removeAllLCUEventListeners()` | Remove all listeners. |
 | `subscribeWebSocketEvent(name)` | **Deprecated** (private in v1) — use `addLCUEventListener` with a `name`. |
 | `unsubscribeWebSocketEvent(name)` | **Deprecated** (private in v1) — use `removeLCUEventListener`. |

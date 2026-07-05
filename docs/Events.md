@@ -71,18 +71,20 @@ client.addLCUEventListener({
 
 ## Removing listeners
 
-`removeLCUEventListener` removes the **first** listener matching what you pass — the original object, the
-callback function, an event name, or a path:
+`removeLCUEventListener` accepts the original object, the callback function, an event name, or a path.
+The object and callback forms identify a specific listener and remove the **first** match; a string
+identifies a category and removes **every** listener whose name or path equals it:
 
 ```ts
-client.removeLCUEventListener(listener);        // by the object
-client.removeLCUEventListener(myCallback);      // by callback reference
-client.removeLCUEventListener("OnJsonApiEvent"); // by event name
-client.removeLCUEventListener("/lol-gameflow/v1/gameflow-phase"); // by path
+client.removeLCUEventListener(listener);        // by the object (removes one)
+client.removeLCUEventListener(myCallback);      // by callback reference (removes one)
+client.removeLCUEventListener("OnJsonApiEvent"); // by event name (removes all matching)
+client.removeLCUEventListener("/lol-gameflow/v1/gameflow-phase"); // by path (removes all matching)
 ```
 
-It returns `true` if a listener was removed, `false` otherwise. When no remaining listener subscribes to
-the removed listener's event name, that event is also **unsubscribed** from the WebSocket automatically.
+It returns `true` if at least one listener was removed, `false` otherwise. When no remaining listener
+subscribes to a removed listener's event name, that event is also **unsubscribed** from the WebSocket
+automatically.
 
 Remove everything at once:
 
