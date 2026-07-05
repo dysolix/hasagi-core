@@ -4,9 +4,13 @@ import { exec } from "child_process";
 
 const shell = process.platform === "darwin" ? "/bin/bash" : "powershell.exe";
 
+/** Credentials for authenticating with the LCU. */
 export type LCUCredentials = {
+  /** The LeagueClientUx process id, if known (absent e.g. for manually supplied credentials) */
   processId?: number;
+  /** The port the LCU is listening on */
   port: number;
+  /** The remoting auth token — the basic-auth password for user "riot" */
   password: string;
 };
 
@@ -131,4 +135,5 @@ export function abortableDelay(ms: number, signal?: AbortSignal): Promise<void> 
   });
 }
 
+/** A value of type `T`, or a promise resolving to it. */
 export type MaybePromise<T> = T | Promise<T>;
