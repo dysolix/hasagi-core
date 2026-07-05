@@ -32,7 +32,7 @@ The `options` object accepts (all typed and required/optional per endpoint):
 
 | Field | Description |
 |-------|-------------|
-| `path` | An object of path-parameter values for `{placeholder}` segments. |
+| `path` | An object of path-parameter values for `{placeholder}` segments. Values are URL-encoded automatically. |
 | `query` | Query-string parameters. |
 | `body` | The request body (sent as JSON; `Content-Type` is set for you). |
 | `headers` | Extra request headers. |

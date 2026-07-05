@@ -109,19 +109,16 @@ client.on("lcu-event", ([opcode, name, payload]) => {
 
 Use this for logging or custom dispatch. For normal filtering, prefer `addLCUEventListener`.
 
-## Manual subscription control
+## Manual subscription control (deprecated)
 
-You most likely don't need these — `addLCUEventListener` manages subscriptions. Their only use is
-consuming events through the raw `lcu-event` emitter without registering a listener:
+`subscribeWebSocketEvent(name)` and `unsubscribeWebSocketEvent(name)` are **deprecated and become
+private in v1**. Use `addLCUEventListener` / `removeLCUEventListener` instead — they manage
+subscriptions automatically. To only consume events through the raw `lcu-event` emitter, register a
+listener with a no-op callback:
 
 ```ts
-client.subscribeWebSocketEvent("OnJsonApiEvent");
-client.unsubscribeWebSocketEvent("OnJsonApiEvent");
+client.addLCUEventListener({ name: "OnJsonApiEvent", callback: () => {} });
 ```
-
-Use **either** the manual pair **or** the listener API, not both: they share one subscription set, so
-removing listeners also unsubscribes manually subscribed events, and manual unsubscribes silently stop
-events for registered listeners.
 
 Subscriptions made while disconnected are queued and (re-)sent automatically once the socket opens — and
 they survive reconnects.

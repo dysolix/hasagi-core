@@ -21,9 +21,9 @@ function resolveStandaloneAgent(certificate: string | null | undefined): Agent {
   return new Agent({ rejectUnauthorized: certificate !== null, ca: certificate ?? undefined });
 }
 
-/** Substitutes every `{name}` placeholder; unmatched ones are left intact. (Replacer callback so `$` in values isn't a replacement pattern.) */
+/** Substitutes every `{name}` placeholder with its URL-encoded value; unmatched ones are left intact. (Replacer callback so `$` in values isn't a replacement pattern.) */
 function substitutePathParameters(path: string, params: Record<string, string>): string {
-  return path.replace(/{(.*?)}/g, (match, name: string) => name in params ? params[name] : match);
+  return path.replace(/{(.*?)}/g, (match, name: string) => name in params ? encodeURIComponent(params[name]) : match);
 }
 
 /** Normalizes the two request argument shapes (raw axios config, or method/path/options). */
@@ -275,14 +275,12 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
     */
 
   /**
-   * Subscribes to a WebSocket event so the LCU starts sending it. **Prefer
-   * {@link HasagiClient.addLCUEventListener}, which subscribes automatically** — this only exists for
-   * consuming events through the raw `lcu-event` emitter without registering a listener. If you do
-   * that, stick to subscribe/unsubscribeWebSocketEvent and don't mix in the listener API: both share
-   * one subscription set, so removing listeners also unsubscribes events subscribed manually.
+   * Subscribes to a WebSocket event so the LCU starts sending it. Subscriptions made while
+   * disconnected are queued and sent once the socket opens, and survive reconnects.
    *
-   * Subscriptions made while disconnected are queued and sent once the socket opens, and survive
-   * reconnects.
+   * @deprecated Use {@link HasagiClient.addLCUEventListener} with a `name` instead — it subscribes
+   * automatically (pass a no-op callback to only consume the raw `lcu-event` emitter). Becomes
+   * private in v1.
    */
   public subscribeWebSocketEvent = (eventName: keyof LCUWebSocketEvents) => {
     if (this.webSocket === null) {
@@ -298,14 +296,15 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
   };
 
   /**
-   * Unsubscribes from a WebSocket event. No-op if the event isn't subscribed or the socket is closed.
-   * This also stops events for listeners registered via {@link HasagiClient.addLCUEventListener} that
-   * rely on the event — don't mix the manual and listener APIs.
+   * Unsubscribes from a WebSocket event. No-op if the event isn't subscribed. While disconnected,
+   * this removes the event from the queued subscriptions so it won't be subscribed on connect.
+   *
+   * @deprecated Use {@link HasagiClient.removeLCUEventListener} instead — it unsubscribes the event
+   * once no remaining listener needs it. Becomes private in v1.
    */
   public unsubscribeWebSocketEvent = (eventName: keyof LCUWebSocketEvents) => {
-    if (this.webSocket === null) return;
-    if (this.subscribedEvents.delete(eventName))
-      this.webSocket!.send(JSON.stringify([6, eventName]));
+    if (this.subscribedEvents.delete(eventName) && this.webSocket !== null)
+      this.webSocket.send(JSON.stringify([6, eventName]));
   };
 
   // #endregion
@@ -762,8 +761,6 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
   public removeAllLCUEventListeners() {
     this.lcuEventListeners = [];
     this.subscribedEvents.forEach(event => this.unsubscribeWebSocketEvent(event));
-    // Clear directly: unsubscribeWebSocketEvent is a no-op (and doesn't clear the set) while disconnected.
-    this.subscribedEvents.clear();
   }
 
   private handleLCUEvent<EventName extends keyof LCUWebSocketEvents = "OnJsonApiEvent">(event: [opcode: number, name: EventName, data: LCUWebSocketEvents[EventName]]) {
@@ -803,18 +800,25 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
   // #endregion
 }
 
+/** The events emitted by {@link HasagiClient} (its typed-emitter event map). Subclasses can widen it via the class's type parameter. */
 export interface HasagiCoreEvents {
+  /** The connection is fully established (credentials, readiness check, WebSocket if enabled) — also after each successful reconnect */
   "connected": () => void;
+  /** A connection attempt is starting — emitted once per credential-discovery attempt (once in total for manual credentials) */
   "connecting": () => void;
   /** A single credential-discovery attempt failed and will be retried — see "connection-failed" for the terminal event */
   "connection-attempt-failed": () => void;
   /** connect() gave up and is about to reject (e.g. attempts exhausted, readiness or WebSocket failure). Not emitted for superseded or cancelled calls. */
   "connection-failed": (error: unknown) => void;
+  /** The connection was closed — by disconnect(), the WebSocket closing, or a refused request while no socket is active. Not emitted when connect() tears down an existing connection to reconnect. */
   "disconnected": () => void;
+  /** The event WebSocket errored after it was established; errors before that reject connect() instead */
   "websocket-error": (error: Error | undefined) => void;
+  /** Every incoming WebSocket event as its raw [opcode, name, payload] tuple, regardless of registered LCU event listeners — see addLCUEventListener for filtered dispatch */
   "lcu-event": <EventName extends keyof LCUWebSocketEvents = "OnJsonApiEvent">(event: [opcode: number, name: EventName, data: LCUWebSocketEvents[EventName]]) => void;
 }
 
+/** A filtered LCU WebSocket event listener — see {@link HasagiClient.addLCUEventListener}. */
 export type LCUEventListener<EventName extends keyof LCUWebSocketEvents = keyof LCUWebSocketEvents> = {
   /** If present, the callback will only be called if the event's path matches */
   path?: string | RegExp;
@@ -822,10 +826,13 @@ export type LCUEventListener<EventName extends keyof LCUWebSocketEvents = keyof 
   types?: ("Create" | "Update" | "Delete")[];
   /** If present, the callback will only be called if the event's name matches */
   name?: EventName;
+  /** Called with the event payload for every event that passes all of the filters above */
   callback: (event: LCUWebSocketEvents[EventName]) => void;
 };
 
+/** Options for {@link HasagiClient.connect}. When passing an options object, `authenticationStrategy` is required; omit the object entirely for the default `process` strategy. */
 export type ConnectionOptions = {
+  /** Whether to open the LCU event WebSocket after connecting. Defaults to true. If disabled, no events are received */
   useWebSocket?: boolean;
   /** The amount of attempts before the connection fails. Defaults to infinite */
   maxConnectionAttempts?: number;
@@ -839,19 +846,23 @@ export type ConnectionOptions = {
   /** The self signed Riot Games certificate in string format; Use 'null' to disable certificate validation or omit to use the certificate that is built into Hasagi (works unless Riot changes their root certificate) */
   certificate?: string | null;
 } & ({
+  /** Read the credentials from a lockfile */
   authenticationStrategy: "lockfile";
-  /**
-     * This should either be the lockfile's content or an absolute path to the lockfile
-     */
+  /** Either the lockfile's content or an absolute path to the lockfile */
   lockfile: string;
 } | {
+  /** Discover the credentials from the running LeagueClientUx process (the default) */
   authenticationStrategy: "process";
 } | {
+  /** Use the provided `credentials` as-is */
   authenticationStrategy: "manual";
+  /** The credentials to connect with — e.g. from {@link getCredentials} */
   credentials: LCUCredentials;
 });
 
+/** Retry behavior for LCU requests — see {@link HasagiClient.request} for how defaults, client-wide options and per-call overrides merge. */
 export type RequestRetryOptions = {
+  /** How many times a failed request is retried before giving up. 0 disables retries */
   maxRetries: number;
   /** In milliseconds */
   retryDelay: number;
@@ -859,8 +870,11 @@ export type RequestRetryOptions = {
   noRetryStatusCodes?: number[];
 };
 
+/** Options for {@link HasagiClient.poll}. */
 export type PollOptions<Method extends string, Path extends string> = {
+  /** The delay in milliseconds between polls */
   intervalMs: number;
+  /** The maximum number of polls before polling stops. Defaults to unlimited */
   maxExecutions?: number;
   /** Polling stops (and the poll() promise resolves) when this signal aborts */
   signal?: AbortSignal;
@@ -891,6 +905,13 @@ type LCURequestOptions<Method extends string, Path extends string> = { headers?:
       body?: any;
     });
 
+/**
+ * The `...options` rest-parameter tuple of {@link HasagiClient.request} and {@link HasagiClient.poll}
+ * for a typed endpoint: `[options]` when the endpoint requires path/body/query options, `[options?]`
+ * when it doesn't. Exported so wrapper functions that forward to `request`/`poll` can type their own
+ * rest parameter (`Parameters<...>` can't recover it from the generic overloads) — you rarely need it
+ * directly otherwise.
+ */
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export type LCURequestOptionsParameter<Method extends string, Path extends string, AdditionalOptions = {}> = OptionsParameter<LCURequestOptions<Method, Path> & AdditionalOptions>;
 
