@@ -1,6 +1,7 @@
 import fs from "fs/promises";
 
 await fs.cp("./src/types", "./dist/types", { recursive: true });
+await fs.copyFile("./src/types.d.ts", "./dist/types.d.ts");
 await fs.copyFile("./LICENSE", "./dist/LICENSE");
 await fs.copyFile("./README.md", "./dist/README.md");
 

@@ -63,8 +63,8 @@ new HasagiClient(options?: { defaultRetryOptions?: Partial<RequestRetryOptions> 
 | `addLCUEventListener(listener)` | Register a filtered WebSocket event listener (auto-subscribes). See [[Events]]. |
 | `removeLCUEventListener(listenerOrCallbackOrNameOrPath)` | Remove the first matching listener. Returns `boolean`. |
 | `removeAllLCUEventListeners()` | Remove all listeners. |
-| `subscribeWebSocketEvent(name)` | Manually subscribe to a WebSocket event. |
-| `unsubscribeWebSocketEvent(name)` | Manually unsubscribe. |
+| `subscribeWebSocketEvent(name)` | **Deprecated** (private in v1) — use `addLCUEventListener` with a `name`. |
+| `unsubscribeWebSocketEvent(name)` | **Deprecated** (private in v1) — use `removeLCUEventListener`. |
 
 ### Emitted events ([`HasagiCoreEvents`](#types))
 
@@ -123,13 +123,13 @@ Exported from the root:
 | `PollOptions<Method, Path>` | Options for `poll()`. See [[Polling]]. |
 | `LCUEventListener<EventName>` | Shape of an event listener. See [[Events]]. |
 | `HasagiCoreEvents` | The emitter event map. |
-| `LCURequestOptionsParameter<Method, Path, Extra?>` | The per-request options tuple type. |
 | `LCUCredentials` | `{ processId?, port, password }`. |
 | `LCUTypes` | Namespace of all generated LCU resource types. See [[Type System]]. |
 
 Endpoint/event helper types (`LCUEndpoints`, `LCUEndpointResponseType`, `LCUEndpointBodyType`,
-`LCUEndpointParams`, `EndpointsWithMethod`, `HttpMethod`, `LCUWebSocketEvents`) are exported from `@hasagi/core/types` — and
-deprecated at the root. See [[Type System]].
+`LCUEndpointParams`, `EndpointsWithMethod`, `HttpMethod`, `LCUWebSocketEvents`, and
+`LCURequestOptionsParameter` — the `...options` tuple of `request`/`poll`, for typing wrapper
+functions) are exported from `@hasagi/core/types` — and deprecated at the root. See [[Type System]].
 
 ## Options shapes
 

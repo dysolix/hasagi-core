@@ -60,7 +60,7 @@
       "default": "./index.js"
     },
     "./types": {
-      "types": "./types/index.d.ts"
+      "types": "./types.d.ts"
     },
     "./credentials": {
       "types": "./credentials.d.ts",
@@ -72,7 +72,7 @@
   "typesVersions": {
     "*": {
       "types": [
-        "./types/index.d.ts"
+        "./types.d.ts"
       ],
       "credentials": [
         "./credentials.d.ts"

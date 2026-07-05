@@ -11,7 +11,7 @@ import type { LCUWebSocketEvents } from "./types/lcu-events";
 
 // Core API types — used directly when working with HasagiClient.
 export type {
-  ConnectionOptions, RequestRetryOptions, PollOptions, LCUEventListener, HasagiCoreEvents, LCURequestOptionsParameter, LCUCredentials,
+  ConnectionOptions, RequestRetryOptions, PollOptions, LCUEventListener, HasagiCoreEvents, LCUCredentials,
 };
 
 export type { LCUTypes } from "./types";
@@ -23,10 +23,12 @@ export {
 
 /*
  * Deprecated root re-exports. These remain available for backwards compatibility but will be
- * removed from the root in v1. Import the generated LCU types from "@hasagi/core/types" and the
+ * removed from the root in v1. Import the LCU/endpoint types from "@hasagi/core/types" and the
  * low-level credential/process helpers from "@hasagi/core/credentials".
  */
 export type {
+  /** @deprecated Import from `@hasagi/core/types` instead. Removed from the root in v1. */
+  LCURequestOptionsParameter,
   /** @deprecated Import from `@hasagi/core/types` instead. Removed from the root in v1. */
   LCUEndpoints,
   /** @deprecated Import from `@hasagi/core/types` instead. Removed from the root in v1. */
