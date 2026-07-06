@@ -45,7 +45,7 @@
     "@arethetypeswrong/cli": "^0.18.3",
     "@hasagi/cli": "0.9.10",
     "@stylistic/eslint-plugin": "^5.10.0",
-    "@types/node": "^18.0.0",
+    "@types/node": "^20.0.0",
     "@types/ws": "^8.18.1",
     "eslint": "^10.5.0",
     "publint": "^0.3.21",
