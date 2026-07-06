@@ -25,6 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Raised the supported Node.js floor to 22** (`engines.node >=22`) — Node 18 and 20 are both past
+  end-of-life. Consumers on older Node versions get an engines warning on install; the code itself
+  has no new runtime requirements yet.
 - **Concurrent `connect()` calls settle with the winning call's outcome.** A superseded call no
   longer resolves early while the newest call is still connecting — it adopts the newest call's
   result, so a resolved `connect()` always means the client is connected.
