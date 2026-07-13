@@ -88,13 +88,15 @@ function parseRequestArgs(args: any[], defaultRetryOptions?: Partial<RequestRetr
   }
 
   // An explicit `undefined` in an override must fall back to the default, not clobber it
-  // (an undefined maxRetries would make runWithRetry's attempt count NaN).
+  // (an undefined maxRetries would make runWithRetry's attempt count NaN). Negative maxRetries
+  // clamps to 0 — a -1 (the "infinite" convention of maxConnectionAttempts) would otherwise make
+  // runWithRetry skip the request entirely.
   return {
     axiosConfig,
     returnAxiosResponse,
     certificate,
     retryOptions: {
-      maxRetries: retryOptions.maxRetries ?? 0,
+      maxRetries: Math.max(0, retryOptions.maxRetries ?? 0),
       retryDelay: retryOptions.retryDelay ?? 1000,
       noRetryStatusCodes: retryOptions.noRetryStatusCodes ?? [400],
     },
@@ -549,6 +551,9 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
       };
 
       ws.onmessage = (ev) => {
+        // A replaced socket can still deliver frames until its close handshake completes.
+        if (this.webSocket !== ws) return;
+
         let data: unknown;
         try {
           data = JSON.parse(ev.data.toString("utf8"));

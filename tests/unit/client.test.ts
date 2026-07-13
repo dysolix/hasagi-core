@@ -184,6 +184,16 @@ describe("HasagiClient.request - retry loop", () => {
       .rejects.toBeInstanceOf(RequestError);
     expect(mockRequest).toHaveBeenCalledTimes(1);
   });
+
+  it("treats a negative maxRetries as 0 instead of skipping the request", async () => {
+    // -1 means "infinite" for maxConnectionAttempts; here it must not make the attempt count 0.
+    const client = await createConnectedClient();
+    mockRequest.mockRejectedValue(networkError("ETIMEDOUT"));
+
+    await expect(client.request({ url: "/x", retryOptions: { maxRetries: -1, retryDelay: 1 } }))
+      .rejects.toBeInstanceOf(RequestError);
+    expect(mockRequest).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe("HasagiClient.request - error mapping", () => {
@@ -791,6 +801,43 @@ describe("HasagiClient.connect - WebSocket handling", () => {
       readinessCheck: false,
       webSocketTimeoutMs: 50,
     })).rejects.toThrow(/timed out after 50ms/);
+  });
+
+  it("dispatches messages arriving on the active socket", async () => {
+    mocks.wsBehavior = "open";
+    const client = new HasagiClient();
+    await client.connect({
+      authenticationStrategy: "manual",
+      credentials: { port: 1, password: "x" },
+      readinessCheck: false,
+    });
+
+    const cb = vi.fn();
+    client.addLCUEventListener({ path: "/x", callback: cb });
+
+    (client as any).webSocket.onmessage({ data: JSON.stringify([8, "OnJsonApiEvent", { uri: "/x", eventType: "Update", data: {} }]) });
+
+    expect(cb).toHaveBeenCalledTimes(1);
+  });
+
+  it("ignores messages from a socket replaced by disconnect()", async () => {
+    mocks.wsBehavior = "open";
+    const client = new HasagiClient();
+    await client.connect({
+      authenticationStrategy: "manual",
+      credentials: { port: 1, password: "x" },
+      readinessCheck: false,
+    });
+
+    const staleWs = (client as any).webSocket;
+    const cb = vi.fn();
+    client.addLCUEventListener({ path: "/x", callback: cb });
+
+    client.disconnect();
+    // The closing socket can still deliver frames until its close handshake completes.
+    staleWs.onmessage({ data: JSON.stringify([8, "OnJsonApiEvent", { uri: "/x", eventType: "Update", data: {} }]) });
+
+    expect(cb).not.toHaveBeenCalled();
   });
 
   it("disconnect() cancels an in-flight connect(), which rejects with ConnectionCancelledError", async () => {
