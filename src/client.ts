@@ -748,6 +748,9 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
    * **every** listener whose name or path equals it; a callback function or the
    * {@link LCUEventListener} object removes the first matching listener. Events no remaining
    * listener subscribes to are unsubscribed from the WebSocket.
+   *
+   * Path-only listeners carry the implicit name `OnJsonApiEvent`, so removing by that name also
+   * removes them — remove by path (or callback/object) to target them specifically.
    * @returns `true` if at least one listener was removed, otherwise `false`.
    */
   public removeLCUEventListener(listener: LCUEventListener | LCUEventListener["callback"] | string) {

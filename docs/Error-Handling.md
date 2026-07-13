@@ -96,6 +96,10 @@ many attempts there were:
 - **Multiple attempts failed** → an **`AggregateError`** is thrown, whose `errors` array holds every
   attempt's error in order. Its message is `Request failed after N attempts.`
 
+One exception: the `ECONNREFUSED` auto-disconnect described above rethrows the final `RequestError`
+directly, even when several attempts failed — so a disconnect always surfaces as a `RequestError`
+you can branch on, never wrapped in an `AggregateError`.
+
 ```ts
 try {
   await client.request("get", "/lol-summoner/v1/current-summoner", {

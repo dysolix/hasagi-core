@@ -18,7 +18,7 @@ requests, WebSocket events, polling, and automatic credential discovery.
 npm install @hasagi/core
 ```
 
-Requires Node.js >= 18.
+Requires Node.js >= 22.
 
 ## Quick start
 

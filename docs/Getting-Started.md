@@ -4,7 +4,7 @@ This page gets you from an empty project to a typed, working request in a few mi
 
 ## Prerequisites
 
-- **Node.js ≥ 18**
+- **Node.js ≥ 22**
 - The **League of Legends client** installed and running on the same machine (for a live connection).
   If you only want to compile against the types, the client doesn't need to be running.
 
@@ -30,7 +30,7 @@ await client.connect();
 
 // `summoner` is fully typed from the endpoint definition.
 const summoner = await client.request("get", "/lol-summoner/v1/current-summoner");
-console.log(summoner.displayName, summoner.summonerLevel);
+console.log(summoner.gameName, summoner.summonerLevel);
 
 client.disconnect();
 ```
@@ -61,7 +61,7 @@ client.on("disconnected", () => console.log("Disconnected"));
 await client.connect();
 
 const me = await client.request("get", "/lol-summoner/v1/current-summoner");
-console.log(`Logged in as ${me.displayName}`);
+console.log(`Logged in as ${me.gameName}#${me.tagLine}`);
 
 // Log every gameflow phase change (Lobby → Matchmaking → ChampSelect → InProgress → …)
 client.addLCUEventListener({

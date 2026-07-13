@@ -60,7 +60,7 @@ New here? Start with **[[Getting Started]]** for installation and your first req
 
 ## Requirements
 
-- **Node.js ≥ 18**
+- **Node.js ≥ 22**
 - The League of Legends client installed and running (for live connections)
 - Credential auto-discovery via the `process` strategy is supported on **Windows** and **macOS**; the
   `lockfile` and `manual` strategies work anywhere. See [[Connecting]].

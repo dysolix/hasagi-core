@@ -86,6 +86,10 @@ It returns `true` if at least one listener was removed, `false` otherwise. When 
 subscribes to a removed listener's event name, that event is also **unsubscribed** from the WebSocket
 automatically.
 
+> Path-only listeners subscribe to `OnJsonApiEvent` internally, so
+> `removeLCUEventListener("OnJsonApiEvent")` removes them too. Remove by path (or by
+> callback/object) to target a specific listener.
+
 Remove everything at once:
 
 ```ts
