@@ -217,6 +217,28 @@ describe("HasagiClient.request - error mapping", () => {
   });
 });
 
+describe("HasagiClient.request - returnAxiosResponse (typed form)", () => {
+  it("resolves with the full axios response when returnAxiosResponse is true", async () => {
+    const client = await createConnectedClient();
+    mockRequest.mockResolvedValueOnce(lcuResponse({ summonerId: 1 }));
+
+    // Real endpoint path (no `as any`): also verifies res.data keeps the endpoint's response type.
+    const res = await client.request("get", "/lol-summoner/v1/current-summoner", { returnAxiosResponse: true });
+
+    expect(res.status).toBe(200);
+    expect(res.data.summonerId).toBe(1);
+  });
+
+  it("keeps resolving with the parsed body when returnAxiosResponse is not set", async () => {
+    const client = await createConnectedClient();
+    mockRequest.mockResolvedValueOnce(lcuResponse({ summonerId: 2 }));
+
+    const summoner = await client.request("get", "/lol-summoner/v1/current-summoner");
+
+    expect(summoner.summonerId).toBe(2);
+  });
+});
+
 describe("HasagiClient.buildRequest", () => {
   it("substitutes path parameters and sends query params for GET", async () => {
     const client = await createConnectedClient();
@@ -982,6 +1004,15 @@ describe("standalone request()", () => {
     await request({ port: 1, password: "p" } as any, { method: "get", url: "/x", certificate: null });
 
     expect(mockRequest.mock.calls[0][0].httpsAgent.options.rejectUnauthorized).toBe(false);
+  });
+
+  it("resolves with the full axios response for the typed form when returnAxiosResponse is true", async () => {
+    mockRequest.mockResolvedValueOnce(lcuResponse({ summonerId: 7 }));
+
+    const res = await request({ port: 1, password: "p" }, "get", "/lol-summoner/v1/current-summoner", { returnAxiosResponse: true });
+
+    expect(res.status).toBe(200);
+    expect(res.data.summonerId).toBe(7);
   });
 
   it("honors a certificate passed via the method/path options overload", async () => {

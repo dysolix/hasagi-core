@@ -63,7 +63,7 @@ function parseRequestArgs(args: any[], defaultRetryOptions?: Partial<RequestRetr
     // method/path/options overload
     const method = args[0] as string;
     let path = args[1] as string;
-    const _config = args[2] as (LCURequestOptions<string, string> & { certificate?: string | null }) | undefined;
+    const _config = args[2] as (LCURequestOptions<string, string> & { certificate?: string | null; returnAxiosResponse?: boolean }) | undefined;
 
     if (_config && "path" in _config)
       path = substitutePathParameters(path, _config.path as Record<string, string>);
@@ -79,6 +79,9 @@ function parseRequestArgs(args: any[], defaultRetryOptions?: Partial<RequestRetr
       },
     };
     certificate = _config?.certificate;
+
+    if (_config?.returnAxiosResponse)
+      returnAxiosResponse = true;
 
     if (_config?.retryOptions)
       retryOptions = { ...retryOptions, ..._config.retryOptions };
@@ -141,7 +144,8 @@ async function runWithRetry(send: () => Promise<AxiosResponse<unknown>>, returnA
  * Authentication and the base URL are added automatically, and the connection is validated against the
  * built-in Riot Games certificate by default (matching {@link HasagiClient}). Call it either with a raw
  * axios config, or with a typed `method` + `path` (+ options) for full request/response typing on known
- * endpoints.
+ * endpoints. Pass `returnAxiosResponse: true` (in either form) to resolve with the full `AxiosResponse`
+ * instead of the parsed body — its `data` stays typed per endpoint in the method/path form.
  *
  * Override validation with the `certificate` option (in either form): pass your own certificate in
  * string form to validate against it, or `null` to disable validation; omit it to use the built-in
@@ -156,7 +160,7 @@ async function runWithRetry(send: () => Promise<AxiosResponse<unknown>>, returnA
  * @param credentials Port and password. You can use the `getCredentials` function to get them.
  */
 async function request<ReturnAxiosResponse extends boolean = false>(credentials: LCUCredentials, config: AxiosRequestConfig & { returnAxiosResponse?: ReturnAxiosResponse; retryOptions?: Partial<RequestRetryOptions>; certificate?: string | null }): Promise<ReturnAxiosResponse extends true ? AxiosResponse<unknown> : unknown>;
-async function request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(credentials: LCUCredentials, method: Method, path: Path, ...options: LCURequestOptionsParameter<Method, Path, { certificate?: string | null }>): Promise<LCUEndpointResponseType<Method, Path>>;
+async function request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>, ReturnAxiosResponse extends boolean = false>(credentials: LCUCredentials, method: Method, path: Path, ...options: LCURequestOptionsParameter<Method, Path, { certificate?: string | null; returnAxiosResponse?: ReturnAxiosResponse }>): Promise<ReturnAxiosResponse extends true ? AxiosResponse<LCUEndpointResponseType<Method, Path>> : LCUEndpointResponseType<Method, Path>>;
 async function request() {
   const credentials: LCUCredentials = arguments[0];
   const { axiosConfig, returnAxiosResponse, retryOptions, certificate } = parseRequestArgs(Array.prototype.slice.call(arguments, 1));
@@ -580,7 +584,9 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
   /**
    * Sends a request to the League of Legends client (LCU). Authentication and the base URL are added
    * automatically. Call it either with a raw axios config, or with a typed `method` + `path` (+ options)
-   * for full request/response typing on known endpoints.
+   * for full request/response typing on known endpoints. Pass `returnAxiosResponse: true` (in either
+   * form) to resolve with the full `AxiosResponse` instead of the parsed body — its `data` stays typed
+   * per endpoint in the method/path form.
    *
    * Failures are wrapped: a response with a non-success status becomes an {@link LCUError}, a transport
    * failure becomes a {@link RequestError}, and (with retries configured) repeated failures become an
@@ -592,7 +598,7 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
    * @throws {NotConnectedError} when called before a successful `connect()`.
    */
   public async request<ReturnAxiosResponse extends boolean = false>(config: AxiosRequestConfig & { returnAxiosResponse?: ReturnAxiosResponse; retryOptions?: Partial<RequestRetryOptions> }): Promise<ReturnAxiosResponse extends true ? AxiosResponse<unknown> : unknown>;
-  public async request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>>(method: Method, path: Path, ...options: LCURequestOptionsParameter<Method, Path>): Promise<LCUEndpointResponseType<Method, Path>>;
+  public async request<Method extends HttpMethod, Path extends EndpointsWithMethod<Method>, ReturnAxiosResponse extends boolean = false>(method: Method, path: Path, ...options: LCURequestOptionsParameter<Method, Path, { returnAxiosResponse?: ReturnAxiosResponse }>): Promise<ReturnAxiosResponse extends true ? AxiosResponse<LCUEndpointResponseType<Method, Path>> : LCUEndpointResponseType<Method, Path>>;
   public async request() {
     if (this.lcuAxiosInstance === null)
       throw new NotConnectedError();

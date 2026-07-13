@@ -37,6 +37,7 @@ The `options` object accepts (all typed and required/optional per endpoint):
 | `body` | The request body (sent as JSON; `Content-Type` is set for you). |
 | `headers` | Extra request headers. |
 | `retryOptions` | Per-call retry configuration — see [Retries](#retries). |
+| `returnAxiosResponse` | Resolve with the full `AxiosResponse` instead of the parsed body — see [Getting the full response](#getting-the-full-response). |
 
 When the endpoint and method are known to the generated types, TypeScript enforces the correct shape of
 `path`, `query`, and `body`, and infers the response type. See [[Type System]] for how this works and
@@ -53,19 +54,24 @@ await client.request({ method: "get", url: "/lol-summoner/v1/current-summoner" }
 
 ### Getting the full response
 
-By default `request()` resolves to the **parsed response body**. Pass `returnAxiosResponse: true` to get
-the entire `AxiosResponse` instead (status, headers, etc.):
+By default `request()` resolves to the **parsed response body**. Pass `returnAxiosResponse: true` (in
+either form) to get the entire `AxiosResponse` instead (status, headers, etc.):
 
 ```ts
-const res = await client.request({
+// Typed form — res.data keeps the endpoint's response type
+const res = await client.request("get", "/lol-summoner/v1/current-summoner", {
+  returnAxiosResponse: true,
+});
+console.log(res.status, res.data.summonerId);
+
+// Raw axios config form — res.data is unknown
+const raw = await client.request({
   method: "get",
   url: "/lol-summoner/v1/current-summoner",
   returnAxiosResponse: true,
 });
-console.log(res.status, res.headers, res.data);
+console.log(raw.status, raw.headers, raw.data);
 ```
-
-> `returnAxiosResponse` is available on both the raw-config and (via `options`) typed forms.
 
 ## Retries
 
