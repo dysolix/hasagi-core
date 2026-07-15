@@ -25,8 +25,8 @@ new HasagiClient(options?: { defaultRetryOptions?: Partial<RequestRetryOptions> 
 
 | Member | Returns | Notes |
 |--------|---------|-------|
-| `HasagiClient.getInstance()` | `HasagiClient \| undefined` | The **most recently constructed** instance, or one set via `setInstance`. A convenience global, not a true singleton. Generic over the event map (defaults to `HasagiCoreEvents`). |
-| `HasagiClient.setInstance(instance?)` | `void` | Sets what `getInstance()` returns; pass `undefined`/`null` to release the reference so the client can be garbage collected. |
+| `HasagiClient.getInstance()` | `HasagiClient \| undefined` | **Deprecated (removed in v1)** — construct a client and pass it around explicitly. The **most recently constructed** instance, or one set via `setInstance`. A convenience global, not a true singleton. Generic over the event map (defaults to `HasagiCoreEvents`). |
+| `HasagiClient.setInstance(instance?)` | `void` | **Deprecated (removed in v1)** — sets what `getInstance()` returns; pass `undefined`/`null` to release the reference so the client can be garbage collected. |
 
 ### Connection
 

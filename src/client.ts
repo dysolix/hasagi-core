@@ -194,6 +194,9 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
    * Returns the **most recently constructed** `HasagiClient`, or `undefined` if none exists — a
    * convenience global, not a true singleton. Pass the event-map type argument (e.g. a subclass's
    * widened events) to type the result accordingly.
+   *
+   * @deprecated Removed in v1 together with {@link HasagiClient.setInstance} and the constructor's
+   * auto-registration — construct a client and pass it around explicitly.
    */
   public static getInstance = <Events extends HasagiCoreEvents & ListenerSignature<Events> = HasagiCoreEvents>(): HasagiClient<Events> | undefined =>
     HasagiClient.Instance as HasagiClient<Events> | undefined;
@@ -201,6 +204,9 @@ export default class HasagiClient<Events extends HasagiCoreEvents & ListenerSign
   /**
    * Overrides what {@link HasagiClient.getInstance} returns, or clears it (pass `undefined`/`null`)
    * so a no-longer-used client can be garbage collected.
+   *
+   * @deprecated Removed in v1 together with {@link HasagiClient.getInstance} — construct a client
+   * and pass it around explicitly.
    */
   public static setInstance = (instance?: HasagiClient<any> | null): void => {
     HasagiClient.Instance = instance ?? undefined;
