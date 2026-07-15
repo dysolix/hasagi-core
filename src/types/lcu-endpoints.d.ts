@@ -1823,6 +1823,9 @@ export interface LCUEndpoints {
 	"/lol-patch/v1/status": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolPatchStatus }
 	},
+	"/lol-patch/v1/teamfighttactics-game-version": {
+		get: { path: never, params: never, body: never, response: string }
+	},
 	"/lol-perks/v1/currentpage": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolPerksPerkPageResource }
 		put: { path: never, params: never, body: number, response: unknown }
@@ -3201,6 +3204,9 @@ export interface LCUEndpoints {
 	"/lol-gameflow/v1/gameflow-monitor": {
 		post: { path: never, params: never, body: unknown, response: void }
 	},
+	"/lol-gameflow/v1/launch-tft": {
+		post: { path: never, params: never, body: never, response: unknown }
+	},
 	"/lol-gameflow/v1/pre-end-game-transition": {
 		post: { path: never, params: never, body: boolean, response: void }
 	},
@@ -3645,6 +3651,12 @@ export interface LCUEndpoints {
 	"/lol-settings/v2/reload/{ppType}": {
 		post: { path: [ppType: string], params: never, body: never, response: void }
 	},
+	"/lol-settings/v2/reload-server/{ppType}": {
+		post: { path: [ppType: string], params: never, body: never, response: void }
+	},
+	"/lol-settings/v2/upload-to-server/{ppType}": {
+		post: { path: [ppType: string], params: never, body: never, response: boolean }
+	},
 	"/lol-shoppefront/v1/bulk-purchases": {
 		post: { path: never, params: never, body: LCUTypes.LolShoppefrontBulkPurchaseRequest, response: string }
 	},
@@ -3725,6 +3737,9 @@ export interface LCUEndpoints {
 	},
 	"/lol-tft-team-planner/v1/sets/{set}/teams/{team}/lastView": {
 		post: { path: [set: string, team: string], params: never, body: never, response: unknown }
+	},
+	"/lol-tft-team-planner/v1/sets/push-to-server": {
+		post: { path: never, params: never, body: never, response: unknown }
 	},
 	"/lol-tft-team-planner/v1/team-code/clipboard/{set}": {
 		post: { path: [set: string], params: never, body: never, response: LCUTypes.LolTftTeamPlannerImportedTeamCodeData }

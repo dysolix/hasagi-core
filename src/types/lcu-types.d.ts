@@ -1333,12 +1333,6 @@ export interface ClientConfigSession {
 
 export type ClientConfigUpdateType = "Delete" | "Update" | "Create"
 
-export interface ClientDynamicConfig {
-	configs: string
-	delta: boolean
-	compressed: boolean
-}
-
 export type ClientRequestError = "WITHDRAW_LOCKOUT" | "WITHDRAW_CANCEL_NOT_ALLOWED" | "WITHDRAW_NOT_ALLOWED" | "VOICE_NOT_AVAILABLE" | "TICKET_NOT_SET" | "TICKET_OFFER_INVALID_COUNT" | "TICKET_OFFER_NOT_EXIST" | "TICKET_ALREADY_SET" | "SMS_NOT_VERIFIED" | "SUMMONER_LEVEL_REQUIREMENT_NOT_MET" | "SUGGEST_INVITEE_NOT_EXIST" | "ROSTER_DISBAND_NOT_ALLOWED" | "ROSTER_ELIMINATED" | "PHASE_FULL" | "PHASE_CANCELLED" | "PENDING_ROSTER_CLOSE" | "PENDING_ROSTER_FULL" | "PENDING_ROSTER_NOT_READY" | "OVER_INVITE" | "OVER_SUGGESTION_INVITE" | "NO_MORE_RECOMMEND" | "NO_PERMISSION" | "NOT_ALLOWED_DELETE_TOURNAMENT_REWARD_CONFIG" | "NOT_ALLOWED_DELETE_TOURNAMENT" | "NOT_ENOUGH_TICKETS" | "NOT_SEED_INTO_LEAGUE" | "NOT_INVITEE" | "NOT_MEMBER" | "NOT_CAPTAIN" | "NO_AVAILABLE_PHASE" | "NO_SAME_PLAYER" | "MAX_ROSTER_FETCHSIZE" | "MAX_INVITED" | "INVALID_SEASON" | "INVALID_REWARD_CONFIG_NAME" | "INVALID_MATCHSTATUS_FORGAMEEND" | "INVALID_WITHDRAW" | "INVALID_Tier" | "INVALID_PLAYER" | "INVALID_MATCHID" | "INVALID_BRACKET" | "INVALID_CHECKELIGIBILITY_SIZE" | "INVALID_SHORTNAME" | "INVALID_NAME" | "INVALID_LOGOCOLOR" | "INVALID_LOGO" | "INVALID_POSITION" | "INVALID_ROSTER_MEMBER_SIZE" | "INVALID_INVITEE" | "INVALID_PHASE" | "INVALID_TOURNAMENT" | "INVALID_BUY_BACK" | "INVALID_ROSTER" | "INTERNAL_ERROR" | "INACTIVE_PHASE" | "INACTIVE_REGISTRATION" | "IN_OTHER_PHASE_OF_PERIOD" | "IN_OTHER_PENDINGROSTER" | "IN_OTHER_ROSTER" | "LOGOCOLOR_NOT_ALLOWED" | "LOGO_NOT_ALLOWED" | "HONOR_INELIGIBILITY" | "FAIL_SUGGESTINVITE" | "FAIL_INVITE" | "ELIGIBILITY_SERVER_ERROR" | "CLASH_BANNED_INVITEE" | "CLASH_BANNED" | "CAPTAIN_NOT_ALLOWED" | "ALREADY_IN_PHASE" | "ALREADY_VOTE_WITHDRAW" | "ALREADY_DECLINED" | "ALREADY_DECLINE_WITHDRAW" | "ALREADY_SUGGESTED" | "ALREADY_INVITED" | "ALREADY_MEMBER" | "ALREADY_IN_GAME"
 
 export interface CollectionsLcdsChampionDTO {
@@ -1750,10 +1744,6 @@ export interface IdsDTO {
 
 export type InviteType = "NONE" | "SELFJOIN" | "SUGGEST" | "FRIEND" | "FREEAGENT"
 
-export interface LCDSBroadcastNotification {
-	broadcastMessages: LolServiceStatusBroadcastMessage[]
-}
-
 export interface LCDSChampionReward {
 	/** @format int32 */
 	championId: number
@@ -2018,21 +2008,6 @@ export type LcdsRemovalReason = "PROGRESSED" | "DESTROYED" | "KICKED"
 
 export interface LcdsRemovedFromLobbyNotification {
 	removalReason: LcdsRemovalReason
-}
-
-export interface LcdsSimpleMessage {
-	/** @format uint64 */
-	accountId: number
-	msgId: string
-	type: string
-	params: string[]
-}
-
-export interface LcdsSimpleMessageResponse {
-	/** @format uint64 */
-	accountId: number
-	msgId: string
-	command: string
 }
 
 export interface LcdsStartChampSelectDto {
@@ -3690,6 +3665,8 @@ export interface LolChampionsCollectionsChampionChroma {
 	skinAugments: LolChampionsCollectionsChampionSkinAugments
 	colors: string[]
 	relatedPrimeContentId: string
+	/** @format uint32 */
+	relatedPrimeItemId: number
 }
 
 export interface LolChampionsCollectionsChampionMinimal {
@@ -3897,6 +3874,8 @@ export interface LolChampionsGameDataChampionChroma {
 	colors: string[]
 	chromaPath: string
 	relatedPrimeContentId: string
+	/** @format uint32 */
+	relatedPrimeItemId: number
 	skinAugments: LolChampionsCollectionsChampionSkinAugments
 }
 
@@ -7821,6 +7800,7 @@ export interface LolEndOfGameGameflowSession {
 export interface LolEndOfGameInstallPaths {
 	gameInstallRoot: string
 	gameExecutablePath: string
+	tftInstallRoot: string
 }
 
 export interface LolEndOfGameLobbyInvitation {
@@ -10411,6 +10391,7 @@ export type LolGameflowGameflowWatchPhase = "WatchFailedToLaunch" | "WatchInProg
 export interface LolGameflowInstallPaths {
 	gameInstallRoot: string
 	gameExecutablePath: string
+	tftInstallRoot: string
 }
 
 export interface LolGameflowLobbyStatus {
@@ -10841,6 +10822,14 @@ export interface LolHonorV2SequenceEvent {
 	name: string
 	/** @format int32 */
 	priority: number
+}
+
+export interface LolHonorV2SimpleDialogMessage {
+	/** @format uint64 */
+	accountId: number
+	msgId: string
+	type: string
+	params: string[]
 }
 
 export interface LolHonorV2VendedHonorChange {
@@ -11956,7 +11945,7 @@ export interface LolLobbyEligibilityRestriction {
 	puuidsString: string
 }
 
-export type LolLobbyEligibilityRestrictionCode = "FullPartyUnranked" | "PlayerNoRankedUpdatesDueToRankDisparity" | "MmrStandardDeviationTooLarge" | "UserInfoNotAvailable" | "InventoryQueuesInfoNotAvailable" | "InventoryChampsInfoNotAvailable" | "LeaguesInfoNotAvailable" | "SummonerInfoNotAvailable" | "MinorInfoNotAvailable" | "BanInfoNotAvailable" | "TooManyIncompleteSubteamsRestriction" | "QPInsufficientPlayerChampionCoveragePopularChampion" | "QPScarcePositionsNotAvailableRestriction" | "QPNonUniquePrimarySlotPositionRestriction" | "QPNonUniquePrimarySlotChampionRestriction" | "QPNonUniquePrimarySlotRestriction" | "QPInvalidChampionSelectionRestriction" | "QPInvalidPositionSelectionRestriction" | "QPInvalidNumberOfPlayerSlotsRestriction" | "QPPlayerChampionCoverageRestriction" | "QPPartyChampionCoverageRestriction" | "QPPlayerPositionCoverageRestriction" | "QPPartyPositionCoverageRestriction" | "QPPlayerScarcePositionCoverageRestriction" | "UnknownRestriction" | "PlayerQueueSuspendedRestriction" | "SeasonVersionLockout" | "MinNormalGamesForRankedRestriction" | "LOLNewPlayerRestriction" | "TFTNewPlayerRestriction" | "GameVersionNotSupported" | "GameVersionMissing" | "GameVersionMismatch" | "PrerequisiteQueuesNotPlayedRestriction" | "TeamSizeRestriction" | "TeamHighMMRMaxSizeRestriction" | "PlayerRankedSuspensionRestriction" | "PlayerRankSoloOnlyRestriction" | "PlayerTimePlayedRestriction" | "PlayerMinorRestriction" | "PlayerMinLevelRestriction" | "PlayerMaxLevelRestriction" | "PlayerTimeBasedRankRestriction" | "PlayerGameBasedRankRestriction" | "PlayerLeaverTaintedWarningRestriction" | "PlayerLeaverQueueLockoutRestriction" | "PlayerLeaverBustedRestriction" | "PlayerInGameRestriction" | "PlayerDisruptiveVoiceTeamMuteWarning" | "PlayerDisruptiveGameplayLockoutRestriction" | "PlayerReadyCheckFailRestriction" | "PlayerDodgeRestriction" | "PlayerBingeRestriction" | "TeamMinSizeRestriction" | "TeamMaxSizeRestriction" | "TeamSkillRestriction" | "TeamDivisionRestriction" | "PlayerAvailableChampionRestriction" | "PlayerBannedRestriction" | "PlayerTimedRestriction" | "PlayerLevelRestriction" | "QueueUnsupported" | "QueueDisabled"
+export type LolLobbyEligibilityRestrictionCode = "FullPartyUnranked" | "PlayerNoRankedUpdatesDueToRankDisparity" | "MmrStandardDeviationTooLarge" | "UserInfoNotAvailable" | "InventoryQueuesInfoNotAvailable" | "InventoryChampsInfoNotAvailable" | "LeaguesInfoNotAvailable" | "SummonerInfoNotAvailable" | "MinorInfoNotAvailable" | "BanInfoNotAvailable" | "TooManyIncompleteSubteamsRestriction" | "QPInsufficientPlayerChampionCoveragePopularChampion" | "QPScarcePositionsNotAvailableRestriction" | "QPNonUniquePrimarySlotPositionRestriction" | "QPNonUniquePrimarySlotChampionRestriction" | "QPNonUniquePrimarySlotRestriction" | "QPInvalidChampionSelectionRestriction" | "QPInvalidPositionSelectionRestriction" | "QPInvalidNumberOfPlayerSlotsRestriction" | "QPPlayerChampionCoverageRestriction" | "QPPartyChampionCoverageRestriction" | "QPPlayerPositionCoverageRestriction" | "QPPartyPositionCoverageRestriction" | "QPPlayerScarcePositionCoverageRestriction" | "UnknownRestriction" | "UnsupportedClientPlatform" | "PlayerQueueSuspendedRestriction" | "SeasonVersionLockout" | "MinNormalGamesForRankedRestriction" | "LOLNewPlayerRestriction" | "TFTNewPlayerRestriction" | "GameVersionNotSupported" | "GameVersionMissing" | "GameVersionMismatch" | "PrerequisiteQueuesNotPlayedRestriction" | "TeamSizeRestriction" | "TeamHighMMRMaxSizeRestriction" | "PlayerRankedSuspensionRestriction" | "PlayerRankSoloOnlyRestriction" | "PlayerTimePlayedRestriction" | "PlayerMinorRestriction" | "PlayerMinLevelRestriction" | "PlayerMaxLevelRestriction" | "PlayerTimeBasedRankRestriction" | "PlayerGameBasedRankRestriction" | "PlayerLeaverTaintedWarningRestriction" | "PlayerLeaverQueueLockoutRestriction" | "PlayerLeaverBustedRestriction" | "PlayerInGameRestriction" | "PlayerDisruptiveVoiceTeamMuteWarning" | "PlayerDisruptiveGameplayLockoutRestriction" | "PlayerReadyCheckFailRestriction" | "PlayerDodgeRestriction" | "PlayerBingeRestriction" | "TeamMinSizeRestriction" | "TeamMaxSizeRestriction" | "TeamSkillRestriction" | "TeamDivisionRestriction" | "PlayerAvailableChampionRestriction" | "PlayerBannedRestriction" | "PlayerTimedRestriction" | "PlayerLevelRestriction" | "QueueUnsupported" | "QueueDisabled"
 
 export interface LolLobbyEntitlementsTokenResource {
 	accessToken: string
@@ -12705,6 +12694,7 @@ export interface LolLobbyPlayerDto {
 	parties?: LolLobbyPartyMemberDto[]
 	currentParty?: LolLobbyPartyDto
 	registration: LolLobbyRegistrationCredentials
+	multiProductRegistration?: LolLobbyMultiProductRegistrationDto
 	/** @format uint64 */
 	createdAt: number
 	/** @format uint64 */
@@ -16986,6 +16976,7 @@ export interface LolPatchEntitlementsTokenResource {
 export interface LolPatchInstallPaths {
 	gameInstallRoot: string
 	gameExecutablePath: string
+	tftInstallRoot: string
 }
 
 export interface LolPatchNotification {
@@ -17058,9 +17049,26 @@ export interface LolPatchPatcherSettings {
 	patchsieve_url: string
 }
 
+export interface LolPatchPatchlineSettings {
+	install_full_path: string
+}
+
+export interface LolPatchProductDependency {
+	product_id: string
+	patchline_id: string
+}
+
 export interface LolPatchProductIntegrationState {
 	updateAvailable: boolean
 	updateRequired: boolean
+}
+
+export interface LolPatchProductMetadata {
+	product_dependency: LolPatchProductDependency
+}
+
+export interface LolPatchProductSettings {
+	patchline: LolPatchPatchlineSettings
 }
 
 export interface LolPatchProductState {
@@ -21317,12 +21325,6 @@ export interface LolSeasonsSeasonMetaData {
 	totalSplit: number
 }
 
-export interface LolServiceStatusBroadcastMessage {
-	content: string
-	messageKey: string
-	severity: string
-}
-
 export interface LolServiceStatusLegacyServiceStatusMessage {
 	created_at: string
 	updated_at: string
@@ -21487,6 +21489,7 @@ export interface LolShoppefrontPurchaseResponse {
 	status: LolShoppefrontPurchaseResponseStatus
 	/** @format uint8 */
 	numberOfPendingPurchases: number
+	rollResults: ChemtechShoppeV2_RolledFulfillmentWrapperDto[]
 }
 
 export type LolShoppefrontPurchaseResponseStatus = "Failure" | "Success" | "Pending" | "None"
@@ -25805,6 +25808,7 @@ export interface LolTftTeamPlannerTFTTeamPlannerConfig {
 	multipleSetsEnabled: boolean
 	tencentNameCheckEnabled: boolean
 	globalNameSanitizationEnabled: boolean
+	newPlayerPreferenceTypeEnabled: boolean
 }
 
 export interface LolTftTeamPlannerTeamPlan {
@@ -26574,8 +26578,9 @@ export interface LolTftTrovesTrovesBanner {
 	sourceId: string
 	startDate: string
 	endDate: string
-	/** @format uint32 */
+	/** @format int32 */
 	pityLimit: number
+	pityCounterId: string
 	rollOffer: string
 	bannerTexture: string
 	thumbnailTexture: string
@@ -26585,6 +26590,7 @@ export interface LolTftTrovesTrovesBanner {
 	name: string
 	description: string
 	isCollectorBounty: boolean
+	isStandardBounty: boolean
 	/** @format uint32 */
 	maxTotalRolls: number
 	/** @format uint64 */
@@ -26785,6 +26791,8 @@ export interface LolTftTrovesTrovesStatus {
 	/** @format uint16 */
 	totalRollsCount: number
 	isCollectorBountyMaxRollsMet: boolean
+	/** @format int32 */
+	pityCount: number
 }
 
 export interface LolTftTrovesTrovesTable {
