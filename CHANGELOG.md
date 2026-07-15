@@ -5,6 +5,33 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2026-07-15
+
+### Added
+
+- **`returnAxiosResponse` on the typed request overloads.** Both `client.request` and the standalone
+  `request` now accept `returnAxiosResponse: true` in the typed `method` + `path` form (previously
+  raw-config only), resolving with the full `AxiosResponse` — whose `data` keeps the endpoint's
+  response type.
+
+### Changed
+
+- **Requires Node.js >= 22** (raised from 18).
+- Regenerated the bundled LCU types against client patch **16.14**.
+- `CHANGELOG.md` now ships in the published package.
+
+### Deprecated
+
+- **`HasagiClient.getInstance` / `setInstance`** — removed in v1 together with the constructor's
+  auto-registration. Construct a client and pass it around explicitly.
+
+### Fixed
+
+- **Events from a replaced WebSocket are dropped.** A socket torn down by `disconnect()` or a
+  reconnect can no longer dispatch LCU events to listeners while its close handshake completes.
+- **Negative `maxRetries` is treated as 0** instead of skipping the request entirely and throwing a
+  generic fallback error.
+
 ## [0.9.0] - 2026-07-05
 
 ### Added
@@ -135,6 +162,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Credential discovery tolerates non-fatal PowerShell warnings written to `stderr` instead of
   treating them as failures.
 
+[0.10.0]: https://github.com/dysolix/hasagi-core/releases/tag/v0.10.0
 [0.9.0]: https://github.com/dysolix/hasagi-core/releases/tag/v0.9.0
 [0.8.1]: https://github.com/dysolix/hasagi-core/releases/tag/v0.8.1
 [0.8.0]: https://github.com/dysolix/hasagi-core/releases/tag/v0.8.0
