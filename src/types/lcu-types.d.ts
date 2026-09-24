@@ -1744,34 +1744,6 @@ export interface IdsDTO {
 
 export type InviteType = "NONE" | "SELFJOIN" | "SUGGEST" | "FRIEND" | "FREEAGENT"
 
-export interface LCDSChampionReward {
-	/** @format int32 */
-	championId: number
-	skins: number[]
-}
-
-export interface LCDSGlobalRewards {
-	allChampions: boolean
-}
-
-export interface LCDSLoyaltyRewards {
-	champions: LCDSChampionReward[]
-	global: LCDSGlobalRewards
-	/** @format int32 */
-	ipBoost: number
-	/** @format int32 */
-	xpBoost: number
-}
-
-export interface LCDSLoyaltyStateChangeNotification {
-	/** @format uint64 */
-	accountId: number
-	notificationCategory: LCDSLoyaltyStateChangeNotificationCategory
-	rewards: LCDSLoyaltyRewards
-}
-
-export type LCDSLoyaltyStateChangeNotificationCategory = "disabled" | "revoke" | "change" | "expiry" | "grant" | "legacy"
-
 export interface LcdsAcceptGameInvitationRequestDto {
 	invitationId: string
 	gameVersion: string
@@ -4526,7 +4498,7 @@ export interface LolChatLcuSocialConfig {
 
 export type LolChatLeagueDivision = "NA" | "V" | "IV" | "III" | "II" | "I"
 
-export type LolChatLeagueQueueType = "RANKED_PREMADE_5x5" | "RANKED_TFT_DOUBLE_UP" | "RANKED_TFT_PAIRS" | "RANKED_TFT_TURBO" | "RANKED_TFT" | "RANKED_FLEX_TT" | "CHERRY" | "RANKED_FLEX_SR" | "RANKED_SOLO_5x5" | "NONE"
+export type LolChatLeagueQueueType = "JADE_RANKED_SOLO_5x5" | "RANKED_PREMADE_5x5" | "RANKED_TFT_DOUBLE_UP" | "RANKED_TFT_PAIRS" | "RANKED_TFT_TURBO" | "RANKED_TFT" | "RANKED_FLEX_TT" | "CHERRY" | "RANKED_FLEX_SR" | "RANKED_SOLO_5x5" | "NONE"
 
 export interface LolChatLobbyMember {
 	/** @format uint64 */
@@ -6402,6 +6374,8 @@ export interface LolCosmeticsCompanionsGroupedViewModel {
 	/** @format int32 */
 	defaultItemId: number
 	groups: LolCosmeticsCompanionsGroupViewModel[]
+	resetLoadoutItem: LolCosmeticsCosmeticsCompanionViewModel
+	didResetSelection: boolean
 }
 
 export interface LolCosmeticsCosmeticSettingsResource {
@@ -6452,6 +6426,7 @@ export interface LolCosmeticsCosmeticsCompanionViewModel {
 	rarityValue: number
 	purchaseDate: string
 	isRecentItem: boolean
+	loyaltySources: string[]
 	species: string
 	/** @format uint32 */
 	groupId: number
@@ -6559,6 +6534,7 @@ export interface LolCosmeticsCosmeticsTFTDamageSkinViewModel {
 	rarityValue: number
 	purchaseDate: string
 	isRecentItem: boolean
+	loyaltySources: string[]
 	/** @format uint32 */
 	level: number
 	/** @format uint32 */
@@ -6606,6 +6582,7 @@ export interface LolCosmeticsCosmeticsTFTMapSkinViewModel {
 	rarityValue: number
 	purchaseDate: string
 	isRecentItem: boolean
+	loyaltySources: string[]
 	/** @format uint32 */
 	groupId: number
 	groupName: string
@@ -6711,6 +6688,7 @@ export interface LolCosmeticsCosmeticsTFTZoomSkinViewModel {
 	rarityValue: number
 	purchaseDate: string
 	isRecentItem: boolean
+	loyaltySources: string[]
 	/** @format uint32 */
 	groupId: number
 	groupName: string
@@ -7166,6 +7144,8 @@ export interface LolCosmeticsTFTDamageSkinGroupedViewModel {
 	/** @format int32 */
 	defaultItemId: number
 	groups: LolCosmeticsTFTDamageSkinGroupViewModel[]
+	resetLoadoutItem: LolCosmeticsCosmeticsTFTDamageSkinViewModel
+	didResetSelection: boolean
 }
 
 export interface LolCosmeticsTFTMapSkinFavoritesViewModel {
@@ -7190,6 +7170,8 @@ export interface LolCosmeticsTFTMapSkinGroupedViewModel {
 	/** @format int32 */
 	defaultItemId: number
 	groups: LolCosmeticsTFTMapSkinGroupViewModel[]
+	resetLoadoutItem: LolCosmeticsCosmeticsTFTMapSkinViewModel
+	didResetSelection: boolean
 }
 
 export interface LolCosmeticsTFTPlaybookGroupViewModel {
@@ -7245,6 +7227,21 @@ export interface LolCosmeticsTFTSettingsResource {
 	schemaVersion: number
 }
 
+export interface LolCosmeticsTFTUCosmeticsSettings {
+	tacticians: string[]
+	arenas: string[]
+	booms: string[]
+	portals: string[]
+	/** @format uint16 */
+	schemaVersion: number
+}
+
+export interface LolCosmeticsTFTUSettingsStorageContainer {
+	data: LolCosmeticsTFTUCosmeticsSettings
+	/** @format uint16 */
+	schemaVersion: number
+}
+
 export interface LolCosmeticsTFTZoomSkinFavoritesViewModel {
 	favoriteItems: LolCosmeticsCosmeticsTFTZoomSkinViewModel[]
 }
@@ -7267,6 +7264,8 @@ export interface LolCosmeticsTFTZoomSkinGroupedViewModel {
 	/** @format int32 */
 	defaultItemId: number
 	groups: LolCosmeticsTFTZoomSkinGroupViewModel[]
+	resetLoadoutItem: LolCosmeticsCosmeticsTFTZoomSkinViewModel
+	didResetSelection: boolean
 }
 
 export interface LolCosmeticsTraKeyName {
@@ -7300,22 +7299,6 @@ export interface LolDirectxUpgradeLocalSettingsCategory {
 	data: unknown
 	/** @format int32 */
 	schemaVersion: number
-}
-
-export interface LolDiscordRpGameDataChampionSummary {
-	/** @format int32 */
-	id: number
-	name: string
-	alias: string
-}
-
-export interface LolDiscordRpPartyPresenceData {
-	partyId: string
-	/** @format int32 */
-	queueId: number
-	summoners: number[]
-	/** @format uint64 */
-	maxPlayers: number
 }
 
 export interface LolDropsCapDropTableCounterDTO {
@@ -7490,6 +7473,7 @@ export interface LolEndOfGameEndOfGamePlayer {
 	/** @format uint64 */
 	gameId: number
 	leaver: boolean
+	wasAfk: boolean
 	severeTransgressor: boolean
 	/** @format int32 */
 	leaves: number
@@ -7807,10 +7791,6 @@ export interface LolEndOfGameLobbyInvitation {
 	state: string
 }
 
-export interface LolEndOfGameLoginDataPacket {
-	simpleMessages: LolEndOfGameSimpleMessage[]
-}
-
 export interface LolEndOfGameLoginSession {
 	state: LolEndOfGameLoginSessionStates
 	/** @format uint64 */
@@ -7859,14 +7839,6 @@ export interface LolEndOfGameRerollDataBagForClientV1 {
 	maximumRerolls: number
 	/** @format int32 */
 	pointCostOfReroll: number
-}
-
-export interface LolEndOfGameSimpleMessage {
-	/** @format uint64 */
-	accountId: number
-	msgId: string
-	type: string
-	params: string[]
 }
 
 export interface LolEndOfGameSummoner {
@@ -9009,9 +8981,13 @@ export interface LolEventHubLolInventoryType {
 export interface LolEventHubLoyaltyRewards {
 	/** @format int32 */
 	freeRewardedChampionsCount: number
+	/** @format int32 */
+	classicFreeRewardedChampionsCount: number
 	championIds: number[]
 	/** @format int32 */
 	freeRewardedSkinsCount: number
+	/** @format int32 */
+	classicFreeRewardedSkinsCount: number
 	skinIds: number[]
 	/** @format int32 */
 	ipBoost: number
@@ -9024,15 +9000,22 @@ export interface LolEventHubLoyaltyRewards {
 	loyaltyTFTDamageSkinCount: number
 	/** @format int32 */
 	loyaltyTFTZoomSkinCount: number
+	/** @format int32 */
+	loyaltyMayhemBPAugmentsCount: number
 	loyaltySources: Record<string, boolean>
+	tftCompensationRewards: string[]
 }
 
 export interface LolEventHubLoyaltyRewardsSimplified {
 	/** @format int32 */
 	freeRewardedChampionsCount: number
+	/** @format int32 */
+	classicFreeRewardedChampionsCount: number
 	championIds: number[]
 	/** @format int32 */
 	freeRewardedSkinsCount: number
+	/** @format int32 */
+	classicFreeRewardedSkinsCount: number
 	skinIds: number[]
 	/** @format int32 */
 	ipBoost: number
@@ -9046,7 +9029,10 @@ export interface LolEventHubLoyaltyRewardsSimplified {
 	loyaltyTFTDamageSkinCount: number
 	/** @format int32 */
 	loyaltyTFTZoomSkinCount: number
+	/** @format int32 */
+	loyaltyMayhemBPAugmentsCount: number
 	loyaltySources: Record<string, boolean>
+	tftCompensationRewards: string[]
 }
 
 export type LolEventHubLoyaltyStatus = "DISABLED" | "REVOKE" | "CHANGE" | "EXPIRY" | "REWARDS_GRANT" | "LEGACY"
@@ -11172,9 +11158,13 @@ export interface LolInventoryLolInventoryType {
 export interface LolInventoryLoyaltyRewards {
 	/** @format int32 */
 	freeRewardedChampionsCount: number
+	/** @format int32 */
+	classicFreeRewardedChampionsCount: number
 	championIds: number[]
 	/** @format int32 */
 	freeRewardedSkinsCount: number
+	/** @format int32 */
+	classicFreeRewardedSkinsCount: number
 	skinIds: number[]
 	/** @format int32 */
 	ipBoost: number
@@ -11187,15 +11177,22 @@ export interface LolInventoryLoyaltyRewards {
 	loyaltyTFTDamageSkinCount: number
 	/** @format int32 */
 	loyaltyTFTZoomSkinCount: number
+	/** @format int32 */
+	loyaltyMayhemBPAugmentsCount: number
 	loyaltySources: Record<string, boolean>
+	tftCompensationRewards: string[]
 }
 
 export interface LolInventoryLoyaltyRewardsSimplified {
 	/** @format int32 */
 	freeRewardedChampionsCount: number
+	/** @format int32 */
+	classicFreeRewardedChampionsCount: number
 	championIds: number[]
 	/** @format int32 */
 	freeRewardedSkinsCount: number
+	/** @format int32 */
+	classicFreeRewardedSkinsCount: number
 	skinIds: number[]
 	/** @format int32 */
 	ipBoost: number
@@ -11209,7 +11206,10 @@ export interface LolInventoryLoyaltyRewardsSimplified {
 	loyaltyTFTDamageSkinCount: number
 	/** @format int32 */
 	loyaltyTFTZoomSkinCount: number
+	/** @format int32 */
+	loyaltyMayhemBPAugmentsCount: number
 	loyaltySources: Record<string, boolean>
+	tftCompensationRewards: string[]
 }
 
 export type LolInventoryLoyaltyStatus = "DISABLED" | "REVOKE" | "CHANGE" | "EXPIRY" | "REWARDS_GRANT" | "LEGACY"
@@ -11519,7 +11519,6 @@ export type LolLeagueSessionLeagueSessionStatus = "ANTI_ADDICTION_EXPIRED" | "DU
 
 export interface LolLeagueSessionLeagueSessionTokenEnvelope {
 	token?: string
-	logoutOnFailure: boolean
 }
 
 export interface LolLeaverBusterLeaverBusterEntryDto {
@@ -13048,7 +13047,7 @@ export interface LolLoginAccountStateResource {
 	state: LolLoginAccountStateType
 }
 
-export type LolLoginAccountStateType = "GENERATING" | "TRANSFERRED_OUT" | "TRANSFERRING_IN" | "TRANSFERRING_OUT" | "ENABLED" | "CREATING"
+export type LolLoginAccountStateType = "TRANSFER_FAILED" | "GENERATING" | "TRANSFERRED_OUT" | "TRANSFERRING_IN" | "TRANSFERRING_OUT" | "ENABLED" | "CREATING"
 
 export interface LolLoginAuthorization {
 	currentPlatformId: string
@@ -13095,7 +13094,6 @@ export type LolLoginLeagueSessionStatus = "ANTI_ADDICTION_EXPIRED" | "DUPLICATED
 
 export interface LolLoginLeagueSessionTokenEnvelope {
 	token?: string
-	logoutOnFailure: boolean
 }
 
 export type LolLoginLoginConnectionMode = "RiotClient" | "Partner" | "Legacy" | "Preparing"
@@ -13156,6 +13154,15 @@ export interface LolLoginRSOPlayerCredentials {
 	platformId: string
 }
 
+export interface LolLoginRiotMessagingServiceMessage {
+	resource: string
+	service: string
+	version: string
+	/** @format int64 */
+	timestamp: number
+	payload: string
+}
+
 export interface LolLoginSummonerCreatedResource {
 	/** @format uint64 */
 	summonerId: number
@@ -13166,6 +13173,13 @@ export interface LolLoginSummonerSessionResource {
 	summonerId: number
 	displayName: string
 	isNewPlayer: boolean
+}
+
+export interface LolLoginTransferNotification {
+	transactionId: string
+	sourcePlatform: string
+	destinationPlatform: string
+	state: string
 }
 
 export interface LolLoginUsernameAndPassword {
@@ -14134,9 +14148,13 @@ export type LolLoyaltyLoginSessionStates = "ERROR" | "LOGGING_OUT" | "SUCCEEDED"
 export interface LolLoyaltyLoyaltyRewards {
 	/** @format int32 */
 	freeRewardedChampionsCount: number
+	/** @format int32 */
+	classicFreeRewardedChampionsCount: number
 	championIds: number[]
 	/** @format int32 */
 	freeRewardedSkinsCount: number
+	/** @format int32 */
+	classicFreeRewardedSkinsCount: number
 	skinIds: number[]
 	global: LolLoyaltyGlobalRewards
 	/** @format int32 */
@@ -14150,15 +14168,22 @@ export interface LolLoyaltyLoyaltyRewards {
 	loyaltyTFTDamageSkinCount: number
 	/** @format int32 */
 	loyaltyTFTZoomSkinCount: number
+	/** @format int32 */
+	loyaltyMayhemBPAugmentsCount: number
 	loyaltySources: Record<string, boolean>
+	tftCompensationRewards: string[]
 }
 
 export interface LolLoyaltyLoyaltyRewardsSimplified {
 	/** @format int32 */
 	freeRewardedChampionsCount: number
+	/** @format int32 */
+	classicFreeRewardedChampionsCount: number
 	championIds: number[]
 	/** @format int32 */
 	freeRewardedSkinsCount: number
+	/** @format int32 */
+	classicFreeRewardedSkinsCount: number
 	skinIds: number[]
 	global: LolLoyaltyGlobalRewards
 	/** @format int32 */
@@ -14173,7 +14198,10 @@ export interface LolLoyaltyLoyaltyRewardsSimplified {
 	loyaltyTFTDamageSkinCount: number
 	/** @format int32 */
 	loyaltyTFTZoomSkinCount: number
+	/** @format int32 */
+	loyaltyMayhemBPAugmentsCount: number
 	loyaltySources: Record<string, boolean>
+	tftCompensationRewards: string[]
 }
 
 export type LolLoyaltyLoyaltyStatus = "DISABLED" | "REVOKE" | "CHANGE" | "EXPIRY" | "REWARDS_GRANT" | "LEGACY"
@@ -15228,372 +15256,6 @@ export interface LolMatchmakingQueue {
 
 export type LolMatchmakingQueueCustomGameSpectatorPolicy = "AllAllowed" | "FriendsAllowed" | "LobbyAllowed" | "NotAllowed"
 
-export interface LolMetagamesAccessTokenResource {
-	token: string
-	scopes: string[]
-	/** @format uint64 */
-	expiry: number
-}
-
-export interface LolMetagamesBulkPurchaseRequest {
-	purchaseItems: LolMetagamesPurchaseRequest[]
-	/** @format uint32 */
-	purchaseTimeOut: number
-}
-
-export interface LolMetagamesCatalogItem {
-	/** @format int32 */
-	itemId: number
-	inventoryType: string
-	itemInstanceId?: string
-}
-
-export interface LolMetagamesClientCacheClearMessageDTO {
-	regions: string[]
-	clearAll: boolean
-	inventoryTypes: string[]
-}
-
-export interface LolMetagamesCurrencyDTO {
-	/** @format int32 */
-	amount: number
-	subCurrencies: Record<string, number>
-}
-
-export interface LolMetagamesEndOfGameXp {
-	/** @format uint32 */
-	PER_WIN: number
-}
-
-export interface LolMetagamesEndOfGameXpNotification {
-	xp: LolMetagamesEndOfGameXp
-}
-
-export interface LolMetagamesInventoryCacheEntry {
-	signedInventoryJwt: string
-	/** @format uint64 */
-	expirationMS: number
-	/** @format uint64 */
-	issuedAtMS: number
-	/** @format uint64 */
-	receivedAtMS: number
-	valid: boolean
-}
-
-export interface LolMetagamesInventoryDTO {
-	puuid: string
-	/** @format uint64 */
-	accountId: number
-	/** @format uint64 */
-	summonerId: number
-	items: Record<string, unknown>
-	expires: string
-	itemsJwt: string
-}
-
-export interface LolMetagamesInventoryItem {
-	uuid: string
-	/** @format int32 */
-	itemId: number
-	inventoryType: string
-	purchaseDate: string
-	/** @format uint64 */
-	quantity: number
-	ownershipType: LolMetagamesItemOwnershipType
-	usedInGameDate: string
-	expirationDate: string
-	/** @format uint64 */
-	wins: number
-}
-
-export interface LolMetagamesInventoryItemDTO {
-	/** @format int32 */
-	itemId: number
-	inventoryType: string
-	expirationDate: string
-	purchaseDate: string
-	/** @format uint64 */
-	quantity: number
-	/** @format uint64 */
-	ownedQuantity: number
-	usedInGameDate: string
-	entitlementId: string
-	entitlementTypeId: string
-	instanceId: string
-	instanceTypeId: string
-	payload: unknown
-	"f2p": boolean
-	rental: boolean
-	loyalty: boolean
-	loyaltySources: string[]
-	lsb: boolean
-	/** @format uint64 */
-	wins: number
-}
-
-export interface LolMetagamesInventoryItemWithPayload {
-	uuid: string
-	/** @format int32 */
-	itemId: number
-	inventoryType: string
-	purchaseDate: string
-	/** @format uint64 */
-	quantity: number
-	ownershipType: LolMetagamesItemOwnershipType
-	usedInGameDate: string
-	expirationDate: string
-	"f2p": boolean
-	rental: boolean
-	loyalty: boolean
-	loyaltySources: string[]
-	owned: boolean
-	/** @format uint64 */
-	wins: number
-	payload: unknown
-}
-
-export interface LolMetagamesInventoryNotification {
-	/** @format int64 */
-	id: number
-	/** @format int32 */
-	itemId: number
-	inventoryType: string
-	type: string
-	acknowledged: boolean
-}
-
-export interface LolMetagamesInventoryResponseDTO {
-	data: LolMetagamesInventoryDTO
-}
-
-export interface LolMetagamesItemKey {
-	inventoryType: string
-	/** @format int32 */
-	itemId: number
-}
-
-export type LolMetagamesItemOwnershipType = "F2P" | "LOYALTY" | "RENTED" | "OWNED"
-
-export interface LolMetagamesLoginSession {
-	state: LolMetagamesLoginSessionStates
-	/** @format uint64 */
-	summonerId: number
-	puuid: string
-	connected: boolean
-}
-
-export type LolMetagamesLoginSessionStates = "ERROR" | "LOGGING_OUT" | "SUCCEEDED" | "IN_PROGRESS"
-
-export interface LolMetagamesLolInventoryType {
-	inventoryTypeId: string
-	capInventoryTypeId: string
-}
-
-export interface LolMetagamesLoyaltyRewards {
-	/** @format int32 */
-	freeRewardedChampionsCount: number
-	championIds: number[]
-	/** @format int32 */
-	freeRewardedSkinsCount: number
-	skinIds: number[]
-	/** @format int32 */
-	ipBoost: number
-	xpBoost: Record<string, number>
-	/** @format int32 */
-	loyaltyTFTMapSkinCount: number
-	/** @format int32 */
-	loyaltyTFTCompanionCount: number
-	/** @format int32 */
-	loyaltyTFTDamageSkinCount: number
-	/** @format int32 */
-	loyaltyTFTZoomSkinCount: number
-	loyaltySources: Record<string, boolean>
-}
-
-export interface LolMetagamesLoyaltyRewardsSimplified {
-	/** @format int32 */
-	freeRewardedChampionsCount: number
-	championIds: number[]
-	/** @format int32 */
-	freeRewardedSkinsCount: number
-	skinIds: number[]
-	/** @format int32 */
-	ipBoost: number
-	/** @format int32 */
-	xpBoost: number
-	/** @format int32 */
-	loyaltyTFTMapSkinCount: number
-	/** @format int32 */
-	loyaltyTFTCompanionCount: number
-	/** @format int32 */
-	loyaltyTFTDamageSkinCount: number
-	/** @format int32 */
-	loyaltyTFTZoomSkinCount: number
-	loyaltySources: Record<string, boolean>
-}
-
-export type LolMetagamesLoyaltyStatus = "DISABLED" | "REVOKE" | "CHANGE" | "EXPIRY" | "REWARDS_GRANT" | "LEGACY"
-
-export interface LolMetagamesLoyaltyStatusNotification {
-	status: LolMetagamesLoyaltyStatus
-	rewards: LolMetagamesLoyaltyRewardsSimplified
-	reloadInventory: boolean
-}
-
-export interface LolMetagamesMetagamePurchaseCatalogItemRequest {
-	storeId: string
-	catalogEntryId: string
-	/** @format uint32 */
-	quantity: number
-	paymentOptions: string[]
-	customInventoryLocation: string
-}
-
-export interface LolMetagamesPlayerNotification {
-	critical: boolean
-	detailKey: string
-	source: string
-	state: string
-	titleKey: string
-	type: string
-	iconUrl: string
-}
-
-export interface LolMetagamesPurchaseRequest {
-	storeId: string
-	catalogEntryId: string
-	/** @format uint32 */
-	quantity: number
-	paymentOptions: string[]
-	/** @format uint32 */
-	purchaseTimeOut: number
-}
-
-export interface LolMetagamesPurchaseResponse {
-	idempotencyId: string
-	status: LolMetagamesPurchaseResponseStatus
-	/** @format uint8 */
-	numberOfPendingPurchases: number
-	errorMessage: string
-}
-
-export type LolMetagamesPurchaseResponseStatus = "Failure" | "Success" | "Pending" | "None"
-
-export interface LolMetagamesRiotMessagingServiceMessage {
-	resource: string
-	service: string
-	version: string
-	/** @format int64 */
-	timestamp: number
-	payload: string
-}
-
-export interface LolMetagamesRmsEntitlementPayload {
-	itemId: string
-	itemTypeId: string
-	tiers: string
-	entitlementTypeId: string
-	resourceOperation: string
-}
-
-export interface LolMetagamesRmsStoreEntitlementItem {
-	inventoryType: string
-	itemId: string
-}
-
-export interface LolMetagamesRmsStoreEntitlementPayload {
-	transactionId: string
-	items: LolMetagamesRmsStoreEntitlementItem[]
-}
-
-export interface LolMetagamesRmsWalletPayload {
-	[key: string | number]: any
-}
-
-export interface LolMetagamesRmsXboxSubscriptionChange {
-	puuid: string
-	subscriptionId: string
-	active: string
-	identityProvider: string[]
-}
-
-export interface LolMetagamesSimpleInventoryDTO {
-	items: Record<string, unknown>
-	itemsJwt: string
-	expires: string
-}
-
-export interface LolMetagamesSimpleInventoryResponseDTO {
-	data: LolMetagamesSimpleInventoryDTO
-}
-
-export interface LolMetagamesSummonerIcon {
-	/** @format int32 */
-	itemId: number
-}
-
-export interface LolMetagamesWallet {
-	/** @format int64 */
-	ip: number
-	/** @format int64 */
-	rp: number
-}
-
-export interface LolMetagamesWalletCacheEntry {
-	signedBalancesJwt: string
-	/** @format uint64 */
-	expirationMS: number
-	/** @format uint64 */
-	issuedAtMS: number
-	/** @format uint64 */
-	receivedAtMS: number
-	valid: boolean
-}
-
-export interface LolMetagamesWalletDTO {
-	puuid: string
-	/** @format int64 */
-	accountId: number
-	expires: string
-	balances: Record<string, number>
-	balancesJwt: string
-}
-
-export interface LolMetagamesWalletResponseDTO {
-	data: LolMetagamesWalletDTO
-}
-
-export interface LolMetagamesWalletUpdateNotification {
-	/** @format int64 */
-	receivedAtMs: number
-	/** @format int32 */
-	amount: number
-	currencyType: string
-}
-
-export interface LolMetagamesXboxSubscriptionStatus {
-	active: string
-	subscriptionId: string
-}
-
-export interface LolMetagamesplayerEventDTO {
-	playerGameData: unknown
-}
-
-export interface LolMetagamesplayerEventPayload {
-	playerGameData: unknown
-	inventoryTypes: string[]
-	currencyTypes: string[]
-	storeId: string
-	paymentOption: string
-}
-
-export interface LolMetagamesplayerEventResponseDTO {
-	playerGameData: unknown
-	attemptedPurchase: boolean
-	purchaseIdToObserve: string
-}
-
 export interface LolMissionsCAPMission {
 	missionId: string
 	title: string
@@ -15768,6 +15430,10 @@ export type LolMissionsGrantStatus = "FAILED" | "FULFILLED" | "PENDING_SELECTION
 export interface LolMissionsInventoryItemWithPayload {
 	/** @format int32 */
 	itemId: number
+}
+
+export interface LolMissionsKiwiHubConfiguration {
+	missionsSeries: LolMissionsCAPMissionSeries
 }
 
 export interface LolMissionsLoginSession {
@@ -16565,6 +16231,10 @@ export interface LolObjectivesInventoryItemWithPayload {
 	itemId: number
 }
 
+export interface LolObjectivesKiwiHubConfiguration {
+	missionsSeries: LolObjectivesCAPMissionSeries
+}
+
 export interface LolObjectivesLoginSession {
 	/** @format uint64 */
 	accountId: number
@@ -17260,7 +16930,7 @@ export interface LolPerksNamecheckResponse {
 	errors: string[]
 }
 
-export type LolPerksNamecheckValidationContext = "TFT_PLANNER" | "RUNE_PAGE" | "ITEM_PAGE"
+export type LolPerksNamecheckValidationContext = "JADE_RUNE_PAGE" | "JADE_MASTERY_PAGE" | "TFT_PLANNER" | "RUNE_PAGE" | "ITEM_PAGE"
 
 export interface LolPerksPerkBook {
 	/** @format int32 */
@@ -17991,10 +17661,6 @@ export interface LolPlayerMessagingDynamicCelebrationMessagingNotificationResour
 	status: number
 }
 
-export interface LolPlayerMessagingLoginDataPacket {
-	simpleMessages: LolPlayerMessagingSimpleMessage[]
-}
-
 export interface LolPlayerMessagingPlayerMessagingNotificationResource {
 	/** @format int32 */
 	id: number
@@ -18116,6 +17782,8 @@ export interface LolPremadeVoiceAccountSettingsCategoryDataResource {
 	inputMode: LolPremadeVoiceInputMode
 	pushToTalkKey: string
 	pushToTalkTeamKey: string
+	voiceFontEnabledForParty: boolean
+	voiceFontEnabledForTeam: boolean
 	showFirstExperienceInLCU: boolean
 	showFirstExperienceInGame: boolean
 }
@@ -18217,6 +17885,7 @@ export interface LolPremadeVoiceLocalSettingsCategoryDataResource {
 	/** @format uint32 */
 	vadSensitivity: number
 	vadAuto: boolean
+	noiseSuppressionEnabled: boolean
 }
 
 export interface LolPremadeVoiceLocalSettingsCategoryResource {
@@ -18306,6 +17975,7 @@ export interface LolPremadeVoiceSessionResource {
 	volume: number
 	isMuted: boolean
 	isTransmitEnabled: boolean
+	isVoiceFontEnabled: boolean
 }
 
 export type LolPremadeVoiceSessionStatus = "onHold" | "active"
@@ -18329,6 +17999,11 @@ export interface LolPremadeVoiceSettingsResource {
 	inputMode: LolPremadeVoiceInputMode
 	pttKey?: string
 	pushToTalkTeamKey: string
+	voiceFontId?: string
+	voiceFontEnabledForParty: boolean
+	voiceFontEnabledForTeam: boolean
+	noiseSuppressionAlgorithm: string
+	noiseSuppressionLevel: string
 }
 
 export interface LolPremadeVoiceStateResource {
@@ -19315,7 +18990,7 @@ export interface LolRankedLeagueNotifications {
 	rewardNotifications: LolRankedRewardNotification[]
 }
 
-export type LolRankedLeagueQueueType = "RANKED_PREMADE_5x5" | "RANKED_TFT_DOUBLE_UP" | "RANKED_TFT_PAIRS" | "RANKED_TFT_TURBO" | "RANKED_TFT" | "RANKED_FLEX_TT" | "CHERRY" | "RANKED_FLEX_SR" | "RANKED_SOLO_5x5" | "NONE"
+export type LolRankedLeagueQueueType = "JADE_RANKED_SOLO_5x5" | "RANKED_PREMADE_5x5" | "RANKED_TFT_DOUBLE_UP" | "RANKED_TFT_PAIRS" | "RANKED_TFT_TURBO" | "RANKED_TFT" | "RANKED_FLEX_TT" | "CHERRY" | "RANKED_FLEX_SR" | "RANKED_SOLO_5x5" | "NONE"
 
 export interface LolRankedLeagueStanding {
 	/** @format uint64 */
@@ -19388,7 +19063,7 @@ export interface LolRankedLolEosRewardGroupGameData {
 
 export type LolRankedLolEosRewardTier = "kChallenger" | "kGrandmaster" | "kMaster" | "kDiamond" | "kEmerald" | "kPlatinum" | "kGold" | "kSilver" | "kBronze" | "kIron" | "kNone"
 
-export type LolRankedLolEosRewardType = "kEmote" | "kSummonerIcon" | "kVictoriousSkinBorder" | "kVictoriousChroma" | "kVictoriousSkin" | "kChampion" | "kEternalsCapsule" | "kNone"
+export type LolRankedLolEosRewardType = "kRegaliaBanner" | "kEmote" | "kSummonerIcon" | "kVictoriousSkinBorder" | "kVictoriousChroma" | "kVictoriousSkin" | "kChampion" | "kEternalsCapsule" | "kNone"
 
 export interface LolRankedLolEosRewardsConfigGameData {
 	/** @format int64 */
@@ -19726,7 +19401,7 @@ export interface LolRegaliaItemKey {
 
 export type LolRegaliaLeagueDivision = "NA" | "V" | "IV" | "III" | "II" | "I"
 
-export type LolRegaliaLeagueQueueType = "RANKED_PREMADE_5x5" | "RANKED_TFT_DOUBLE_UP" | "RANKED_TFT_PAIRS" | "RANKED_TFT_TURBO" | "RANKED_TFT" | "RANKED_FLEX_TT" | "CHERRY" | "RANKED_FLEX_SR" | "RANKED_SOLO_5x5" | "NONE"
+export type LolRegaliaLeagueQueueType = "JADE_RANKED_SOLO_5x5" | "RANKED_PREMADE_5x5" | "RANKED_TFT_DOUBLE_UP" | "RANKED_TFT_PAIRS" | "RANKED_TFT_TURBO" | "RANKED_TFT" | "RANKED_FLEX_TT" | "CHERRY" | "RANKED_FLEX_SR" | "RANKED_SOLO_5x5" | "NONE"
 
 export interface LolRegaliaLoadout {
 	id: string
@@ -21524,10 +21199,6 @@ export interface LolSimpleDialogMessagesLocalMessageRequest {
 	msgBody: string[]
 }
 
-export interface LolSimpleDialogMessagesLoginDataPacket {
-	simpleMessages: LolSimpleDialogMessagesSimpleMessage[]
-}
-
 export interface LolSimpleDialogMessagesMessage {
 	/** @format int64 */
 	id: number
@@ -21562,7 +21233,7 @@ export interface LolSocialLeaderboardGiftingFriend {
 
 export type LolSocialLeaderboardLeagueDivision = "NA" | "V" | "IV" | "III" | "II" | "I"
 
-export type LolSocialLeaderboardLeagueQueueType = "RANKED_PREMADE_5x5" | "RANKED_TFT_DOUBLE_UP" | "RANKED_TFT_PAIRS" | "RANKED_TFT_TURBO" | "RANKED_TFT" | "RANKED_FLEX_TT" | "RANKED_FLEX_SR" | "RANKED_SOLO_5x5" | "NONE"
+export type LolSocialLeaderboardLeagueQueueType = "JADE_RANKED_SOLO_5x5" | "RANKED_PREMADE_5x5" | "RANKED_TFT_DOUBLE_UP" | "RANKED_TFT_PAIRS" | "RANKED_TFT_TURBO" | "RANKED_TFT" | "RANKED_FLEX_TT" | "RANKED_FLEX_SR" | "RANKED_SOLO_5x5" | "NONE"
 
 export type LolSocialLeaderboardLeagueTierNumValue = "CHALLENGER" | "GRANDMASTER" | "MASTER" | "DIAMOND" | "EMERALD" | "PLATINUM" | "GOLD" | "SILVER" | "BRONZE" | "IRON" | "NONE"
 
@@ -22146,7 +21817,6 @@ export interface LolStoreFeaturedPageDTO {
 export interface LolStoreGameDataChampionSkinInfo {
 	/** @format int32 */
 	id: number
-	relatedPrimeContentId: string
 }
 
 export interface LolStoreGetPlatformIdsFromInstanceIdsRequest {
@@ -22619,12 +22289,31 @@ export interface LolSummonerProfilesHonorView {
 	redemptions: LolSummonerProfilesRedemption[]
 }
 
+export interface LolSummonerProfilesJadeVotingSelection {
+	questionId: string
+	/** @format int32 */
+	votingOptionId: number
+}
+
+export interface LolSummonerProfilesJadeVotingView {
+	votingEventId: string
+	/** @format int32 */
+	votingPower?: number
+	votingSelections: LolSummonerProfilesJadeVotingSelection[]
+}
+
 export interface LolSummonerProfilesLolEosRewardView {
 	/** @format int32 */
 	seasonId: number
 	rewardIds: string[]
 	highestRankPerQueueId: Record<string, LolSummonerProfilesRank>
 	eligibility: LolSummonerProfilesRewardsEligibility
+}
+
+export interface LolSummonerProfilesPositionCount {
+	position: string
+	/** @format int32 */
+	games: number
 }
 
 export interface LolSummonerProfilesPrivacyView {
@@ -22636,9 +22325,49 @@ export interface LolSummonerProfilesPuuidAndViews {
 	payload: Record<string, LolSummonerProfilesViews>
 }
 
+export interface LolSummonerProfilesQueueRank {
+	tier: string
+	division: string
+	/** @format int32 */
+	leaguePoints: number
+}
+
 export interface LolSummonerProfilesRank {
 	tier: string
 	division: string
+}
+
+export interface LolSummonerProfilesRankedChampion {
+	/** @format int32 */
+	championId: number
+	/** @format int32 */
+	gameCount: number
+	/** @format int32 */
+	winCount: number
+}
+
+export interface LolSummonerProfilesRankedMatch {
+	/** @format int32 */
+	championId: number
+	win: boolean
+	/** @format int32 */
+	kills: number
+	/** @format int32 */
+	deaths: number
+	/** @format int32 */
+	assists: number
+}
+
+export interface LolSummonerProfilesRankedScoutingView {
+	puuid: string
+	/** @format int32 */
+	summonerIconId: number
+	soloRank: LolSummonerProfilesQueueRank
+	flexRank: LolSummonerProfilesQueueRank
+	topChampions: LolSummonerProfilesRankedChampion[]
+	topMasteries: LolSummonerProfilesChampionMasteryData[]
+	recentMatches: LolSummonerProfilesRankedMatch[]
+	positionStats: LolSummonerProfilesPositionCount[]
 }
 
 export interface LolSummonerProfilesRedemption {
@@ -23049,6 +22778,10 @@ export interface LolTftEventInventoryItemWithPayload {
 	itemId: number
 }
 
+export interface LolTftEventKiwiHubConfiguration {
+	missionsSeries: LolTftEventCAPMissionSeries
+}
+
 export interface LolTftEventLoginSession {
 	/** @format uint64 */
 	accountId: number
@@ -23425,9 +23158,13 @@ export interface LolTftEventPveLolInventoryType {
 export interface LolTftEventPveLoyaltyRewards {
 	/** @format int32 */
 	freeRewardedChampionsCount: number
+	/** @format int32 */
+	classicFreeRewardedChampionsCount: number
 	championIds: number[]
 	/** @format int32 */
 	freeRewardedSkinsCount: number
+	/** @format int32 */
+	classicFreeRewardedSkinsCount: number
 	skinIds: number[]
 	/** @format int32 */
 	ipBoost: number
@@ -23440,15 +23177,22 @@ export interface LolTftEventPveLoyaltyRewards {
 	loyaltyTFTDamageSkinCount: number
 	/** @format int32 */
 	loyaltyTFTZoomSkinCount: number
+	/** @format int32 */
+	loyaltyMayhemBPAugmentsCount: number
 	loyaltySources: Record<string, boolean>
+	tftCompensationRewards: string[]
 }
 
 export interface LolTftEventPveLoyaltyRewardsSimplified {
 	/** @format int32 */
 	freeRewardedChampionsCount: number
+	/** @format int32 */
+	classicFreeRewardedChampionsCount: number
 	championIds: number[]
 	/** @format int32 */
 	freeRewardedSkinsCount: number
+	/** @format int32 */
+	classicFreeRewardedSkinsCount: number
 	skinIds: number[]
 	/** @format int32 */
 	ipBoost: number
@@ -23462,7 +23206,10 @@ export interface LolTftEventPveLoyaltyRewardsSimplified {
 	loyaltyTFTDamageSkinCount: number
 	/** @format int32 */
 	loyaltyTFTZoomSkinCount: number
+	/** @format int32 */
+	loyaltyMayhemBPAugmentsCount: number
 	loyaltySources: Record<string, boolean>
+	tftCompensationRewards: string[]
 }
 
 export type LolTftEventPveLoyaltyStatus = "DISABLED" | "REVOKE" | "CHANGE" | "EXPIRY" | "REWARDS_GRANT" | "LEGACY"
@@ -24595,9 +24342,13 @@ export interface LolTftPassLolInventoryType {
 export interface LolTftPassLoyaltyRewards {
 	/** @format int32 */
 	freeRewardedChampionsCount: number
+	/** @format int32 */
+	classicFreeRewardedChampionsCount: number
 	championIds: number[]
 	/** @format int32 */
 	freeRewardedSkinsCount: number
+	/** @format int32 */
+	classicFreeRewardedSkinsCount: number
 	skinIds: number[]
 	/** @format int32 */
 	ipBoost: number
@@ -24610,15 +24361,22 @@ export interface LolTftPassLoyaltyRewards {
 	loyaltyTFTDamageSkinCount: number
 	/** @format int32 */
 	loyaltyTFTZoomSkinCount: number
+	/** @format int32 */
+	loyaltyMayhemBPAugmentsCount: number
 	loyaltySources: Record<string, boolean>
+	tftCompensationRewards: string[]
 }
 
 export interface LolTftPassLoyaltyRewardsSimplified {
 	/** @format int32 */
 	freeRewardedChampionsCount: number
+	/** @format int32 */
+	classicFreeRewardedChampionsCount: number
 	championIds: number[]
 	/** @format int32 */
 	freeRewardedSkinsCount: number
+	/** @format int32 */
+	classicFreeRewardedSkinsCount: number
 	skinIds: number[]
 	/** @format int32 */
 	ipBoost: number
@@ -24632,7 +24390,10 @@ export interface LolTftPassLoyaltyRewardsSimplified {
 	loyaltyTFTDamageSkinCount: number
 	/** @format int32 */
 	loyaltyTFTZoomSkinCount: number
+	/** @format int32 */
+	loyaltyMayhemBPAugmentsCount: number
 	loyaltySources: Record<string, boolean>
+	tftCompensationRewards: string[]
 }
 
 export type LolTftPassLoyaltyStatus = "DISABLED" | "REVOKE" | "CHANGE" | "EXPIRY" | "REWARDS_GRANT" | "LEGACY"
@@ -27104,9 +26865,13 @@ export interface LolYourshopLolInventoryType {
 export interface LolYourshopLoyaltyRewards {
 	/** @format int32 */
 	freeRewardedChampionsCount: number
+	/** @format int32 */
+	classicFreeRewardedChampionsCount: number
 	championIds: number[]
 	/** @format int32 */
 	freeRewardedSkinsCount: number
+	/** @format int32 */
+	classicFreeRewardedSkinsCount: number
 	skinIds: number[]
 	/** @format int32 */
 	ipBoost: number
@@ -27119,15 +26884,22 @@ export interface LolYourshopLoyaltyRewards {
 	loyaltyTFTDamageSkinCount: number
 	/** @format int32 */
 	loyaltyTFTZoomSkinCount: number
+	/** @format int32 */
+	loyaltyMayhemBPAugmentsCount: number
 	loyaltySources: Record<string, boolean>
+	tftCompensationRewards: string[]
 }
 
 export interface LolYourshopLoyaltyRewardsSimplified {
 	/** @format int32 */
 	freeRewardedChampionsCount: number
+	/** @format int32 */
+	classicFreeRewardedChampionsCount: number
 	championIds: number[]
 	/** @format int32 */
 	freeRewardedSkinsCount: number
+	/** @format int32 */
+	classicFreeRewardedSkinsCount: number
 	skinIds: number[]
 	/** @format int32 */
 	ipBoost: number
@@ -27141,7 +26913,10 @@ export interface LolYourshopLoyaltyRewardsSimplified {
 	loyaltyTFTDamageSkinCount: number
 	/** @format int32 */
 	loyaltyTFTZoomSkinCount: number
+	/** @format int32 */
+	loyaltyMayhemBPAugmentsCount: number
 	loyaltySources: Record<string, boolean>
+	tftCompensationRewards: string[]
 }
 
 export type LolYourshopLoyaltyStatus = "DISABLED" | "REVOKE" | "CHANGE" | "EXPIRY" | "REWARDS_GRANT" | "LEGACY"
@@ -28824,6 +28599,8 @@ export interface TeamBuilderDirect_Ceremony {
 export interface TeamBuilderDirect_ChampGridChampion {
 	/** @format int32 */
 	id: number
+	/** @format uint32 */
+	relatedPrimeItemId: number
 	name: string
 	squarePortraitPath: string
 	freeToPlay: boolean
@@ -28875,8 +28652,10 @@ export interface TeamBuilderDirect_ChampSelectChampionSwapNotification {
 	/** @format int64 */
 	otherSummonerIndex: number
 	responderChampionName: string
+	responderChampionSquarePortrait: string
 	requesterChampionName: string
 	requesterChampionSplashPath: string
+	requesterChampionSquarePortrait: string
 	initiatedByLocalPlayer: boolean
 	type: TeamBuilderDirect_ChampSelectSwapType
 	/** @format int32 */
@@ -29244,6 +29023,8 @@ export interface TeamBuilderDirect_CollectionsChampionMinimal {
 	/** @format int32 */
 	id: number
 	name: string
+	/** @format uint32 */
+	relatedPrimeItemId: number
 	ownership: TeamBuilderDirect_CollectionsOwnership
 	roles: string[]
 	squarePortraitPath: string
