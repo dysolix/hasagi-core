@@ -1,7 +1,7 @@
 {
   "name": "@hasagi/core",
   "private": true,
-  "version": "0.10.0",
+  "version": "0.10.1",
   "description": "A library that makes using the League of Legends client API (LCU) easy.",
   "author": "dysolix",
   "license": "MIT",
