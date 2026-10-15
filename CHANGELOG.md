@@ -5,6 +5,12 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.1] - 2026-10-15
+
+### Changed
+
+- Regenerated the bundled LCU types against client patch **16.20**.
+
 ## [0.10.0] - 2026-07-15
 
 ### Added
@@ -162,6 +168,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Credential discovery tolerates non-fatal PowerShell warnings written to `stderr` instead of
   treating them as failures.
 
+[0.10.1]: https://github.com/dysolix/hasagi-core/releases/tag/v0.10.1
 [0.10.0]: https://github.com/dysolix/hasagi-core/releases/tag/v0.10.0
 [0.9.0]: https://github.com/dysolix/hasagi-core/releases/tag/v0.9.0
 [0.8.1]: https://github.com/dysolix/hasagi-core/releases/tag/v0.8.1
