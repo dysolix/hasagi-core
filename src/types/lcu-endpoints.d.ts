@@ -36,7 +36,7 @@ export interface LCUEndpoints {
 		delete: { path: [id: string], params: never, body: never, response: unknown }
 	},
 	"/lol-chat/v1/errors/{id}": {
-		delete: { path: [id: number], params: never, body: never, response: unknown }
+		delete: { path: [id: string], params: never, body: never, response: unknown }
 	},
 	"/lol-chat/v1/friend-groups/{id}": {
 		get: { path: [id: number], params: never, body: never, response: LCUTypes.LolChatGroupResource }
@@ -498,43 +498,6 @@ export interface LCUEndpoints {
 	},
 	"/lol-challenges/v2/titles/local-player": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolChallengesUITitle[] }
-	},
-	"/lol-champ-select-legacy/v1/bannable-champion-ids": {
-		get: { path: never, params: never, body: never, response: number[] }
-	},
-	"/lol-champ-select-legacy/v1/current-champion": {
-		get: { path: never, params: never, body: never, response: number }
-	},
-	"/lol-champ-select-legacy/v1/disabled-champion-ids": {
-		get: { path: never, params: never, body: never, response: number[] }
-	},
-	"/lol-champ-select-legacy/v1/implementation-active": {
-		get: { path: never, params: never, body: never, response: boolean }
-	},
-	"/lol-champ-select-legacy/v1/pickable-champion-ids": {
-		get: { path: never, params: never, body: never, response: number[] }
-	},
-	"/lol-champ-select-legacy/v1/pickable-skin-ids": {
-		get: { path: never, params: never, body: never, response: number[] }
-	},
-	"/lol-champ-select-legacy/v1/session": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolChampSelectLegacyChampSelectSession }
-	},
-	"/lol-champ-select-legacy/v1/session/champion-swaps": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolChampSelectLegacyChampSelectSwapContract[] }
-	},
-	"/lol-champ-select-legacy/v1/session/champion-swaps/{id}": {
-		get: { path: [id: number], params: never, body: never, response: LCUTypes.LolChampSelectLegacyChampSelectSwapContract }
-	},
-	"/lol-champ-select-legacy/v1/session/my-selection": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolChampSelectLegacyChampSelectPlayerSelection }
-		patch: { path: never, params: never, body: LCUTypes.LolChampSelectLegacyChampSelectMySelection, response: unknown }
-	},
-	"/lol-champ-select-legacy/v1/session/timer": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolChampSelectLegacyChampSelectTimer }
-	},
-	"/lol-champ-select-legacy/v1/team-boost": {
-		get: { path: never, params: never, body: never, response: LCUTypes.LolChampSelectLegacyTeamBoost }
 	},
 	"/lol-champ-select/v1/all-grid-champions": {
 		get: { path: never, params: never, body: never, response: LCUTypes.TeamBuilderDirect_ChampGridChampion[] }
@@ -1810,6 +1773,9 @@ export interface LCUEndpoints {
 	"/lol-patch/v1/notifications": {
 		get: { path: never, params: never, body: never, response: LCUTypes.LolPatchNotification[] }
 	},
+	"/lol-patch/v1/product-dependency": {
+		get: { path: never, params: never, body: never, response: LCUTypes.LolPatchProductDependency }
+	},
 	"/lol-patch/v1/product-integration/app-update/available": {
 		get: { path: never, params: never, body: never, response: boolean }
 	},
@@ -2855,9 +2821,6 @@ export interface LCUEndpoints {
 	"/LoggingStop": {
 		post: { path: never, params: never, body: never, response: void }
 	},
-	"/lol-champ-select-legacy/v1/session/actions/{id}": {
-		patch: { path: [id: number], params: never, body: LCUTypes.LolChampSelectLegacyChampSelectAction, response: unknown }
-	},
 	"/lol-champ-select/v1/session/actions/{id}": {
 		patch: { path: [id: number], params: never, body: LCUTypes.TeamBuilderDirect_ChampSelectAction, response: unknown }
 	},
@@ -2936,30 +2899,6 @@ export interface LCUEndpoints {
 	},
 	"/lol-challenges/v1/update-player-preferences": {
 		post: { path: never, params: never, body: LCUTypes.LolChallengesChallengesPlayerPreferences, response: void }
-	},
-	"/lol-champ-select-legacy/v1/battle-training/launch": {
-		post: { path: never, params: never, body: never, response: unknown }
-	},
-	"/lol-champ-select-legacy/v1/session/actions/{id}/complete": {
-		post: { path: [id: number], params: never, body: never, response: unknown }
-	},
-	"/lol-champ-select-legacy/v1/session/champion-swaps/{id}/accept": {
-		post: { path: [id: number], params: never, body: never, response: unknown }
-	},
-	"/lol-champ-select-legacy/v1/session/champion-swaps/{id}/cancel": {
-		post: { path: [id: number], params: never, body: never, response: unknown }
-	},
-	"/lol-champ-select-legacy/v1/session/champion-swaps/{id}/decline": {
-		post: { path: [id: number], params: never, body: never, response: unknown }
-	},
-	"/lol-champ-select-legacy/v1/session/champion-swaps/{id}/request": {
-		post: { path: [id: number], params: never, body: never, response: LCUTypes.LolChampSelectLegacyChampSelectSwapContract }
-	},
-	"/lol-champ-select-legacy/v1/session/my-selection/reroll": {
-		post: { path: never, params: never, body: never, response: unknown }
-	},
-	"/lol-champ-select/v1/battle-training/launch": {
-		post: { path: never, params: never, body: never, response: unknown }
 	},
 	"/lol-champ-select/v1/ongoing-champion-swap/{id}/clear": {
 		post: { path: [id: number], params: never, body: never, response: unknown }
@@ -3210,15 +3149,6 @@ export interface LCUEndpoints {
 	"/lol-gameflow/v1/ack-failed-to-launch": {
 		post: { path: never, params: never, body: never, response: void }
 	},
-	"/lol-gameflow/v1/basic-tutorial/start": {
-		post: { path: never, params: never, body: never, response: unknown }
-	},
-	"/lol-gameflow/v1/battle-training/start": {
-		post: { path: never, params: never, body: never, response: unknown }
-	},
-	"/lol-gameflow/v1/battle-training/stop": {
-		post: { path: never, params: never, body: never, response: unknown }
-	},
 	"/lol-gameflow/v1/early-exit": {
 		post: { path: never, params: never, body: never, response: unknown }
 	},
@@ -3272,9 +3202,6 @@ export interface LCUEndpoints {
 	},
 	"/lol-gameflow/v2/spectate/launch": {
 		post: { path: never, params: never, body: LCUTypes.LolGameflowSpectateGameInfoResource, response: unknown }
-	},
-	"/lol-heartbeat/v1/connection-status": {
-		post: { path: never, params: never, body: never, response: LCUTypes.LolHeartbeatLcdsConnection }
 	},
 	"/lol-highlights/v1/file-browser/{highlightId}": {
 		post: { path: [highlightId: number], params: never, body: never, response: unknown }
@@ -3377,9 +3304,6 @@ export interface LCUEndpoints {
 	},
 	"/lol-lobby-team-builder/v1/ready-check/decline": {
 		post: { path: never, params: never, body: never, response: unknown }
-	},
-	"/lol-lobby/v1/custom-games/{id}/join": {
-		post: { path: [id: number], params: never, body: LCUTypes.LolLobbyLobbyCustomJoinParameters, response: unknown }
 	},
 	"/lol-lobby/v1/custom-games/refresh": {
 		post: { path: never, params: never, body: never, response: unknown }

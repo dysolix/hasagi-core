@@ -138,22 +138,6 @@ export interface BindingGenericEvent {
 /** Help format for binding functions and types. */
 export type BindingHelpFormat = "Epytext" | "Full"
 
-export interface BoostTeamSkinRentalDTO {
-	summonerName: string
-	/** @format uint64 */
-	summonerId: number
-	puuid: string
-	skinUnlockMode: string
-	/** @format int64 */
-	price: number
-	/** @format int64 */
-	ipReward: number
-	/** @format int64 */
-	ipRewardForPurchaser: number
-	availableSkins: number[]
-	unlocked: boolean
-}
-
 export interface Bracket {
 	/** @format int32 */
 	version: number
@@ -233,106 +217,6 @@ export interface ChampSelectChatRoomDetails {
 	multiUserChatId: string
 	multiUserChatPassword: string
 	mucJwtDto: MucJwtDto
-}
-
-export interface ChampSelectLcdsGameDTO {
-	/** @format uint64 */
-	id: number
-	gameState: string
-	queueTypeName: string
-	roomName: string
-	roomPassword: string
-	mucJwtDto: MucJwtDto
-	name: string
-	playerChampionSelections: ChampSelectLcdsPlayerChampionSelectionDTO[]
-	bannedChampions: BannedChampion[]
-	teamOne: unknown[]
-	teamTwo: unknown[]
-	statusOfParticipants: string
-	/** @format int64 */
-	optimisticLock: number
-	/** @format int32 */
-	pickTurn: number
-	/** @format int64 */
-	spectatorDelay: number
-	gameMutators: string[]
-}
-
-export interface ChampSelectLcdsGameTimerDTO {
-	currentGameState: string
-	/** @format double */
-	remainingTimeInMillis: number
-}
-
-export interface ChampSelectLcdsObfuscatedParticipant {
-	/** @format uint64 */
-	gameUniqueId: number
-}
-
-export interface ChampSelectLcdsPlayerChampionSelectionDTO {
-	summonerInternalName: string
-	/** @format uint64 */
-	summonerId: number
-	puuid: string
-	/** @format int32 */
-	championId: number
-	/** @format int32 */
-	selectedSkinIndex: number
-	/** @format int32 */
-	"spell1Id": number
-	/** @format int32 */
-	"spell2Id": number
-}
-
-export interface ChampSelectLcdsPlayerParticipant {
-	summonerName: string
-	summonerInternalName: string
-	/** @format uint64 */
-	summonerId: number
-	puuid: string
-	/** @format int32 */
-	pickMode: number
-	/** @format int32 */
-	pickTurn: number
-}
-
-export interface ChampSelectLcdsPointSummary {
-	/** @format int32 */
-	pointsToNextRoll: number
-	/** @format int32 */
-	currentPoints: number
-	/** @format int32 */
-	numberOfRolls: number
-	/** @format int32 */
-	maxRolls: number
-	/** @format int32 */
-	pointsCostToRoll: number
-}
-
-export interface ChampSelectLcdsPotentialTradersDTO {
-	potentialTraders: string[]
-}
-
-export interface ChampSelectLcdsRollResult {
-	/** @format int32 */
-	championId: number
-	pointSummary: ChampSelectLcdsPointSummary
-}
-
-export interface ChampSelectLcdsTradeContractDTO {
-	requesterInternalSummonerName: string
-	/** @format uint64 */
-	requesterSummonerId: number
-	requesterPuuid: string
-	responderInternalSummonerName: string
-	/** @format uint64 */
-	responderSummonerId: number
-	responderPuuid: string
-	/** @format int32 */
-	requesterChampionId: number
-	/** @format int32 */
-	responderChampionId: number
-	state: string
 }
 
 export interface ChampSelectMySelection {
@@ -454,6 +338,13 @@ export interface ChampionScoutingDTO {
 	kda: number
 }
 
+export interface ChemtechShoppe_BundleDto {
+	id: string
+	name: string
+	productId: string
+	displayMetadata: unknown
+}
+
 export interface ChemtechShoppe_CatalogEntryDto {
 	id: string
 	name: string
@@ -488,6 +379,10 @@ export interface ChemtechShoppe_DropsRollResultsDto {
 export interface ChemtechShoppe_FinalPurchaseUnitDto {
 	payments: ChemtechShoppe_PaymentDto[]
 	fulfillment: ChemtechShoppe_FulfillmentDto
+}
+
+export interface ChemtechShoppe_FinalizerConfigDto {
+	defaultFinalizerName: string
 }
 
 export interface ChemtechShoppe_FulfillmentDto {
@@ -541,6 +436,9 @@ export interface ChemtechShoppe_PaymentDto {
 	discountedDelta: number
 	itemTypeId: string
 	itemId: string
+	groupId: string
+	managedType: string
+	requiredValues: string[]
 	currencyId: string
 	/** @format double */
 	discountPercent: number
@@ -549,6 +447,11 @@ export interface ChemtechShoppe_PaymentDto {
 export interface ChemtechShoppe_PaymentOptionDto {
 	key: string
 	payments: ChemtechShoppe_PaymentDto[]
+}
+
+export interface ChemtechShoppe_PersonalizationConfigDto {
+	rankingConfig: ChemtechShoppe_RankingConfigDto
+	finalizerConfig: ChemtechShoppe_FinalizerConfigDto
 }
 
 export interface ChemtechShoppe_PrerequisiteDto {
@@ -616,6 +519,10 @@ export interface ChemtechShoppe_PurchasesResponseDto {
 	notes: string[]
 }
 
+export interface ChemtechShoppe_RankingConfigDto {
+	defaultModelName: string
+}
+
 export interface ChemtechShoppe_RefundDto {
 	id: string
 	purchaseId: string
@@ -663,6 +570,8 @@ export interface ChemtechShoppe_StatsDto {
 
 export interface ChemtechShoppe_StoreDigestDto {
 	id: string
+	type: string
+	version: string
 	productId: string
 	name: string
 	displayMetaData: unknown
@@ -685,14 +594,19 @@ export interface ChemtechShoppe_StoreDigestsResponseDto {
 export interface ChemtechShoppe_StoreDto {
 	id: string
 	type: string
+	version: string
 	productId: string
 	name: string
 	catalogEntries: ChemtechShoppe_CatalogEntryDto[]
+	bundles: ChemtechShoppe_BundleDto[]
 	displayMetadata: unknown
+	tags: string[]
 	startTime: string
 	endTime: string
 	rotatingStoreMetadata: ChemtechShoppe_RotatingStoreMetadataDto
+	personalizationConfig: ChemtechShoppe_PersonalizationConfigDto
 	prerequisiteCatalogEntries: ChemtechShoppe_CatalogEntryDto[]
+	externalRefs: unknown
 }
 
 export interface ChemtechShoppe_StoreResponseDto {
@@ -727,6 +641,13 @@ export interface ChemtechShoppeV2_BulkPurchaseRequestDto {
 export interface ChemtechShoppeV2_BulkPurchaseResponseDto {
 	bulkPurchaseId: string
 	purchases: ChemtechShoppeV2_PurchaseDto[]
+}
+
+export interface ChemtechShoppeV2_BundleDto {
+	id: string
+	name: string
+	productId: string
+	displayMetadata: unknown
 }
 
 export interface ChemtechShoppeV2_CatalogEntryDto {
@@ -774,6 +695,13 @@ export interface ChemtechShoppeV2_DropTableOddsTreeNodeDto {
 	/** @format int32 */
 	rewardQuantity: number
 	type: string
+	pityCounterId: string
+	/** @format int32 */
+	pityThreshold: number
+	itemId: string
+	groupId: string
+	managedType: string
+	payloadValue: string
 }
 
 export interface ChemtechShoppeV2_DropTableOddsTreeResponseDto {
@@ -817,6 +745,10 @@ export interface ChemtechShoppeV2_ExpectedChangesDto {
 export interface ChemtechShoppeV2_FinalPurchaseUnitDto {
 	payments: ChemtechShoppeV2_PaymentDto[]
 	fulfillment: ChemtechShoppeV2_FulfillmentDto
+}
+
+export interface ChemtechShoppeV2_FinalizerConfigDto {
+	defaultFinalizerName: string
 }
 
 export interface ChemtechShoppeV2_FulfillmentDto {
@@ -957,6 +889,9 @@ export interface ChemtechShoppeV2_PaymentDto {
 	discountedDelta: number
 	itemTypeId: string
 	itemId: string
+	groupId: string
+	managedType: string
+	requiredValues: string[]
 	currencyId: string
 	/** @format double */
 	discountPercent: number
@@ -965,6 +900,11 @@ export interface ChemtechShoppeV2_PaymentDto {
 export interface ChemtechShoppeV2_PaymentOptionDto {
 	key: string
 	payments: ChemtechShoppeV2_PaymentDto[]
+}
+
+export interface ChemtechShoppeV2_PersonalizationConfigDto {
+	rankingConfig: ChemtechShoppeV2_RankingConfigDto
+	finalizerConfig: ChemtechShoppeV2_FinalizerConfigDto
 }
 
 export interface ChemtechShoppeV2_PrerequisiteDto {
@@ -1032,6 +972,10 @@ export interface ChemtechShoppeV2_PurchasesResponseDto {
 	notes: string[]
 }
 
+export interface ChemtechShoppeV2_RankingConfigDto {
+	defaultModelName: string
+}
+
 export interface ChemtechShoppeV2_RefundDto {
 	id: string
 	purchaseId: string
@@ -1084,6 +1028,8 @@ export interface ChemtechShoppeV2_StatsDto {
 
 export interface ChemtechShoppeV2_StoreDigestDto {
 	id: string
+	type: string
+	version: string
 	productId: string
 	name: string
 	displayMetaData: unknown
@@ -1106,14 +1052,19 @@ export interface ChemtechShoppeV2_StoreDigestsResponseDto {
 export interface ChemtechShoppeV2_StoreDto {
 	id: string
 	type: string
+	version: string
 	productId: string
 	name: string
 	catalogEntries: ChemtechShoppeV2_CatalogEntryDto[]
+	bundles: ChemtechShoppeV2_BundleDto[]
 	displayMetadata: unknown
+	tags: string[]
 	startTime: string
 	endTime: string
 	rotatingStoreMetadata: ChemtechShoppeV2_RotatingStoreMetadataDto
+	personalizationConfig: ChemtechShoppeV2_PersonalizationConfigDto
 	prerequisiteCatalogEntries: ChemtechShoppeV2_CatalogEntryDto[]
+	externalRefs: unknown
 }
 
 export interface ChemtechShoppeV2_StoresResponseDto {
@@ -1903,13 +1854,6 @@ export interface LcdsObserveGameRequestDto {
 	gameVersion: string
 	champSelectInventoryJwt: string
 	playerGcoTokens: LcdsPlayerGcoTokens
-}
-
-export interface LcdsPayloadDto {
-	method: string
-	headers: Record<string, string>
-	path: string
-	body: string
 }
 
 export interface LcdsPlayer {
@@ -3152,236 +3096,6 @@ export interface LolChallengesUITitle {
 
 export interface LolChallengesUserResource {
 	lol: Record<string, string>
-}
-
-export interface LolChampSelectLegacyChampSelectAction {
-	/** @format int64 */
-	id: number
-	/** @format int64 */
-	actorCellId: number
-	/** @format int32 */
-	championId: number
-	type: string
-	completed: boolean
-	isAllyAction: boolean
-	isInProgress: boolean
-	/** @format int32 */
-	pickTurn: number
-}
-
-export interface LolChampSelectLegacyChampSelectBannedChampions {
-	myTeamBans: number[]
-	theirTeamBans: number[]
-	/** @format int32 */
-	numBans: number
-}
-
-export interface LolChampSelectLegacyChampSelectChatRoomDetails {
-	multiUserChatId: string
-	multiUserChatPassword: string
-	mucJwtDto: LolChampSelectLegacyMucJwtDto
-}
-
-export interface LolChampSelectLegacyChampSelectMySelection {
-	/** @format int32 */
-	selectedSkinId?: number
-	/** @format uint64 */
-	"spell1Id"?: number
-	/** @format uint64 */
-	"spell2Id"?: number
-}
-
-export interface LolChampSelectLegacyChampSelectPlayerSelection {
-	/** @format int64 */
-	cellId: number
-	/** @format int32 */
-	championId: number
-	/** @format int32 */
-	selectedSkinId: number
-	/** @format uint64 */
-	"spell1Id": number
-	/** @format uint64 */
-	"spell2Id": number
-	/** @format int32 */
-	team: number
-	assignedPosition: string
-	/** @format int32 */
-	championPickIntent: number
-	playerType: string
-	/** @format uint64 */
-	summonerId: number
-	puuid: string
-}
-
-export interface LolChampSelectLegacyChampSelectSession {
-	timer: LolChampSelectLegacyChampSelectTimer
-	chatDetails: LolChampSelectLegacyChampSelectChatRoomDetails
-	myTeam: LolChampSelectLegacyChampSelectPlayerSelection[]
-	theirTeam: LolChampSelectLegacyChampSelectPlayerSelection[]
-	trades: LolChampSelectLegacyChampSelectSwapContract[]
-	actions: unknown[]
-	bans: LolChampSelectLegacyChampSelectBannedChampions
-	/** @format int64 */
-	localPlayerCellId: number
-	isSpectating: boolean
-	allowSkinSelection: boolean
-	allowBattleBoost: boolean
-	allowRerolling: boolean
-	/** @format uint64 */
-	rerollsRemaining: number
-	hasSimultaneousBans: boolean
-	hasSimultaneousPicks: boolean
-	showQuitButton: boolean
-	isLegacyChampSelect: boolean
-	isCustomGame: boolean
-}
-
-export interface LolChampSelectLegacyChampSelectSwapContract {
-	/** @format int64 */
-	id: number
-	/** @format int64 */
-	cellId: number
-	state: LolChampSelectLegacyChampSelectSwapState
-}
-
-export type LolChampSelectLegacyChampSelectSwapState = "SENT" | "RECEIVED" | "INVALID" | "BUSY" | "AVAILABLE"
-
-export interface LolChampSelectLegacyChampSelectTimer {
-	/** @format int64 */
-	adjustedTimeLeftInPhase: number
-	/** @format int64 */
-	totalTimeInPhase: number
-	phase: string
-	isInfinite: boolean
-	/** @format uint64 */
-	internalNowInEpochMs: number
-}
-
-export interface LolChampSelectLegacyChampionSelectPreferences {
-	skins: Record<string, number>
-	spells: Record<string, unknown>
-}
-
-export interface LolChampSelectLegacyCollectionsChampion {
-	disabledQueues: string[]
-	freeToPlay: boolean
-	/** @format int32 */
-	id: number
-	ownership: LolChampSelectLegacyCollectionsOwnership
-	active: boolean
-}
-
-export interface LolChampSelectLegacyCollectionsOwnership {
-	loyaltyReward: boolean
-	xboxGPReward: boolean
-	owned: boolean
-	rental: LolChampSelectLegacyCollectionsRental
-}
-
-export interface LolChampSelectLegacyCollectionsRental {
-	rented: boolean
-}
-
-export interface LolChampSelectLegacyGameflowGameClient {
-	running: boolean
-	visible: boolean
-}
-
-export interface LolChampSelectLegacyGameflowGameData {
-	queue: LolChampSelectLegacyQueue
-}
-
-export interface LolChampSelectLegacyGameflowGameDodge {
-	state: LolChampSelectLegacyGameflowGameDodgeState
-	dodgeIds: number[]
-}
-
-export type LolChampSelectLegacyGameflowGameDodgeState = "TournamentDodged" | "StrangerDodged" | "PartyDodged" | "Invalid"
-
-export type LolChampSelectLegacyGameflowPhase = "TerminatedInError" | "EndOfGame" | "PreEndOfGame" | "WaitingForStats" | "Reconnect" | "InProgress" | "FailedToLaunch" | "GameStart" | "ChampSelect" | "ReadyCheck" | "CheckedIntoTournament" | "Matchmaking" | "Lobby" | "None"
-
-export interface LolChampSelectLegacyGameflowSession {
-	phase: LolChampSelectLegacyGameflowPhase
-	gameClient: LolChampSelectLegacyGameflowGameClient
-	gameData: LolChampSelectLegacyGameflowGameData
-}
-
-export interface LolChampSelectLegacyInventoryItemWithPayload {
-	/** @format int64 */
-	itemId: number
-	payload: unknown
-}
-
-export interface LolChampSelectLegacyLobbyStatus {
-	/** @format int32 */
-	queueId: number
-	isCustom: boolean
-	isLeader: boolean
-	isSpectator: boolean
-	allowedPlayAgain: boolean
-	memberSummonerIds: number[]
-}
-
-export interface LolChampSelectLegacyLoginSession {
-	state: LolChampSelectLegacyLoginSessionStates
-	/** @format uint64 */
-	summonerId: number
-	connected: boolean
-}
-
-export type LolChampSelectLegacyLoginSessionStates = "ERROR" | "LOGGING_OUT" | "SUCCEEDED" | "IN_PROGRESS"
-
-export interface LolChampSelectLegacyMucJwtDto {
-	jwt: string
-	channelClaim: string
-	domain: string
-	targetRegion: string
-}
-
-export interface LolChampSelectLegacyPlayerStatus {
-	currentLobbyStatus?: LolChampSelectLegacyLobbyStatus
-	lastQueuedLobbyStatus?: LolChampSelectLegacyLobbyStatus
-}
-
-export interface LolChampSelectLegacyQueue {
-	gameTypeConfig: LolChampSelectLegacyQueueGameTypeConfig
-	areFreeChampionsAllowed: boolean
-}
-
-export interface LolChampSelectLegacyQueueGameTypeConfig {
-	/** @format int32 */
-	maxAllowableBans: number
-	allowTrades: boolean
-	battleBoost: boolean
-	name: string
-}
-
-export interface LolChampSelectLegacySettingCategoryResource {
-	/** @format int32 */
-	schemaVersion: number
-	data: LolChampSelectLegacyChampionSelectPreferences
-}
-
-export interface LolChampSelectLegacySummoner {
-	/** @format uint64 */
-	summonerId: number
-	/** @format uint32 */
-	summonerLevel: number
-}
-
-export interface LolChampSelectLegacyTeamBoost {
-	/** @format int64 */
-	summonerId: number
-	puuid: string
-	skinUnlockMode: string
-	/** @format int64 */
-	price: number
-	/** @format int64 */
-	ipReward: number
-	/** @format int64 */
-	ipRewardForPurchaser: number
-	availableSkins: number[]
-	unlocked: boolean
 }
 
 export interface LolChampionMasteryAllChampionMasterySetReward {
@@ -9590,7 +9304,7 @@ export interface LolEventHubSeasonPass {
 	actBackgroundImage: string
 }
 
-export type LolEventHubSeasonPassSubType = "Mayhem" | "Default"
+export type LolEventHubSeasonPassSubType = "MayhemCustomHub" | "Mayhem" | "Default"
 
 export type LolEventHubSelectGrantStatusResponse = "FAILED" | "SELECTED"
 
@@ -10536,20 +10250,6 @@ export interface LolGameflowSpectateGameInfoResource {
 	puuid: string
 	spectatorKey: string
 }
-
-export interface LolHeartbeatLcdsConnection {
-	stableConnection: boolean
-}
-
-export interface LolHeartbeatLoginSession {
-	state: LolHeartbeatLoginSessionStates
-	/** @format uint64 */
-	summonerId: number
-	/** @format uint64 */
-	accountId: number
-}
-
-export type LolHeartbeatLoginSessionStates = "ERROR" | "LOGGING_OUT" | "SUCCEEDED" | "IN_PROGRESS"
 
 export interface LolHighlightsHighlight {
 	/** @format uint64 */
@@ -12945,12 +12645,6 @@ export interface LolLobbyRiotMessagingServiceMessage {
 	payload: string
 }
 
-export interface LolLobbyServiceProxyPayload {
-	method: string
-	url: string
-	body: string
-}
-
 export interface LolLobbySetGameModeRequestDto {
 	/** @format int32 */
 	queueId?: number
@@ -15151,10 +14845,6 @@ export interface LolMatchmakingGameflowSession {
 	phase: LolMatchmakingGameflowPhase
 	gameData: LolMatchmakingGameflowGameData
 	gameDodge: LolMatchmakingGameflowGameDodge
-}
-
-export interface LolMatchmakingLcdsConnection {
-	stableConnection: boolean
 }
 
 export interface LolMatchmakingLobbyStatus {
@@ -22286,7 +21976,6 @@ export interface LolSummonerProfilesChampionMasteryView {
 export interface LolSummonerProfilesHonorView {
 	/** @format int32 */
 	honorLevel: number
-	redemptions: LolSummonerProfilesRedemption[]
 }
 
 export interface LolSummonerProfilesJadeVotingSelection {
@@ -22368,14 +22057,6 @@ export interface LolSummonerProfilesRankedScoutingView {
 	topMasteries: LolSummonerProfilesChampionMasteryData[]
 	recentMatches: LolSummonerProfilesRankedMatch[]
 	positionStats: LolSummonerProfilesPositionCount[]
-}
-
-export interface LolSummonerProfilesRedemption {
-	/** @format int32 */
-	required: number
-	/** @format int32 */
-	remaining: number
-	eventType: string
 }
 
 export interface LolSummonerProfilesRestriction {
@@ -24843,7 +24524,7 @@ export interface LolTftPassSeasonPass {
 	actBackgroundImage: string
 }
 
-export type LolTftPassSeasonPassSubType = "Mayhem" | "Default"
+export type LolTftPassSeasonPassSubType = "MayhemCustomHub" | "Mayhem" | "Default"
 
 export type LolTftPassSelectGrantStatusResponse = "FAILED" | "SELECTED"
 
@@ -27461,10 +27142,6 @@ export interface MissionRequirementDTO {
 	expression: string
 }
 
-export interface MissionsCompressedPayloadDTO {
-	missionsCompressed: string
-}
-
 export interface MucJwtDto {
 	jwt: string
 	channelClaim: string
@@ -27804,8 +27481,6 @@ export interface PhaseRosterDTO {
 	checkinTime: number
 	bracketDTO?: Bracket
 }
-
-export type PickModes = "DONE" | "IN_PROGRESS" | "NOT_PICKING"
 
 export interface PlayerDTO {
 	banned: boolean
